@@ -4,14 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
+import 'package:hr_management_system/presentation/attendance/tab/attendance_tab.dart';
+import 'package:hr_management_system/presentation/employee/tab/employee_tab.dart';
 
 import 'package:hr_management_system/presentation/home/provider/bottom_nav_provider.dart';
+import 'package:hr_management_system/presentation/home/tabs/home_tab.dart';
 import 'package:hr_management_system/presentation/home/widgets/animated_nav_bar_icon.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  static const List<Widget> screens = [
+  static List<Widget> screens = [
     HomeTab(),
     EmployeesTab(),
     AttendanceTab(),
@@ -123,38 +126,8 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class HomeTab extends StatelessWidget {
-  const HomeTab({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Home'),
-    );
-  }
-}
 
-class EmployeesTab extends StatelessWidget {
-  const EmployeesTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Employees'),
-    );
-  }
-}
-
-class AttendanceTab extends StatelessWidget {
-  const AttendanceTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Attendance'),
-    );
-  }
-}
 
 class PayrollTab extends StatelessWidget {
   const PayrollTab({super.key});

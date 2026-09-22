@@ -49,7 +49,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leadingWidth: 70.w,
       titleSpacing: spacing ?? 0,
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.backgroundColor,
       leading: iconPath != null
           ? Align(
               alignment: Alignment.center,
@@ -79,11 +79,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: elevation,
       systemOverlayStyle: systemUiOverlayStyle,
       scrolledUnderElevation: 0,
-      title: CustomText(
-        title: title ?? '',
-        fontSize: fontSize ?? AppFonts.font_18,
-        fontColor: fontColor ?? AppColors.black,
-        fontWeight: FontWeight.bold,
+      title: Padding(
+        padding: EdgeInsetsDirectional.only(start: 8.w),
+        child: CustomText(
+          title: title ?? '',
+          fontSize: fontSize ?? AppFonts.font_18,
+          fontColor: fontColor ?? AppColors.black,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       centerTitle: centerTitle ?? false,
       actions: actions,

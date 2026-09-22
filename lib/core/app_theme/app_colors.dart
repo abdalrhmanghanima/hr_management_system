@@ -22,4 +22,5 @@ class AppColors{
   static const Color inputStroke = Color(0xffE9E9E9);
   static const Color inputBg = Color(0xffF8F8F8);
   static const Color borderGrayLight = Color(0xffE4D9C4);
+  static const Color darkBlue = Color(0xff0F172A);
 }

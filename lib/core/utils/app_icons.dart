@@ -15,4 +15,13 @@ class AppIcons {
 
   static const String more = "assets/icons/more.svg";
   static const String moreFilled = "assets/icons/more_filled.svg";
+
+  static const String blueEmployee = "assets/icons/blue_employee.svg";
+  static const String greenCalender = "assets/icons/green_calender.svg";
+
+  static const String addEmployee = "assets/icons/add_employee.svg";
+  static const String addHoliday = "assets/icons/add_holiday.svg";
+
+  static const String rightArrow = "assets/icons/right_arrow.svg";
+  static const String file = "assets/icons/file.svg";
 }
