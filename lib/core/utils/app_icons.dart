@@ -24,4 +24,13 @@ class AppIcons {
 
   static const String rightArrow = "assets/icons/right_arrow.svg";
   static const String file = "assets/icons/file.svg";
+
+  static const String add = "assets/icons/add.svg";
+  static const String print = "assets/icons/print.svg";
+
+  static const String applicationUser = "assets/icons/application_user.svg";
+  static const String permission = "assets/icons/permission.svg";
+
+  static const String settings = "assets/icons/settings.svg";
+  static const String signOut = "assets/icons/sign_out.svg";
 }

@@ -10,6 +10,8 @@ import 'package:hr_management_system/presentation/employee/tab/employee_tab.dart
 import 'package:hr_management_system/presentation/home/provider/bottom_nav_provider.dart';
 import 'package:hr_management_system/presentation/home/tabs/home_tab.dart';
 import 'package:hr_management_system/presentation/home/widgets/animated_nav_bar_icon.dart';
+import 'package:hr_management_system/presentation/more/tab/more_tab.dart';
+import 'package:hr_management_system/presentation/payroll/tab/payroll_tab.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -122,31 +124,6 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-
-
-
-class PayrollTab extends StatelessWidget {
-  const PayrollTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Payroll'),
-    );
-  }
-}
-
-class MoreTab extends StatelessWidget {
-  const MoreTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('More'),
     );
   }
 }

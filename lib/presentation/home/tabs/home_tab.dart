@@ -3,10 +3,12 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
+import 'package:hr_management_system/presentation/attendance/widgets/attendance_record_card.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/home/widgets/dashboard_summary_card.dart';
 import 'package:hr_management_system/presentation/home/widgets/quick_action_card.dart';
+import 'package:hr_management_system/presentation/shared_widgets/user_avatar.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -69,23 +71,7 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                       ],
                     ),
-                    Container(
-                      width: 48.w,
-                      height: 48.w,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        border: Border.all(color: AppColors.white, width: 2),
-                        borderRadius: BorderRadius.circular(24.r),
-                      ),
-                      child: Center(
-                        child: CustomText(
-                          title: "HA",
-                          fontColor: AppColors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20.sp,
-                        ),
-                      ),
-                    ),
+                    const UserAvatar(),
                   ],
                 ),
                 SizedBox(height: 20.h),
@@ -139,7 +125,8 @@ class _HomeTabState extends State<HomeTab> {
                                 ),
                                 SizedBox(height: 10.h),
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.baseline,
                                   textBaseline: TextBaseline.alphabetic,
                                   children: [
                                     CustomText(
@@ -225,6 +212,44 @@ class _HomeTabState extends State<HomeTab> {
                       return quickActions[index];
                     },
                   ),
+                ),
+                SizedBox(height: 24.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomText(
+                      title: "Recent Attendance",
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    CustomText(
+                      title: "View All",
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
+                      fontColor: AppColors.primary,
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12.h),
+                ListView.separated(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 5,
+                  separatorBuilder: (context, index) => SizedBox(height: 16.h),
+                  itemBuilder: (context, index) {
+                    return AttendanceRecordCard(
+                      name: 'Ahmed Mohamed',
+                      department: 'Engineering',
+                      date: '2026-09-21',
+                      status: 'Present',
+                      checkIn: '08:55',
+                      checkOut: '18:30',
+                      overtime: 'Overtime: +1.5 hrs',
+                      statusColor: AppColors.green,
+                      statusBackgroundColor: const Color(0xFFE8F8F1),
+                    );
+                  },
                 ),
               ],
             ),

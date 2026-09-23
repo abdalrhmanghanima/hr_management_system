@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
-import 'package:hr_management_system/presentation/employee/widgets/employee_card.dart';
-import 'package:hr_management_system/presentation/shared_widgets/app_floating_action_button.dart';
+import 'package:hr_management_system/presentation/payroll/widgets/payroll_card.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_search_field.dart';
 
-class EmployeesTab extends StatelessWidget {
-  const EmployeesTab({super.key});
+class PayrollTab extends StatelessWidget {
+  const PayrollTab({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,21 +14,24 @@ class EmployeesTab extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
         backgroundColor: AppColors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: CustomText(
-          title: "Employees",
+          title: 'Payroll & Salary',
           fontSize: 18.sp,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w700,
+          fontColor: const Color(0xFF111827),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1.h),
+          child: Container(height: 1.h, color: const Color(0xFFE2E8F0)),
         ),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.r),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppSearchField(
-              hintText: 'Search by name, phone, national ID...',
-            ),
-
+            AppSearchField(hintText: 'Search payroll by employee name...'),
             SizedBox(height: 16.h),
 
             Expanded(
@@ -38,12 +40,17 @@ class EmployeesTab extends StatelessWidget {
                 itemCount: 5,
                 separatorBuilder: (context, index) => SizedBox(height: 16.h),
                 itemBuilder: (context, index) {
-                  return EmployeeCard(
-                    name: 'Ahmed Mohamed',
-                    group: 'Engineering',
-                    phone: '01012345678',
-                    salary: '14,500 EGP',
-                    workShift: '09:00 - 17:00',
+                  return PayrollCard(
+                    employeeName: 'Ahmed Mohamed',
+                    department: 'Engineering',
+                    month: 'September 2026',
+                    netSalary: '15,070',
+                    basicSalary: '14,500',
+                    attendanceAbsence: '21d / 1d',
+                    overtime: '+660',
+                    deduction: '-90',
+                    onDetails: () {},
+                    onSalarySlip: () {},
                   );
                 },
               ),
@@ -51,10 +58,6 @@ class EmployeesTab extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: AppFloatingActionButton(onPressed: () {
-
-      },),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
