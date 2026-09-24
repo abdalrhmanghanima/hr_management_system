@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/presentation/attendance/widgets/attendance_record_card.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
+import 'package:hr_management_system/presentation/employee/add_employee.dart';
 import 'package:hr_management_system/presentation/home/widgets/dashboard_summary_card.dart';
 import 'package:hr_management_system/presentation/home/widgets/quick_action_card.dart';
 import 'package:hr_management_system/presentation/shared_widgets/user_avatar.dart';
@@ -23,6 +25,7 @@ class _HomeTabState extends State<HomeTab> {
       iconPath: AppIcons.addEmployee,
       title: 'Add Employee',
       iconBackgroundColor: const Color(0xFFEFF6FF),
+      onTap: () => NavigatorHandler.push(AddEmployee()),
     ),
     QuickActionCard(
       iconPath: AppIcons.attendance,

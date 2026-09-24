@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
+import 'package:hr_management_system/presentation/employee/add_employee.dart';
+import 'package:hr_management_system/presentation/employee/employee_details.dart';
 import 'package:hr_management_system/presentation/employee/widgets/employee_card.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_floating_action_button.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_search_field.dart';
@@ -44,6 +47,7 @@ class EmployeesTab extends StatelessWidget {
                     phone: '01012345678',
                     salary: '14,500 EGP',
                     workShift: '09:00 - 17:00',
+                    onTap: () => NavigatorHandler.push(EmployeeDetails()),
                   );
                 },
               ),
@@ -51,8 +55,9 @@ class EmployeesTab extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: AppFloatingActionButton(onPressed: () {
-
+      floatingActionButton: AppFloatingActionButton(
+        onPressed: () {
+          NavigatorHandler.push(AddEmployee());
       },),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

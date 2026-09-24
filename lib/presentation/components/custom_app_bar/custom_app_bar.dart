@@ -1,28 +1,31 @@
-import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/extensions/num_extensions.dart';
-import 'package:hr_management_system/core/navigator/navigator.dart';
-import 'package:hr_management_system/core/resources/font_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../../core/dimens/dimens.dart';
+import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/resources/font_size.dart';
+import 'package:hr_management_system/core/utils/app_icons.dart';
 import '../custom_text/custom_text.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final double? fontSize;
   final Color? fontColor;
-  final bool? showBackArrow;
-  final bool? centerTitle;
+
+  final bool showBackArrow;
+  final bool centerTitle;
+
   final List<Widget>? actions;
-  final bool? showToolBar;
-  final double? elevation;
-  final double? leadingHeight;
-  final double? leadingWidth;
+
+  final String? actionIconPath;
+  final String? actionText;
+  final VoidCallback? onActionPressed;
+
   final Color? bgColor;
   final SystemUiOverlayStyle? systemUiOverlayStyle;
-  final String? iconPath;
   final VoidCallback? onPressed;
+
+  final double? elevation;
   final double? spacing;
 
   const CustomAppBar({
@@ -30,71 +33,87 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.fontSize,
     this.fontColor,
-    this.showBackArrow,
-    this.centerTitle,
+    this.showBackArrow = true,
+    this.centerTitle = false,
     this.actions,
-    this.showToolBar,
-    this.elevation,
+    this.actionIconPath,
+    this.actionText,
+    this.onActionPressed,
     this.bgColor,
     this.systemUiOverlayStyle,
-    this.iconPath,
     this.onPressed,
+    this.elevation,
     this.spacing,
-    this.leadingHeight,
-    this.leadingWidth,
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leadingWidth: 70.w,
-      titleSpacing: spacing ?? 0,
-      backgroundColor: AppColors.backgroundColor,
-      leading: iconPath != null
-          ? Align(
-              alignment: Alignment.center,
-              child: Container(
-                margin: EdgeInsetsDirectional.only(start: 22.w, top: 12.h),
-                width: 41.w,
-                height: 41.w,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(12.r),
-                  color: AppColors.white,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(9.r),
-                  child: InkWell(
-                    onTap: () => NavigatorHandler.pop(),
-                    child: SvgPicture.asset(
-                      iconPath!,
-                      width: 19.w,
-                      height: 19.w,
-                    ),
-                  ),
-                ),
-              ),
-            )
-          : null,
-      elevation: elevation,
-      systemOverlayStyle: systemUiOverlayStyle,
+      backgroundColor: bgColor ?? AppColors.white,
+      surfaceTintColor: Colors.transparent,
+      elevation: elevation ?? 0,
       scrolledUnderElevation: 0,
-      title: Padding(
-        padding: EdgeInsetsDirectional.only(start: 8.w),
-        child: CustomText(
-          title: title ?? '',
-          fontSize: fontSize ?? AppFonts.font_18,
-          fontColor: fontColor ?? AppColors.black,
-          fontWeight: FontWeight.bold,
+      systemOverlayStyle: systemUiOverlayStyle,
+
+      automaticallyImplyLeading: false,
+
+      leading: showBackArrow
+          ? IconButton(
+        onPressed: onPressed ?? () => Navigator.pop(context),
+        padding: EdgeInsets.zero,
+        icon: SvgPicture.asset(
+          AppIcons.leftArrow,
+          width: 22.w,
+          height: 22.w,
         ),
+      )
+          : null,
+
+      titleSpacing: spacing ?? 0,
+
+      title: CustomText(
+        title: title ?? '',
+        fontSize: fontSize ?? AppFonts.font_18,
+        fontColor: fontColor ?? AppColors.black,
+        fontWeight: FontWeight.bold,
       ),
-      centerTitle: centerTitle ?? false,
-      actions: actions,
-      automaticallyImplyLeading: showBackArrow ?? true,
+
+      centerTitle: centerTitle,
+
+      actions: [
+        if (actionText != null || actionIconPath != null)
+          InkWell(
+            onTap: onActionPressed,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (actionIconPath != null) ...[
+                    SvgPicture.asset(
+                      actionIconPath!,
+                      width: 16.w,
+                    ),
+                    if (actionText != null)
+                      SizedBox(width: 4.w),
+                  ],
+                  if (actionText != null)
+                    CustomText(
+                      title: actionText!,
+                      fontSize: 16.sp,
+                      fontColor: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                ],
+              ),
+            ),
+          ),
+
+        if (actions != null) ...actions!,
+      ],
     );
   }
 
   @override
-  // TODO: implement preferredSize
-  Size get preferredSize => Size(Dimens.width, showToolBar == true ? 60.h : 0);
+  Size get preferredSize => Size.fromHeight(56.h);
 }

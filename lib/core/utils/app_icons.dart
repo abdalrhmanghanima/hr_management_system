@@ -33,4 +33,18 @@ class AppIcons {
 
   static const String settings = "assets/icons/settings.svg";
   static const String signOut = "assets/icons/sign_out.svg";
+
+  static const String leftArrow = "assets/icons/left_arrow.svg";
+  static const String edit = "assets/icons/edit.svg";
+
+  static const String phone = "assets/icons/phone.svg";
+  static const String calendar = "assets/icons/calendar.svg";
+
+  static const String nationalId = "assets/icons/national_id.svg";
+  static const String location = "assets/icons/location.svg";
+
+  static const String bag = "assets/icons/bag.svg";
+  static const String clock = "assets/icons/clock.svg";
+
+  static const String payrollBlue = "assets/icons/payroll_blue.svg";
 }
