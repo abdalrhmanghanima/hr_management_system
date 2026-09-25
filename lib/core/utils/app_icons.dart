@@ -47,4 +47,7 @@ class AppIcons {
   static const String clock = "assets/icons/clock.svg";
 
   static const String payrollBlue = "assets/icons/payroll_blue.svg";
+  static const String department = "assets/icons/department.svg";
+
+  static const String delete = "assets/icons/delete.svg";
 }

@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/presentation/auth/providers/auth_state_provider.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
+import 'package:hr_management_system/presentation/department/departments_screen.dart';
 import 'package:hr_management_system/presentation/more/widgets/more_option_row.dart';
 import 'package:hr_management_system/presentation/shared_widgets/user_avatar.dart';
 
@@ -118,6 +120,15 @@ class MoreTab extends ConsumerWidget {
                   MoreOptionRow(
                     iconPath: AppIcons.applicationUser,
                     title: 'Application Users',
+                  ),
+                  Divider(
+                    height: 1,
+                    color: AppColors.border,
+                  ),
+                  MoreOptionRow(
+                    iconPath: AppIcons.department,
+                    title: 'Departments',
+                    onTap: () => NavigatorHandler.push(DepartmentsScreen()),
                   ),
                   Divider(
                     height: 1,

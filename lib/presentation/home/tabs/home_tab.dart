@@ -7,6 +7,7 @@ import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/presentation/attendance/widgets/attendance_record_card.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
+import 'package:hr_management_system/presentation/department/widgets/add_department_bottom_sheet.dart';
 import 'package:hr_management_system/presentation/employee/add_employee.dart';
 import 'package:hr_management_system/presentation/home/widgets/dashboard_summary_card.dart';
 import 'package:hr_management_system/presentation/home/widgets/quick_action_card.dart';
@@ -20,29 +21,6 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  final List<Widget> quickActions = [
-    QuickActionCard(
-      iconPath: AppIcons.addEmployee,
-      title: 'Add Employee',
-      iconBackgroundColor: const Color(0xFFEFF6FF),
-      onTap: () => NavigatorHandler.push(AddEmployee()),
-    ),
-    QuickActionCard(
-      iconPath: AppIcons.attendance,
-      title: 'Attendance',
-      iconBackgroundColor: const Color(0xFFECFDF5),
-    ),
-    QuickActionCard(
-      iconPath: AppIcons.payroll,
-      title: 'Payroll',
-      iconBackgroundColor: const Color(0xFFEFF6FF),
-    ),
-    QuickActionCard(
-      iconPath: AppIcons.addHoliday,
-      title: 'Add Holiday',
-      iconBackgroundColor: const Color(0xFFF5F3FF),
-    ),
-  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -209,9 +187,53 @@ class _HomeTabState extends State<HomeTab> {
                   height: 120.h,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
-                    itemCount: 4,
+                    itemCount: 5,
                     separatorBuilder: (context, index) => SizedBox(width: 8.w),
                     itemBuilder: (context, index) {
+                      final quickActions = [
+                        QuickActionCard(
+                          iconPath: AppIcons.addEmployee,
+                          title: 'Add Employee',
+                          iconBackgroundColor: const Color(0xFFEFF6FF),
+                          onTap: () => NavigatorHandler.push(
+                            const AddEmployee(),
+                          ),
+                        ),
+                        QuickActionCard(
+                          iconPath: AppIcons.department,
+                          title: 'Add Department',
+                          iconBackgroundColor: const Color(0xFFEFF6FF),
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: AppColors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(24.r),
+                                ),
+                              ),
+                              builder: (_) => const AddDepartmentBottomSheet(),
+                            );
+                          },
+                        ),
+                        QuickActionCard(
+                          iconPath: AppIcons.attendance,
+                          title: 'Attendance',
+                          iconBackgroundColor: const Color(0xFFECFDF5),
+                        ),
+                        QuickActionCard(
+                          iconPath: AppIcons.payroll,
+                          title: 'Payroll',
+                          iconBackgroundColor: const Color(0xFFEFF6FF),
+                        ),
+                        QuickActionCard(
+                          iconPath: AppIcons.addHoliday,
+                          title: 'Add Holiday',
+                          iconBackgroundColor: const Color(0xFFF5F3FF),
+                        ),
+                      ];
+
                       return quickActions[index];
                     },
                   ),

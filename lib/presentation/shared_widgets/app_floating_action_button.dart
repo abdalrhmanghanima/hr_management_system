@@ -16,6 +16,7 @@ class AppFloatingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: onPressed,
+      heroTag: null,
       backgroundColor: AppColors.primary,
       foregroundColor: AppColors.white,
       elevation: 4,
