@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
+import 'package:hr_management_system/presentation/payroll/provider/payroll_provider.dart';
 
 class EmployeeNotifier extends AsyncNotifier<List<EmployeeEntity>> {
   @override
@@ -35,6 +36,8 @@ class EmployeeNotifier extends AsyncNotifier<List<EmployeeEntity>> {
       return SaveResult.failure;
     }
 
+    ref.invalidate(payrollSummariesProvider);
+
     await getEmployees();
 
     return SaveResult.success;
@@ -59,6 +62,8 @@ class EmployeeNotifier extends AsyncNotifier<List<EmployeeEntity>> {
       return SaveResult.failure;
     }
 
+    ref.invalidate(payrollSummariesProvider);
+
     await getEmployees();
 
     return SaveResult.success;
@@ -66,6 +71,9 @@ class EmployeeNotifier extends AsyncNotifier<List<EmployeeEntity>> {
 
   Future<void> deleteEmployee(String id) async {
     await ref.read(deleteEmployeeUseCaseProvider).call(id);
+
+    ref.invalidate(payrollSummariesProvider);
+
     await getEmployees();
   }
 }

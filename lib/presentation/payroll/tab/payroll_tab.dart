@@ -2,24 +2,65 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/domain/payroll/entity/payroll_calculation_entity.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
+import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
+import 'package:hr_management_system/presentation/payroll/provider/payroll_provider.dart';
 import 'package:hr_management_system/presentation/payroll/widgets/payroll_card.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_search_field.dart';
 
-class PayrollTab extends ConsumerWidget {
+class PayrollTab extends ConsumerStatefulWidget {
   const PayrollTab({super.key});
+
+  @override
+  ConsumerState<PayrollTab> createState() => _PayrollTabState();
+}
+
+class _PayrollTabState extends ConsumerState<PayrollTab> {
+  final TextEditingController searchController = TextEditingController();
+
+  String searchTerm = '';
+
+  @override
+  void dispose() {
+    searchController.dispose();
+
+    super.dispose();
+  }
 
   Future<void> _refresh(WidgetRef ref) async {
     await Future.wait([
       ref.read(employeeProvider.notifier).getEmployees(),
       ref.read(attendanceProvider.notifier).getAttendances(),
+      ref.read(departmentProvider.notifier).getDepartments(),
     ]);
   }
 
+  List<PayrollCalculationEntity> _filter(
+    List<PayrollCalculationEntity> summaries,
+  ) {
+    final term = searchTerm.trim().toLowerCase();
+
+    if (term.isEmpty) {
+      return summaries;
+    }
+
+    return summaries
+        .where((summary) => summary.employeeName.toLowerCase().contains(term))
+        .toList();
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final payrollState = ref.watch(payrollSummariesProvider);
+    final departments = ref.watch(departmentProvider).value ?? const [];
+
+    final departmentNames = {
+      for (final department in departments) department.id: department.name,
+    };
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
@@ -41,29 +82,86 @@ class PayrollTab extends ConsumerWidget {
         padding: EdgeInsets.all(16.r),
         child: Column(
           children: [
-            AppSearchField(hintText: 'Search payroll by employee name...'),
+            AppSearchField(
+              hintText: 'Search payroll by employee name...',
+              controller: searchController,
+              onChanged: (value) {
+                setState(() {
+                  searchTerm = value;
+                });
+              },
+            ),
             SizedBox(height: 16.h),
 
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () => _refresh(ref),
-                child: ListView.separated(
-                  padding: EdgeInsets.zero,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: 5,
-                  separatorBuilder: (context, index) => SizedBox(height: 16.h),
-                  itemBuilder: (context, index) {
-                    return PayrollCard(
-                      employeeName: 'Ahmed Mohamed',
-                      department: 'Engineering',
-                      month: 'September 2026',
-                      netSalary: '15,070',
-                      basicSalary: '14,500',
-                      attendanceAbsence: '21d / 1d',
-                      overtime: '+660',
-                      deduction: '-90',
-                      onDetails: () {},
-                      onSalarySlip: () {},
+                child: payrollState.when(
+                  loading: () => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(height: 120.h),
+                      const Center(child: CircularProgressIndicator()),
+                    ],
+                  ),
+                  error: (error, stackTrace) => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(height: 120.h),
+                      Center(
+                        child: CustomText(
+                          title: 'Unable to load payroll',
+                          fontColor: AppColors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                  data: (summaries) {
+                    final visible = _filter(summaries);
+
+                    if (visible.isEmpty) {
+                      return ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(height: 120.h),
+                          Center(
+                            child: CustomText(
+                              title: searchTerm.trim().isEmpty
+                                  ? 'No employees to calculate payroll for'
+                                  : 'No payroll matches your search',
+                              fontColor: AppColors.gray,
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    return ListView.separated(
+                      padding: EdgeInsets.zero,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: visible.length,
+                      separatorBuilder: (context, index) =>
+                          SizedBox(height: 16.h),
+                      itemBuilder: (context, index) {
+                        final summary = visible[index];
+
+                        return PayrollCard(
+                          employeeName: summary.employeeName,
+                          department:
+                              departmentNames[summary.departmentId] ?? '',
+                          month: summary.monthLabel,
+                          netSalary: summary.netSalary.toStringAsFixed(0),
+                          basicSalary: summary.basicSalary.toStringAsFixed(0),
+                          attendanceAbsence:
+                              '${summary.presentDays}d / ${summary.absentDays}d',
+                          overtime:
+                              '+${summary.overtimeAmount.toStringAsFixed(0)}',
+                          deduction:
+                              '-${summary.totalDeductions.toStringAsFixed(0)}',
+                          onDetails: () {},
+                          onSalarySlip: () {},
+                        );
+                      },
                     );
                   },
                 ),

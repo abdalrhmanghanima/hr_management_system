@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
@@ -250,7 +251,7 @@ class EmployeeDetails extends ConsumerWidget {
                           EmployeeInfoRow(
                             icon: AppIcons.clock,
                             title: "Working Hours Shift",
-                            value: "09:00 - 17:00",
+                            value: companyWorkingScheduleLabel,
                           ),
                         ],
                       ),

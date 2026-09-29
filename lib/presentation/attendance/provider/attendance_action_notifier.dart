@@ -3,6 +3,7 @@ import 'package:hr_management_system/domain/attendance/entity/attendance_action_
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/today_attendance_provider.dart';
+import 'package:hr_management_system/presentation/payroll/provider/payroll_provider.dart';
 
 class AttendanceActionNotifier extends AsyncNotifier<void> {
   @override
@@ -138,6 +139,7 @@ class AttendanceActionNotifier extends AsyncNotifier<void> {
 
   Future<void> _refresh() async {
     ref.invalidate(todayAttendanceProvider);
+    ref.invalidate(payrollSummariesProvider);
 
     await ref.read(attendanceProvider.notifier).getAttendances();
   }

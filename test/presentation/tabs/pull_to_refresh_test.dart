@@ -9,6 +9,8 @@ import 'package:hr_management_system/presentation/department/provider/department
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
 import 'package:hr_management_system/presentation/employee/tab/employee_tab.dart';
 import 'package:hr_management_system/presentation/home/tabs/home_tab.dart';
+import 'package:hr_management_system/presentation/more/provider/general_settings_provider.dart';
+import 'package:hr_management_system/presentation/official_holiday/provider/official_holidays_provider.dart';
 import 'package:hr_management_system/presentation/payroll/tab/payroll_tab.dart';
 
 import '../../helpers/attendance_test_data.dart';
@@ -49,6 +51,8 @@ void main() {
     final attendanceRepository = FakeAttendanceRepository([
       buildAttendance(id: 'att-1'),
     ]);
+    final generalSettingsRepository = FakeGeneralSettingsRepository();
+    final officialHolidayRepository = FakeOfficialHolidayRepository();
 
     tester.view.physicalSize = testSurface;
     tester.view.devicePixelRatio = 1;
@@ -59,6 +63,12 @@ void main() {
         overrides: [
           employeeRepositoryProvider.overrideWithValue(employeeRepository),
           attendanceRepositoryProvider.overrideWithValue(attendanceRepository),
+          generalSettingsRepositoryProvider.overrideWithValue(
+            generalSettingsRepository,
+          ),
+          officialHolidayRepositoryProvider.overrideWithValue(
+            officialHolidayRepository,
+          ),
         ],
         child: MaterialApp(navigatorKey: navigatorKey, home: const HomeTab()),
       ),
@@ -181,6 +191,9 @@ void main() {
 
     final employeeRepository = FakeEmployeeRepository();
     final attendanceRepository = FakeAttendanceRepository();
+    final departmentRepository = FakeDepartmentRepository();
+    final generalSettingsRepository = FakeGeneralSettingsRepository();
+    final officialHolidayRepository = FakeOfficialHolidayRepository();
 
     tester.view.physicalSize = testSurface;
     tester.view.devicePixelRatio = 1;
@@ -191,6 +204,13 @@ void main() {
         overrides: [
           employeeRepositoryProvider.overrideWithValue(employeeRepository),
           attendanceRepositoryProvider.overrideWithValue(attendanceRepository),
+          departmentRepositoryProvider.overrideWithValue(departmentRepository),
+          generalSettingsRepositoryProvider.overrideWithValue(
+            generalSettingsRepository,
+          ),
+          officialHolidayRepositoryProvider.overrideWithValue(
+            officialHolidayRepository,
+          ),
         ],
         child: MaterialApp(
           navigatorKey: navigatorKey,

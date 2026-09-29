@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/domain/general_settings/entity/general_settings_entity.dart';
+import 'package:hr_management_system/domain/general_settings/validation/general_settings_validator.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/more/provider/general_settings_provider.dart';
 import 'package:hr_management_system/presentation/more/widgets/settings_card.dart';
@@ -28,15 +31,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   bool isHydrated = false;
 
-  final List<String> weekDays = const [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ];
+  final List<String> weekDays = weekDayNames;
 
   @override
   void initState() {
@@ -80,23 +75,52 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     selectedWeekendDays = List<String>.from(settings.weekendDays);
   }
 
-  Future<void> _persist() async {
-    final multiplier = double.tryParse(multiplierController.text.trim());
-    final workingHours = double.tryParse(workingHoursController.text.trim());
+  Future<void> _persist({bool showErrors = false}) async {
+    final multiplierError = GeneralSettingsValidator.multiplier(
+      multiplierController.text,
+    );
 
-    if (multiplier == null || workingHours == null) {
+    final workingHoursError = GeneralSettingsValidator.workingHoursPerDay(
+      workingHoursController.text,
+    );
+
+    final weekendError = GeneralSettingsValidator.weekendDays(
+      selectedWeekendDays,
+    );
+
+    final error = multiplierError ?? workingHoursError ?? weekendError;
+
+    if (error != null) {
+      if (showErrors) {
+        _showError(error);
+      }
+
       return;
     }
 
-    await ref
+    final saved = await ref
         .read(generalSettingsProvider.notifier)
         .updateGeneralSettings(
           GeneralSettingsEntity(
-            multiplier: multiplier,
-            workingHoursPerDay: workingHours,
+            multiplier: double.parse(multiplierController.text.trim()),
+            workingHoursPerDay: double.parse(
+              workingHoursController.text.trim(),
+            ),
             weekendDays: List<String>.from(selectedWeekendDays),
           ),
         );
+
+    if (!saved && showErrors && mounted) {
+      _showError('Unable to save general settings');
+    }
+  }
+
+  void _showError(String message) {
+    if (!mounted) {
+      return;
+    }
+
+    CustomSnackBar.show(context, message: message, success: false);
   }
 
   Future<void> _showWeekendDaysPicker() async {
@@ -119,11 +143,16 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       return;
     }
 
+    if (result.isEmpty) {
+      _showError(GeneralSettingsValidator.weekendDays(result) ?? '');
+      return;
+    }
+
     setState(() {
       selectedWeekendDays = result;
     });
 
-    await _persist();
+    await _persist(showErrors: true);
   }
 
   String get selectedDaysText {

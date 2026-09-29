@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/domain/official_holiday/entity/official_holiday_entity.dart';
 import 'package:hr_management_system/presentation/official_holiday/provider/official_holidays_provider.dart';
+import 'package:hr_management_system/presentation/payroll/provider/payroll_provider.dart';
 
 class OfficialHolidaysNotifier
     extends AsyncNotifier<List<OfficialHolidayEntity>> {
@@ -36,6 +37,8 @@ class OfficialHolidaysNotifier
         await ref.read(getOfficialHolidaysUseCaseProvider).call(),
       );
 
+      ref.invalidate(payrollSummariesProvider);
+
       return SaveResult.success;
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
@@ -64,6 +67,8 @@ class OfficialHolidaysNotifier
         await ref.read(getOfficialHolidaysUseCaseProvider).call(),
       );
 
+      ref.invalidate(payrollSummariesProvider);
+
       return SaveResult.success;
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
@@ -83,6 +88,9 @@ class OfficialHolidaysNotifier
           .call();
 
       state = AsyncData(holidays);
+
+      ref.invalidate(payrollSummariesProvider);
+
       return true;
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);

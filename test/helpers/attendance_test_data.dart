@@ -12,6 +12,10 @@ import 'package:hr_management_system/domain/department/entity/department_entity.
 import 'package:hr_management_system/domain/department/repository/department_repository.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
 import 'package:hr_management_system/domain/employee/repository/employee_repository.dart';
+import 'package:hr_management_system/domain/general_settings/entity/general_settings_entity.dart';
+import 'package:hr_management_system/domain/general_settings/repository/general_settings_repository.dart';
+import 'package:hr_management_system/domain/official_holiday/entity/official_holiday_entity.dart';
+import 'package:hr_management_system/domain/official_holiday/repository/official_holiday_repository.dart';
 
 const String testEmployeeId = 'EMP001';
 
@@ -481,4 +485,61 @@ class FakeDepartmentRepository implements DepartmentRepository {
   Future<void> deleteDepartment(String id) {
     throw UnimplementedError();
   }
+}
+
+class FakeGeneralSettingsRepository implements GeneralSettingsRepository {
+  FakeGeneralSettingsRepository([GeneralSettingsEntity? settings])
+    : settings = settings ?? GeneralSettingsEntity.defaults();
+
+  GeneralSettingsEntity settings;
+
+  int loadCount = 0;
+
+  @override
+  Future<GeneralSettingsEntity> getGeneralSettings() async {
+    loadCount++;
+
+    return settings;
+  }
+
+  @override
+  Future<void> updateGeneralSettings(GeneralSettingsEntity settings) async {
+    this.settings = settings;
+  }
+}
+
+class FakeOfficialHolidayRepository implements OfficialHolidayRepository {
+  FakeOfficialHolidayRepository([List<OfficialHolidayEntity>? holidays])
+    : holidays = [...?holidays];
+
+  final List<OfficialHolidayEntity> holidays;
+
+  int loadCount = 0;
+
+  @override
+  Future<List<OfficialHolidayEntity>> getOfficialHolidays() async {
+    loadCount++;
+
+    return holidays;
+  }
+
+  @override
+  Future<OfficialHolidayEntity?> getOfficialHolidayByNameAndDate(
+    String name,
+    DateTime date, {
+    String? excludingId,
+  }) async {
+    return null;
+  }
+
+  @override
+  Future<void> addOfficialHoliday(OfficialHolidayEntity holiday) async {
+    holidays.add(holiday);
+  }
+
+  @override
+  Future<void> updateOfficialHoliday(OfficialHolidayEntity holiday) async {}
+
+  @override
+  Future<void> deleteOfficialHoliday(String id) async {}
 }

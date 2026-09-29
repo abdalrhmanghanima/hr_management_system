@@ -169,11 +169,13 @@ class EmployeeCard extends StatelessWidget {
                   color: const Color(0xFF94A3B8),
                 ),
                 SizedBox(width: 6.w),
-                CustomText(
-                  title: 'Work Shift: $workShift',
-                  fontColor: const Color(0xFF64748B),
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w400,
+                Flexible(
+                  child: CustomText(
+                    title: 'Work Shift: $workShift',
+                    fontColor: const Color(0xFF64748B),
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             ),

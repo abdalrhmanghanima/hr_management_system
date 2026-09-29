@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
@@ -139,7 +140,7 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
                           group: departmentNames[employee.departmentId] ?? '',
                           phone: employee.phoneNumber,
                           salary: employee.salary.toStringAsFixed(0),
-                          workShift: '09:00 - 17:00',
+                          workShift: companyWorkingScheduleLabel,
                           onTap: () {
                             NavigatorHandler.push(
                               EmployeeDetails(employeeId: employee.id),

@@ -19,6 +19,7 @@ import 'package:hr_management_system/presentation/home/provider/bottom_nav_provi
 import 'package:hr_management_system/presentation/home/widgets/dashboard_summary_card.dart';
 import 'package:hr_management_system/presentation/home/widgets/quick_action_card.dart';
 import 'package:hr_management_system/presentation/official_holiday/add_official_holiday_screen.dart';
+import 'package:hr_management_system/presentation/payroll/provider/payroll_provider.dart';
 import 'package:hr_management_system/presentation/shared_widgets/user_avatar.dart';
 
 class HomeTab extends ConsumerStatefulWidget {
@@ -47,9 +48,22 @@ class _HomeTabState extends ConsumerState<HomeTab> {
   Widget build(BuildContext context) {
     final employeeState = ref.watch(employeeProvider);
     final attendanceState = ref.watch(attendanceProvider);
+    final payrollState = ref.watch(payrollSummariesProvider);
+    final payrollMonth = ref.watch(currentPayrollMonthProvider);
 
     final employees = employeeState.value ?? [];
     final attendances = attendanceState.value ?? [];
+
+    final payrollTotal = payrollState.value?.fold<double>(
+      0,
+      (total, summary) => total + summary.netSalary,
+    );
+
+    final payrollAmount = payrollTotal != null
+        ? _formatPayrollAmount(payrollTotal)
+        : payrollState.hasError
+        ? '—'
+        : '...';
 
     final today = DateTime.now();
 
@@ -180,7 +194,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                                     textBaseline: TextBaseline.alphabetic,
                                     children: [
                                       CustomText(
-                                        title: '61,565',
+                                        title: payrollAmount,
                                         fontColor: AppColors.white,
                                         fontSize: 24.sp,
                                         fontWeight: FontWeight.w800,
@@ -221,7 +235,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             CustomText(
-                              title: 'September 2026',
+                              title: _formatPayrollMonth(payrollMonth),
                               fontColor: AppColors.white,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w400,
@@ -310,6 +324,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                             iconPath: AppIcons.payroll,
                             title: 'Payroll',
                             iconBackgroundColor: const Color(0xFFEFF6FF),
+                            onTap: () => ref.read(bottomNavProvider.notifier).state=3,
                           ),
                           QuickActionCard(
                             iconPath: AppIcons.addHoliday,
@@ -432,4 +447,39 @@ class _HomeTabState extends ConsumerState<HomeTab> {
       ),
     );
   }
+}
+
+String _formatPayrollAmount(double value) {
+  final rounded = value.round();
+  final digits = rounded.abs().toString();
+  final buffer = StringBuffer();
+
+  for (var index = 0; index < digits.length; index++) {
+    if (index > 0 && (digits.length - index) % 3 == 0) {
+      buffer.write(',');
+    }
+
+    buffer.write(digits[index]);
+  }
+
+  return rounded < 0 ? '-$buffer' : buffer.toString();
+}
+
+String _formatPayrollMonth(DateTime month) {
+  const names = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  return '${names[month.month - 1]} ${month.year}';
 }

@@ -3,6 +3,7 @@ import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/today_attendance_provider.dart';
+import 'package:hr_management_system/presentation/payroll/provider/payroll_provider.dart';
 
 class AttendanceNotifier extends AsyncNotifier<List<AttendanceEntity>> {
   @override
@@ -37,6 +38,7 @@ class AttendanceNotifier extends AsyncNotifier<List<AttendanceEntity>> {
     }
 
     ref.invalidate(todayAttendanceProvider);
+    ref.invalidate(payrollSummariesProvider);
 
     await getAttendances();
 
@@ -45,11 +47,17 @@ class AttendanceNotifier extends AsyncNotifier<List<AttendanceEntity>> {
 
   Future<void> updateAttendance(AttendanceEntity attendance) async {
     await ref.read(updateAttendanceUseCaseProvider).call(attendance);
+
+    ref.invalidate(payrollSummariesProvider);
+
     await getAttendances();
   }
 
   Future<void> deleteAttendance(String id) async {
     await ref.read(deleteAttendanceUseCaseProvider).call(id);
+
+    ref.invalidate(payrollSummariesProvider);
+
     await getAttendances();
   }
 
