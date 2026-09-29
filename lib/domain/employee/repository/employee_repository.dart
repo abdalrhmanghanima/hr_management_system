@@ -5,6 +5,11 @@ abstract class EmployeeRepository {
 
   Future<EmployeeEntity> getEmployeeById(String id);
 
+  Future<EmployeeEntity?> getEmployeeByNationalId(
+    String nationalId, {
+    String? excludingId,
+  });
+
   Future<void> addEmployee(EmployeeEntity employee);
 
   Future<void> updateEmployee(EmployeeEntity employee);

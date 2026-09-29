@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
+import 'package:hr_management_system/core/utils/employee_id_generator.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/selected_department_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/gender_provider.dart';
 import 'package:hr_management_system/presentation/employee/widgets/employee_form.dart';
-import 'package:uuid/uuid.dart';
 
 class AddEmployee extends ConsumerStatefulWidget {
   const AddEmployee({super.key});
@@ -26,10 +28,8 @@ class _AddEmployeeState extends ConsumerState<AddEmployee> {
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController birthDateController = TextEditingController();
   final TextEditingController nationalIdController = TextEditingController();
-  final TextEditingController nationalityController =
-  TextEditingController();
-  final TextEditingController contractDateController =
-  TextEditingController();
+  final TextEditingController nationalityController = TextEditingController();
+  final TextEditingController contractDateController = TextEditingController();
   final TextEditingController salaryController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
@@ -69,13 +69,11 @@ class _AddEmployeeState extends ConsumerState<AddEmployee> {
     }
 
     final employee = EmployeeEntity(
-      id: const Uuid().v4(),
+      id: EmployeeIdGenerator.generate(),
       fullName: fullNameController.text.trim(),
       address: addressController.text.trim(),
       phoneNumber: phoneNumberController.text.trim(),
-      birthDate: DateParser.fromDisplayDate(
-        birthDateController.text.trim(),
-      ),
+      birthDate: DateParser.fromDisplayDate(birthDateController.text.trim()),
       nationalId: nationalIdController.text.trim(),
       nationality: nationalityController.text.trim(),
       gender: gender,
@@ -83,15 +81,33 @@ class _AddEmployeeState extends ConsumerState<AddEmployee> {
       contractDate: DateParser.fromDisplayDate(
         contractDateController.text.trim(),
       ),
-      salary: double.parse(
-        salaryController.text.trim(),
-      ),
+      salary: double.parse(salaryController.text.trim()),
     );
 
-    await ref.read(employeeProvider.notifier).addEmployee(employee);
+    final result = await ref
+        .read(employeeProvider.notifier)
+        .addEmployee(employee);
 
-    if (mounted) {
-      Navigator.pop(context);
+    if (!mounted) {
+      return;
+    }
+
+    switch (result) {
+      case SaveResult.success:
+        Navigator.pop(context);
+        break;
+      case SaveResult.duplicate:
+        CustomSnackBar.show(
+          context,
+          message: 'An employee with this National ID already exists',
+        );
+        break;
+      case SaveResult.failure:
+        CustomSnackBar.show(
+          context,
+          message: 'Failed to add employee. Please try again',
+        );
+        break;
     }
   }
 
@@ -100,9 +116,7 @@ class _AddEmployeeState extends ConsumerState<AddEmployee> {
     final employeeState = ref.watch(employeeProvider);
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: const CustomAppBar(
-        title: "Add New Employee",
-      ),
+      appBar: const CustomAppBar(title: "Add New Employee"),
       body: Padding(
         padding: EdgeInsets.all(16.r),
         child: Column(

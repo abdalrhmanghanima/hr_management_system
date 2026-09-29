@@ -5,6 +5,11 @@ abstract class EmployeeRemoteDataSource {
 
   Future<EmployeeModel> getEmployeeById(String id);
 
+  Future<EmployeeModel?> getEmployeeByNationalId(
+    String nationalId, {
+    String? excludingId,
+  });
+
   Future<void> addEmployee(EmployeeModel employee);
 
   Future<void> updateEmployee(EmployeeModel employee);

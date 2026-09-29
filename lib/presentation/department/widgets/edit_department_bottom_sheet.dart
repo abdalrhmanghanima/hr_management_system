@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/domain/department/entity/department_entity.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/inputs/custom_text_form.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
 
 class EditDepartmentBottomSheet extends ConsumerStatefulWidget {
   final DepartmentEntity department;
 
-  const EditDepartmentBottomSheet({
-    super.key,
-    required this.department,
-  });
+  const EditDepartmentBottomSheet({super.key, required this.department});
 
   @override
   ConsumerState<EditDepartmentBottomSheet> createState() =>
@@ -30,9 +29,7 @@ class _EditDepartmentBottomSheetState
   void initState() {
     super.initState();
 
-    departmentController = TextEditingController(
-      text: widget.department.name,
-    );
+    departmentController = TextEditingController(text: widget.department.name);
   }
 
   @override
@@ -51,22 +48,30 @@ class _EditDepartmentBottomSheetState
       name: departmentController.text.trim(),
     );
 
-    try {
-      await ref
-          .read(departmentProvider.notifier)
-          .updateDepartment(department);
+    final result = await ref
+        .read(departmentProvider.notifier)
+        .updateDepartment(department);
 
-      if (mounted) {
+    if (!mounted) {
+      return;
+    }
+
+    switch (result) {
+      case SaveResult.success:
         Navigator.pop(context);
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to update department'),
-          ),
+        break;
+      case SaveResult.duplicate:
+        CustomSnackBar.show(
+          context,
+          message: 'A department with this name already exists',
         );
-      }
+        break;
+      case SaveResult.failure:
+        CustomSnackBar.show(
+          context,
+          message: 'Failed to update department. Please try again',
+        );
+        break;
     }
   }
 
@@ -76,12 +81,7 @@ class _EditDepartmentBottomSheetState
 
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16.w,
-          12.h,
-          16.w,
-          16.h,
-        ),
+        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
         child: Form(
           key: formKey,
           child: Column(

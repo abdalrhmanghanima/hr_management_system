@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/domain/department/entity/department_entity.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/inputs/custom_text_form.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -18,8 +20,7 @@ class AddDepartmentBottomSheet extends ConsumerStatefulWidget {
 
 class _AddDepartmentBottomSheetState
     extends ConsumerState<AddDepartmentBottomSheet> {
-  final TextEditingController departmentController =
-  TextEditingController();
+  final TextEditingController departmentController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
 
@@ -39,22 +40,30 @@ class _AddDepartmentBottomSheetState
       name: departmentController.text.trim(),
     );
 
-    try {
-      await ref
-          .read(departmentProvider.notifier)
-          .addDepartment(department);
+    final result = await ref
+        .read(departmentProvider.notifier)
+        .addDepartment(department);
 
-      if (mounted) {
+    if (!mounted) {
+      return;
+    }
+
+    switch (result) {
+      case SaveResult.success:
         Navigator.pop(context);
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to add department'),
-          ),
+        break;
+      case SaveResult.duplicate:
+        CustomSnackBar.show(
+          context,
+          message: 'A department with this name already exists',
         );
-      }
+        break;
+      case SaveResult.failure:
+        CustomSnackBar.show(
+          context,
+          message: 'Failed to add department. Please try again',
+        );
+        break;
     }
   }
 
@@ -64,12 +73,7 @@ class _AddDepartmentBottomSheetState
 
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16.w,
-          12.h,
-          16.w,
-          16.h,
-        ),
+        padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
         child: Form(
           key: formKey,
           child: Column(

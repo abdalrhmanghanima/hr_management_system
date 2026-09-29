@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
-import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/date_picker_helper.dart';
+import 'package:hr_management_system/domain/employee/validation/employee_validator.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/components/inputs/custom_dropdown_field.dart';
 import 'package:hr_management_system/presentation/components/inputs/custom_text_form.dart';
@@ -37,111 +37,10 @@ class EmployeeForm extends ConsumerWidget {
     required this.salaryController,
   });
 
-  static const List<String> genders = [
-    'Male',
-    'Female',
-  ];
-
-  String? _requiredValidator(String? value, String fieldName) {
-    if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
-    }
-
-    return null;
-  }
-
-  String? _nameValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Full Name is required';
-    }
-
-    if (value.trim().length < 3) {
-      return 'Full Name must be at least 3 characters';
-    }
-
-    return null;
-  }
-
-  String? _phoneValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Phone Number is required';
-    }
-
-    final phone = value.trim();
-
-    if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(phone)) {
-      return 'Enter a valid Egyptian phone number';
-    }
-
-    return null;
-  }
-
-  String? _nationalIdValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'National ID is required';
-    }
-
-    if (!RegExp(r'^\d{14}$').hasMatch(value.trim())) {
-      return 'National ID must be 14 digits';
-    }
-
-    return null;
-  }
-
-  String? _dateValidator(String? value, String fieldName) {
-    if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
-    }
-
-    final date = value.trim();
-
-    if (!RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(date)) {
-      return 'Enter date as dd/mm/yyyy';
-    }
-
-    final parts = date.split('/');
-
-    final day = int.tryParse(parts[0]);
-    final month = int.tryParse(parts[1]);
-    final year = int.tryParse(parts[2]);
-
-    if (day == null || month == null || year == null) {
-      return 'Enter a valid date';
-    }
-
-    final parsedDate = DateTime(year, month, day);
-
-    if (parsedDate.year != year ||
-        parsedDate.month != month ||
-        parsedDate.day != day) {
-      return 'Enter a valid date';
-    }
-
-    return null;
-  }
-
-  String? _salaryValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Salary is required';
-    }
-
-    final salary = double.tryParse(value.trim());
-
-    if (salary == null) {
-      return 'Enter a valid salary';
-    }
-
-    if (salary <= 0) {
-      return 'Salary must be greater than 0';
-    }
-
-    return null;
-  }
+  static const List<String> genders = EmployeeValidator.genders;
 
   Future<void> _pickBirthDate(BuildContext context) async {
-    final date = await DatePickerHelper.pickFormattedDate(
-      context: context,
-    );
+    final date = await DatePickerHelper.pickFormattedDate(context: context);
 
     if (date != null) {
       birthDateController.text = date;
@@ -149,9 +48,7 @@ class EmployeeForm extends ConsumerWidget {
   }
 
   Future<void> _pickContractDate(BuildContext context) async {
-    final date = await DatePickerHelper.pickFormattedDate(
-      context: context,
-    );
+    final date = await DatePickerHelper.pickFormattedDate(context: context);
 
     if (date != null) {
       contractDateController.text = date;
@@ -192,7 +89,7 @@ class EmployeeForm extends ConsumerWidget {
                       label: "Full Name",
                       isRequired: true,
                       hint: "e.g. Ahmed Mohamed",
-                      validator: _nameValidator,
+                      validator: EmployeeValidator.fullName,
                     ),
 
                     SizedBox(height: 16.h),
@@ -202,8 +99,7 @@ class EmployeeForm extends ConsumerWidget {
                       label: "Address",
                       isRequired: true,
                       hint: "home address",
-                      validator: (value) =>
-                          _requiredValidator(value, 'Address'),
+                      validator: EmployeeValidator.address,
                     ),
 
                     SizedBox(height: 16.h),
@@ -214,7 +110,7 @@ class EmployeeForm extends ConsumerWidget {
                       isRequired: true,
                       hint: "e.g. 01012345678",
                       textInputType: TextInputType.phone,
-                      validator: _phoneValidator,
+                      validator: EmployeeValidator.phoneNumber,
                     ),
 
                     SizedBox(height: 16.h),
@@ -226,28 +122,7 @@ class EmployeeForm extends ConsumerWidget {
                       hint: "dd/mm/yyyy",
                       readOnly: true,
                       onTap: () => _pickBirthDate(context),
-                      validator: (value) {
-                        final error = _dateValidator(value, 'Birth Date');
-
-                        if (error != null) {
-                          return error;
-                        }
-
-                        final birthDate = DateParser.fromDisplayDate(value!.trim());
-                        final today = DateTime.now();
-
-                        final minimumBirthDate = DateTime(
-                          today.year - 20,
-                          today.month,
-                          today.day,
-                        );
-
-                        if (birthDate.isAfter(minimumBirthDate)) {
-                          return 'Employee must be at least 20 years old';
-                        }
-
-                        return null;
-                      },
+                      validator: EmployeeValidator.birthDateText,
                       suffix: Padding(
                         padding: EdgeInsets.all(14.r),
                         child: Icon(
@@ -265,24 +140,16 @@ class EmployeeForm extends ConsumerWidget {
                       isRequired: true,
                       hint: "Select Gender",
                       value: selectedGender,
-                      items: genders.map(
-                            (gender) {
-                          return DropdownMenuItem<String>(
-                            value: gender,
-                            child: Text(gender),
-                          );
-                        },
-                      ).toList(),
+                      items: genders.map((gender) {
+                        return DropdownMenuItem<String>(
+                          value: gender,
+                          child: Text(gender),
+                        );
+                      }).toList(),
                       onChanged: (value) {
                         ref.read(genderProvider.notifier).state = value;
                       },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Gender is required';
-                        }
-
-                        return null;
-                      },
+                      validator: EmployeeValidator.gender,
                     ),
 
                     SizedBox(height: 16.h),
@@ -293,7 +160,7 @@ class EmployeeForm extends ConsumerWidget {
                       isRequired: true,
                       hint: "14 digits national ID",
                       textInputType: TextInputType.number,
-                      validator: _nationalIdValidator,
+                      validator: EmployeeValidator.nationalId,
                     ),
 
                     SizedBox(height: 16.h),
@@ -303,8 +170,7 @@ class EmployeeForm extends ConsumerWidget {
                       label: "Nationality",
                       isRequired: true,
                       hint: "Egyptian",
-                      validator: (value) =>
-                          _requiredValidator(value, 'Nationality'),
+                      validator: EmployeeValidator.nationality,
                     ),
                   ],
                 ),
@@ -348,30 +214,19 @@ class EmployeeForm extends ConsumerWidget {
                           isRequired: true,
                           hint: 'Select Department',
                           value: selectedDepartment,
-                          items: departments.map(
-                                (department) {
-                              return DropdownMenuItem<String>(
-                                value: department.id,
-                                child: CustomText(
-                                  title: department.name,
-                                ),
-                              );
-                            },
-                          ).toList(),
+                          items: departments.map((department) {
+                            return DropdownMenuItem<String>(
+                              value: department.id,
+                              child: CustomText(title: department.name),
+                            );
+                          }).toList(),
                           onChanged: (value) {
                             ref
-                                .read(
-                              selectedDepartmentProvider.notifier,
-                            )
-                                .state = value;
+                                    .read(selectedDepartmentProvider.notifier)
+                                    .state =
+                                value;
                           },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Department is required';
-                            }
-
-                            return null;
-                          },
+                          validator: EmployeeValidator.department,
                         );
                       },
                     ),
@@ -385,8 +240,7 @@ class EmployeeForm extends ConsumerWidget {
                       hint: "dd/mm/yyyy",
                       readOnly: true,
                       onTap: () => _pickContractDate(context),
-                      validator: (value) =>
-                          _dateValidator(value, 'Contract Date'),
+                      validator: EmployeeValidator.contractDateText,
                       suffix: Padding(
                         padding: EdgeInsets.all(14.r),
                         child: Icon(
@@ -405,7 +259,7 @@ class EmployeeForm extends ConsumerWidget {
                       isRequired: true,
                       hint: "Monthly Salary",
                       textInputType: TextInputType.number,
-                      validator: _salaryValidator,
+                      validator: EmployeeValidator.salaryText,
                     ),
                   ],
                 ),

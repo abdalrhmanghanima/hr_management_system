@@ -5,10 +5,16 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
+import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
 import 'package:hr_management_system/presentation/auth/providers/auth_state_provider.dart';
+import 'package:hr_management_system/presentation/auth/providers/logout_provider.dart';
+import 'package:hr_management_system/presentation/auth/screens/login_screen.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/department/departments_screen.dart';
+import 'package:hr_management_system/presentation/more/general_settings_screen.dart';
 import 'package:hr_management_system/presentation/more/widgets/more_option_row.dart';
+import 'package:hr_management_system/presentation/official_holiday/official_holidays_screen.dart';
 import 'package:hr_management_system/presentation/shared_widgets/user_avatar.dart';
 
 class MoreTab extends ConsumerWidget {
@@ -43,10 +49,7 @@ class MoreTab extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(
-                  color: const Color(0xFFE2E8F0),
-                  width: 1,
-                ),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.04),
@@ -75,7 +78,7 @@ class MoreTab extends ConsumerWidget {
                         SizedBox(height: 4.h),
 
                         CustomText(
-                          title: user?.email??"",
+                          title: user?.email ?? "",
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w400,
                           fontColor: const Color(0xFF64748B),
@@ -105,15 +108,12 @@ class MoreTab extends ConsumerWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20.h,),
+            SizedBox(height: 20.h),
             Container(
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(
-                  color: AppColors.border,
-                  width: 1,
-                ),
+                border: Border.all(color: AppColors.border, width: 1),
               ),
               child: Column(
                 children: [
@@ -121,91 +121,128 @@ class MoreTab extends ConsumerWidget {
                     iconPath: AppIcons.applicationUser,
                     title: 'Application Users',
                   ),
-                  Divider(
-                    height: 1,
-                    color: AppColors.border,
-                  ),
+                  Divider(height: 1, color: AppColors.border),
                   MoreOptionRow(
                     iconPath: AppIcons.department,
                     title: 'Departments',
                     onTap: () => NavigatorHandler.push(DepartmentsScreen()),
                   ),
-                  Divider(
-                    height: 1,
-                    color: AppColors.border,
-                  ),
+                  Divider(height: 1, color: AppColors.border),
                   MoreOptionRow(
                     iconPath: AppIcons.permission,
                     title: 'User Groups & Permissions',
                   ),
-                  Divider(
-                    height: 1,
-                    color: AppColors.border,
-                  ),
+                  Divider(height: 1, color: AppColors.border),
                   MoreOptionRow(
                     iconPath: AppIcons.greenCalender,
                     title: 'Official Holidays',
+                    onTap: () =>
+                        NavigatorHandler.push(const OfficialHolidaysScreen()),
                   ),
-                  Divider(
-                    height: 1,
-                    color: AppColors.border,
-                  ),
+                  Divider(height: 1, color: AppColors.border),
                   MoreOptionRow(
                     iconPath: AppIcons.settings,
                     title: 'General System Settings',
+                    onTap: () => NavigatorHandler.push(GeneralSettingsScreen()),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 20.h,),
-            Container(
-              height: 54.h,
-              padding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF2F2),
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(
-                  color: const Color(0xFFFFC7C7),
-                  width: 1,
+            SizedBox(height: 20.h),
+            InkWell(
+              onTap: () => _confirmSignOut(context, ref),
+              borderRadius: BorderRadius.circular(20.r),
+              child: Container(
+                height: 54.h,
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF2F2),
+                  borderRadius: BorderRadius.circular(20.r),
+                  border: Border.all(color: const Color(0xFFFFC7C7), width: 1),
                 ),
-              ),
-              child: Row(
-                children: [
-                  SvgPicture.asset(
-                    AppIcons.signOut,
-                    width: 20.w,
-                    height: 20.w,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.red,
-                      BlendMode.srcIn,
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      AppIcons.signOut,
+                      width: 20.w,
+                      height: 20.h,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.red,
+                        BlendMode.srcIn,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 16.w),
-                  Expanded(
-                    child: CustomText(
-                      title: 'Sign Out Account',
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      fontColor: AppColors.red,
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: CustomText(
+                        title: 'Sign Out Account',
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        fontColor: AppColors.red,
+                      ),
                     ),
-                  ),
-                  SvgPicture.asset(
-                    AppIcons.rightArrow,
-                    width: 20.w,
-                    height: 20.w,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.red,
-                      BlendMode.srcIn,
+                    SvgPicture.asset(
+                      AppIcons.rightArrow,
+                      width: 20.w,
+                      height: 20.h,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.red,
+                        BlendMode.srcIn,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
+    final pageContext = context;
+
+    await showDialog(
+      context: pageContext,
+      builder: (dialogContext) {
+        return Consumer(
+          builder: (dialogScopeContext, dialogRef, child) {
+            return DeleteConfirmationDialog(
+              title: 'Sign Out',
+              message: 'Are you sure you want to sign out of your account?',
+              isLoading: dialogRef.watch(logoutProvider).isLoading,
+              onDelete: () => _signOut(pageContext, ref, dialogContext),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _signOut(
+    BuildContext pageContext,
+    WidgetRef ref,
+    BuildContext dialogContext,
+  ) async {
+    await ref.read(logoutProvider.notifier).logout();
+
+    final logoutState = ref.read(logoutProvider);
+
+    if (!dialogContext.mounted) {
+      return;
+    }
+
+    Navigator.pop(dialogContext);
+
+    if (logoutState.hasError) {
+      CustomSnackBar.show(
+        pageContext,
+        message: 'Failed to sign out. Please try again',
+      );
+
+      return;
+    }
+
+    NavigatorHandler.pushAndRemoveUntil(LoginScreen());
   }
 }

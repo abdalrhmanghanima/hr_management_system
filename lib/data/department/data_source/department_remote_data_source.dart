@@ -5,6 +5,11 @@ abstract class DepartmentRemoteDataSource {
 
   Future<DepartmentModel> getDepartmentById(String id);
 
+  Future<DepartmentModel?> getDepartmentByName(
+    String name, {
+    String? excludingId,
+  });
+
   Future<void> addDepartment(DepartmentModel department);
 
   Future<void> updateDepartment(DepartmentModel department);

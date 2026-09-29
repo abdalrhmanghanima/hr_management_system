@@ -5,6 +5,11 @@ abstract class DepartmentRepository {
 
   Future<DepartmentEntity> getDepartmentById(String id);
 
+  Future<DepartmentEntity?> getDepartmentByName(
+    String name, {
+    String? excludingId,
+  });
+
   Future<void> addDepartment(DepartmentEntity department);
 
   Future<void> updateDepartment(DepartmentEntity department);

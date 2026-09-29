@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
+import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
 import 'package:hr_management_system/presentation/payroll/widgets/payroll_card.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_search_field.dart';
 
-class PayrollTab extends StatelessWidget {
+class PayrollTab extends ConsumerWidget {
   const PayrollTab({super.key});
 
+  Future<void> _refresh(WidgetRef ref) async {
+    await Future.wait([
+      ref.read(employeeProvider.notifier).getEmployees(),
+      ref.read(attendanceProvider.notifier).getAttendances(),
+    ]);
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
@@ -35,24 +45,28 @@ class PayrollTab extends StatelessWidget {
             SizedBox(height: 16.h),
 
             Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                itemCount: 5,
-                separatorBuilder: (context, index) => SizedBox(height: 16.h),
-                itemBuilder: (context, index) {
-                  return PayrollCard(
-                    employeeName: 'Ahmed Mohamed',
-                    department: 'Engineering',
-                    month: 'September 2026',
-                    netSalary: '15,070',
-                    basicSalary: '14,500',
-                    attendanceAbsence: '21d / 1d',
-                    overtime: '+660',
-                    deduction: '-90',
-                    onDetails: () {},
-                    onSalarySlip: () {},
-                  );
-                },
+              child: RefreshIndicator(
+                onRefresh: () => _refresh(ref),
+                child: ListView.separated(
+                  padding: EdgeInsets.zero,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: 5,
+                  separatorBuilder: (context, index) => SizedBox(height: 16.h),
+                  itemBuilder: (context, index) {
+                    return PayrollCard(
+                      employeeName: 'Ahmed Mohamed',
+                      department: 'Engineering',
+                      month: 'September 2026',
+                      netSalary: '15,070',
+                      basicSalary: '14,500',
+                      attendanceAbsence: '21d / 1d',
+                      overtime: '+660',
+                      deduction: '-90',
+                      onDetails: () {},
+                      onSalarySlip: () {},
+                    );
+                  },
+                ),
               ),
             ),
           ],

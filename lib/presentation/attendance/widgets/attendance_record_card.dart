@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/utils/date_parser.dart';
+import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 
 class AttendanceRecordCard extends StatelessWidget {
   final String name;
   final String department;
-  final String date;
+  final DateTime date;
   final String status;
-  final String checkIn;
-  final String checkOut;
-  final String overtime;
-  final Color statusColor;
-  final Color statusBackgroundColor;
+  final DateTime? checkIn;
+  final DateTime? checkOut;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const AttendanceRecordCard({
     super.key,
@@ -21,9 +22,8 @@ class AttendanceRecordCard extends StatelessWidget {
     required this.status,
     required this.checkIn,
     required this.checkOut,
-    required this.overtime,
-    required this.statusColor,
-    required this.statusBackgroundColor,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -33,11 +33,8 @@ class AttendanceRecordCard extends StatelessWidget {
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -56,203 +53,217 @@ class AttendanceRecordCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name,
-                      style: TextStyle(
-                        color: const Color(0xFF111827),
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    CustomText(
+                      title: name,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      fontColor: AppColors.black,
                     ),
                     SizedBox(height: 4.h),
-                    Row(
-                      children: [
-                        Text(
-                          department,
-                          style: TextStyle(
-                            color: const Color(0xFF94A3B8),
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        Text(
-                          ' • ',
-                          style: TextStyle(
-                            color: const Color(0xFF94A3B8),
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                        Text(
-                          date,
-                          style: TextStyle(
-                            color: const Color(0xFF94A3B8),
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                    CustomText(
+                      title: department,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w400,
+                      fontColor: const Color(0xFF64748B),
                     ),
                   ],
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12.w,
-                  vertical: 8.h,
-                ),
-                decoration: BoxDecoration(
-                  color: statusBackgroundColor,
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      color: statusColor,
-                      size: 15.w,
-                    ),
-                    SizedBox(width: 5.w),
-                    Text(
-                      status,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _StatusChip(status: status),
             ],
           ),
 
-          SizedBox(height: 24.h),
-
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Check-In',
-                      style: TextStyle(
-                        color: const Color(0xFF64748B),
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      checkIn,
-                      style: TextStyle(
-                        color: const Color(0xFF111827),
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Check-Out',
-                      style: TextStyle(
-                        color: const Color(0xFF64748B),
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      checkOut,
-                      style: TextStyle(
-                        color: const Color(0xFF111827),
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 10.h),
+          SizedBox(height: 14.h),
 
           Row(
             children: [
               Icon(
-                Icons.access_time,
-                color: AppColors.green,
-                size: 16.w,
+                Icons.calendar_today_outlined,
+                size: 15.w,
+                color: const Color(0xFF64748B),
               ),
-              SizedBox(width: 5.w),
-              Text(
-                overtime,
-                style: TextStyle(
-                  color: AppColors.green,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+              SizedBox(width: 6.w),
+              CustomText(
+                title: DateParser.toDisplayDate(date),
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                fontColor: const Color(0xFF475569),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 16.h),
+
+          Row(
+            children: [
+              Expanded(
+                child: _TimeInfo(
+                  label: 'Check In',
+                  value: _formatTime(checkIn),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: _TimeInfo(
+                  label: 'Check Out',
+                  value: _formatTime(checkOut),
                 ),
               ),
             ],
           ),
 
-          SizedBox(height: 24.h),
+          SizedBox(height: 14.h),
+
+          const Divider(height: 1, color: Color(0xFFE2E8F0)),
+
+          SizedBox(height: 10.h),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               InkWell(
-                onTap: () {},
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.edit_outlined,
-                      color: AppColors.primary,
-                      size: 18.w,
-                    ),
-                    SizedBox(width: 5.w),
-                    Text(
-                      'Edit',
-                      style: TextStyle(
+                onTap: onEdit,
+                borderRadius: BorderRadius.circular(8.r),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 17.w,
                         color: AppColors.primary,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 5.w),
+                      CustomText(
+                        title: 'Edit',
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        fontColor: AppColors.primary,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(width: 18.w),
+
+              SizedBox(width: 10.w),
+
               InkWell(
-                onTap: () {},
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.delete_outline,
-                      color: AppColors.red,
-                      size: 18.w,
-                    ),
-                    SizedBox(width: 5.w),
-                    Text(
-                      'Delete',
-                      style: TextStyle(
+                onTap: onDelete,
+                borderRadius: BorderRadius.circular(8.r),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.delete_outline,
+                        size: 17.w,
                         color: AppColors.red,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 5.w),
+                      CustomText(
+                        title: 'Delete',
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        fontColor: AppColors.red,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  String _formatTime(DateTime? time) {
+    if (time == null) {
+      return '--';
+    }
+
+    return DateParser.toDisplayTime(time);
+  }
+}
+
+class _TimeInfo extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _TimeInfo({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10.r),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(10.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            title: label,
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w400,
+            fontColor: const Color(0xFF64748B),
+          ),
+          SizedBox(height: 5.h),
+          CustomText(
+            title: value,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+            fontColor: AppColors.black,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String status;
+
+  const _StatusChip({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    Color color;
+    Color background;
+
+    switch (status) {
+      case 'Present':
+        color = AppColors.green;
+        background = const Color(0xFFE8F8F1);
+        break;
+
+      case 'Late':
+        color = const Color(0xFFD97706);
+        background = const Color(0xFFFFF7E6);
+        break;
+
+      case 'Absent':
+        color = AppColors.red;
+        background = const Color(0xFFFEECEC);
+        break;
+
+      default:
+        color = const Color(0xFF64748B);
+        background = const Color(0xFFF1F5F9);
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: CustomText(
+        title: status,
+        fontSize: 11.sp,
+        fontWeight: FontWeight.w600,
+        fontColor: color,
       ),
     );
   }

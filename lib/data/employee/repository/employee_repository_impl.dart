@@ -19,6 +19,17 @@ class EmployeeRepositoryImpl implements EmployeeRepository {
   }
 
   @override
+  Future<EmployeeEntity?> getEmployeeByNationalId(
+    String nationalId, {
+    String? excludingId,
+  }) {
+    return dataSource.getEmployeeByNationalId(
+      nationalId,
+      excludingId: excludingId,
+    );
+  }
+
+  @override
   Future<void> addEmployee(EmployeeEntity employee) {
     final model = EmployeeModel.fromEntity(employee);
     return dataSource.addEmployee(model);

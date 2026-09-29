@@ -3,15 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hr_management_system/data/department/data_source/department_remote_data_source.dart';
 import 'package:hr_management_system/data/department/model/department_model.dart';
 
-class DepartmentRemoteDataSourceImpl
-    implements DepartmentRemoteDataSource {
+class DepartmentRemoteDataSourceImpl implements DepartmentRemoteDataSource {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
 
-  DepartmentRemoteDataSourceImpl(
-      this.auth,
-      this.firestore,
-      );
+  DepartmentRemoteDataSourceImpl(this.auth, this.firestore);
 
   @override
   Future<List<DepartmentModel>> getDepartments() async {
@@ -24,8 +20,7 @@ class DepartmentRemoteDataSourceImpl
 
   @override
   Future<DepartmentModel> getDepartmentById(String id) async {
-    final document =
-    await firestore.collection('departments').doc(id).get();
+    final document = await firestore.collection('departments').doc(id).get();
 
     if (!document.exists) {
       throw Exception('Department not found');
@@ -35,25 +30,42 @@ class DepartmentRemoteDataSourceImpl
   }
 
   @override
+  Future<DepartmentModel?> getDepartmentByName(
+    String name, {
+    String? excludingId,
+  }) async {
+    final target = name.trim().toLowerCase();
+
+    for (final department in await getDepartments()) {
+      if (excludingId != null && department.id == excludingId) {
+        continue;
+      }
+
+      if (department.name.trim().toLowerCase() == target) {
+        return department;
+      }
+    }
+
+    return null;
+  }
+
+  @override
   Future<void> addDepartment(DepartmentModel department) async {
-    final document =
-    firestore.collection('departments').doc(department.id);
+    final document = firestore.collection('departments').doc(department.id);
 
     await document.set(department.toFirestore());
   }
 
   @override
   Future<void> updateDepartment(DepartmentModel department) async {
-    final document =
-    firestore.collection('departments').doc(department.id);
+    final document = firestore.collection('departments').doc(department.id);
 
     await document.update(department.toFirestore());
   }
 
   @override
   Future<void> deleteDepartment(String id) async {
-    final document =
-    firestore.collection('departments').doc(id);
+    final document = firestore.collection('departments').doc(id);
 
     await document.delete();
   }

@@ -1,0 +1,1 @@
+enum AttendanceImportStage { parsing, importing }

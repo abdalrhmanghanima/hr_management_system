@@ -20,13 +20,28 @@ class EmployeesTab extends ConsumerStatefulWidget {
 }
 
 class _EmployeesTabState extends ConsumerState<EmployeesTab> {
+  final TextEditingController searchController = TextEditingController();
+
+  String searchQuery = '';
+
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      ref.read(employeeProvider.notifier).getEmployees();
-    });
+    Future.microtask(_refresh);
+  }
+
+  Future<void> _refresh() async {
+    await Future.wait([
+      ref.read(employeeProvider.notifier).getEmployees(),
+      ref.read(departmentProvider.notifier).getDepartments(),
+    ]);
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -39,7 +54,7 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: CustomText(
-          title: "Employees",
+          title: 'Employees',
           fontSize: 18.sp,
           fontWeight: FontWeight.w400,
         ),
@@ -50,14 +65,20 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppSearchField(
+              controller: searchController,
               hintText: 'Search by name, phone, national ID...',
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.trim().toLowerCase();
+                });
+              },
             ),
+
             SizedBox(height: 16.h),
+
             Expanded(
               child: employeeState.when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, stackTrace) => Center(
                   child: CustomText(
                     title: error.toString(),
@@ -65,10 +86,31 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
                   ),
                 ),
                 data: (employees) {
-                  if (employees.isEmpty) {
-                    return const Center(
+                  final filteredEmployees = employees.where((employee) {
+                    if (searchQuery.isEmpty) {
+                      return true;
+                    }
+
+                    final name = employee.fullName.toLowerCase();
+
+                    final phone = employee.phoneNumber.toLowerCase();
+
+                    final nationalId = employee.nationalId.toLowerCase();
+
+                    return name.contains(searchQuery) ||
+                        phone.contains(searchQuery) ||
+                        nationalId.contains(searchQuery);
+                  }).toList();
+
+                  if (filteredEmployees.isEmpty) {
+                    return Center(
                       child: CustomText(
-                        title: 'No employees found',
+                        title: searchQuery.isEmpty
+                            ? 'No employees found'
+                            : 'No employees match your search',
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.gray,
                       ),
                     );
                   }
@@ -80,30 +122,32 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
                       department.id: department.name,
                   };
 
-                  return ListView.separated(
-                    padding: EdgeInsets.zero,
-                    itemCount: employees.length,
-                    separatorBuilder: (context, index) =>
-                        SizedBox(height: 16.h),
-                    itemBuilder: (context, index) {
-                      final employee = employees[index];
+                  return RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: ListView.separated(
+                      padding: EdgeInsets.zero,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: filteredEmployees.length,
+                      separatorBuilder: (context, index) {
+                        return SizedBox(height: 16.h);
+                      },
+                      itemBuilder: (context, index) {
+                        final employee = filteredEmployees[index];
 
-                      return EmployeeCard(
-                        name: employee.fullName,
-                        group:
-                        departmentNames[employee.departmentId] ?? '',
-                        phone: employee.phoneNumber,
-                        salary: employee.salary.toStringAsFixed(0),
-                        workShift: '09:00 - 17:00',
-                        onTap: () {
-                          NavigatorHandler.push(
-                            EmployeeDetails(
-                              employeeId: employee.id,
-                            ),
-                          );
-                        },
-                      );
-                    },
+                        return EmployeeCard(
+                          name: employee.fullName,
+                          group: departmentNames[employee.departmentId] ?? '',
+                          phone: employee.phoneNumber,
+                          salary: employee.salary.toStringAsFixed(0),
+                          workShift: '09:00 - 17:00',
+                          onTap: () {
+                            NavigatorHandler.push(
+                              EmployeeDetails(employeeId: employee.id),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -113,13 +157,10 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
       ),
       floatingActionButton: AppFloatingActionButton(
         onPressed: () {
-          NavigatorHandler.push(
-            const AddEmployee(),
-          );
+          NavigatorHandler.push(const AddEmployee());
         },
       ),
-      floatingActionButtonLocation:
-      FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

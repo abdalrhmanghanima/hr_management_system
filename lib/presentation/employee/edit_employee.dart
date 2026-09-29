@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_details_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/selected_department_provider.dart';
@@ -15,10 +17,7 @@ import 'package:hr_management_system/presentation/employee/widgets/employee_form
 class EditEmployee extends ConsumerStatefulWidget {
   final String employeeId;
 
-  const EditEmployee({
-    super.key,
-    required this.employeeId,
-  });
+  const EditEmployee({super.key, required this.employeeId});
 
   @override
   ConsumerState<EditEmployee> createState() => _EditEmployeeState();
@@ -30,10 +29,8 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController birthDateController = TextEditingController();
   final TextEditingController nationalIdController = TextEditingController();
-  final TextEditingController nationalityController =
-  TextEditingController();
-  final TextEditingController contractDateController =
-  TextEditingController();
+  final TextEditingController nationalityController = TextEditingController();
+  final TextEditingController contractDateController = TextEditingController();
   final TextEditingController salaryController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
@@ -52,9 +49,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
     fullNameController.text = employee.fullName;
     addressController.text = employee.address;
     phoneNumberController.text = employee.phoneNumber;
-    birthDateController.text = DateParser.toDisplayDate(
-      employee.birthDate,
-    );
+    birthDateController.text = DateParser.toDisplayDate(employee.birthDate);
     nationalIdController.text = employee.nationalId;
     nationalityController.text = employee.nationality;
     contractDateController.text = DateParser.toDisplayDate(
@@ -63,8 +58,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
     salaryController.text = employee.salary.toString();
 
     ref.read(genderProvider.notifier).state = employee.gender;
-    ref.read(selectedDepartmentProvider.notifier).state =
-        employee.departmentId;
+    ref.read(selectedDepartmentProvider.notifier).state = employee.departmentId;
   }
 
   @override
@@ -98,9 +92,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
       fullName: fullNameController.text.trim(),
       address: addressController.text.trim(),
       phoneNumber: phoneNumberController.text.trim(),
-      birthDate: DateParser.fromDisplayDate(
-        birthDateController.text.trim(),
-      ),
+      birthDate: DateParser.fromDisplayDate(birthDateController.text.trim()),
       nationalId: nationalIdController.text.trim(),
       nationality: nationalityController.text.trim(),
       gender: gender,
@@ -108,21 +100,35 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
       contractDate: DateParser.fromDisplayDate(
         contractDateController.text.trim(),
       ),
-      salary: double.parse(
-        salaryController.text.trim(),
-      ),
+      salary: double.parse(salaryController.text.trim()),
     );
 
-    await ref
+    final result = await ref
         .read(employeeProvider.notifier)
         .updateEmployee(employee);
 
-    ref.invalidate(
-      employeeDetailsProvider(widget.employeeId),
-    );
+    if (!mounted) {
+      return;
+    }
 
-    if (mounted) {
-      Navigator.pop(context);
+    switch (result) {
+      case SaveResult.success:
+        ref.invalidate(employeeDetailsProvider(widget.employeeId));
+
+        Navigator.pop(context);
+        break;
+      case SaveResult.duplicate:
+        CustomSnackBar.show(
+          context,
+          message: 'An employee with this National ID already exists',
+        );
+        break;
+      case SaveResult.failure:
+        CustomSnackBar.show(
+          context,
+          message: 'Failed to update employee. Please try again',
+        );
+        break;
     }
   }
 
@@ -131,9 +137,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
     final employeeState = ref.watch(employeeProvider);
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: const CustomAppBar(
-        title: "Edit Employee",
-      ),
+      appBar: const CustomAppBar(title: "Edit Employee"),
       body: Padding(
         padding: EdgeInsets.all(16.r),
         child: Column(

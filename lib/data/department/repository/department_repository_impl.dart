@@ -19,6 +19,14 @@ class DepartmentRepositoryImpl implements DepartmentRepository {
   }
 
   @override
+  Future<DepartmentEntity?> getDepartmentByName(
+    String name, {
+    String? excludingId,
+  }) {
+    return dataSource.getDepartmentByName(name, excludingId: excludingId);
+  }
+
+  @override
   Future<void> addDepartment(DepartmentEntity department) {
     final model = DepartmentModel.fromEntity(department);
 

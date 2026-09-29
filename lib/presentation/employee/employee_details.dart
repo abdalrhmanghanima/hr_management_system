@@ -6,6 +6,7 @@ import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
+import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
@@ -14,21 +15,17 @@ import 'package:hr_management_system/presentation/department/provider/department
 import 'package:hr_management_system/presentation/employee/edit_employee.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_details_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
+import 'package:hr_management_system/presentation/employee/widgets/attendance_quick_actions.dart';
 import 'package:hr_management_system/presentation/employee/widgets/employee_info_row.dart';
 
 class EmployeeDetails extends ConsumerWidget {
   final String employeeId;
 
-  const EmployeeDetails({
-    super.key,
-    required this.employeeId,
-  });
+  const EmployeeDetails({super.key, required this.employeeId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final employeeState = ref.watch(
-      employeeDetailsProvider(employeeId),
-    );
+    final employeeState = ref.watch(employeeDetailsProvider(employeeId));
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -36,21 +33,13 @@ class EmployeeDetails extends ConsumerWidget {
         title: "Employee Details",
         actionIconPath: AppIcons.edit,
         actionText: "Edit",
-        onActionPressed: () => NavigatorHandler.push(
-          EditEmployee(
-            employeeId: employeeId,
-          ),
-        ),
+        onActionPressed: () =>
+            NavigatorHandler.push(EditEmployee(employeeId: employeeId)),
       ),
       body: employeeState.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
-          child: CustomText(
-            title: error.toString(),
-            fontColor: AppColors.red,
-          ),
+          child: CustomText(title: error.toString(), fontColor: AppColors.red),
         ),
         data: (employee) {
           final departmentState = ref.watch(
@@ -71,10 +60,7 @@ class EmployeeDetails extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(24.r),
-                      border: Border.all(
-                        color: AppColors.border,
-                        width: 1,
-                      ),
+                      border: Border.all(color: AppColors.border, width: 1),
                     ),
                     child: Column(
                       children: [
@@ -112,9 +98,7 @@ class EmployeeDetails extends ConsumerWidget {
                             vertical: 7.h,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(
-                              alpha: 0.08,
-                            ),
+                            color: AppColors.primary.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: departmentState.when(
@@ -176,9 +160,7 @@ class EmployeeDetails extends ConsumerWidget {
                           EmployeeInfoRow(
                             icon: AppIcons.calendar,
                             title: "Birth Date",
-                            value: DateParser.toDisplayDate(
-                              employee.birthDate,
-                            ),
+                            value: DateParser.toDisplayDate(employee.birthDate),
                           ),
                           SizedBox(height: 14.h),
                           EmployeeInfoRow(
@@ -191,8 +173,7 @@ class EmployeeDetails extends ConsumerWidget {
                             children: [
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     CustomText(
                                       title: "Gender",
@@ -211,8 +192,7 @@ class EmployeeDetails extends ConsumerWidget {
                               ),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     CustomText(
                                       title: "Nationality",
@@ -264,8 +244,7 @@ class EmployeeDetails extends ConsumerWidget {
                           EmployeeInfoRow(
                             icon: AppIcons.payrollBlue,
                             title: "Basic Monthly Salary",
-                            value:
-                            "${employee.salary.toStringAsFixed(0)} EGP",
+                            value: "${employee.salary.toStringAsFixed(0)} EGP",
                           ),
                           SizedBox(height: 14.h),
                           EmployeeInfoRow(
@@ -277,18 +256,40 @@ class EmployeeDetails extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  SizedBox(height: 20.h),
+                  AttendanceQuickActions(
+                    employeeId: employee.id,
+                    monthlySalary: employee.salary,
+                  ),
                   SizedBox(height: 24.h),
                   CustomButton(
                     title: "Delete Employee",
                     isLoading: employeeState.isLoading,
-                    onTap: () async {
-                      await ref
-                          .read(employeeProvider.notifier)
-                          .deleteEmployee(employeeId);
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) {
+                          return DeleteConfirmationDialog(
+                            title: 'Delete Employee',
+                            message:
+                                'Are you sure you want to delete this employee? This action cannot be undone.',
+                            isLoading: employeeState.isLoading,
+                            onDelete: () async {
+                              await ref
+                                  .read(employeeProvider.notifier)
+                                  .deleteEmployee(employeeId);
 
-                      if (context.mounted) {
-                        NavigatorHandler.pop();
-                      }
+                              if (dialogContext.mounted) {
+                                Navigator.pop(dialogContext);
+                              }
+
+                              if (context.mounted) {
+                                NavigatorHandler.pop();
+                              }
+                            },
+                          );
+                        },
+                      );
                     },
                     bg: AppColors.red,
                     fontSize: 15.sp,

@@ -23,6 +23,26 @@ class EmployeeRemoteDataSourceImpl implements EmployeeRemoteDataSource {
   }
 
   @override
+  Future<EmployeeModel?> getEmployeeByNationalId(
+    String nationalId, {
+    String? excludingId,
+  }) async {
+    final target = nationalId.trim();
+
+    for (final employee in await getEmployees()) {
+      if (excludingId != null && employee.id == excludingId) {
+        continue;
+      }
+
+      if (employee.nationalId.trim() == target) {
+        return employee;
+      }
+    }
+
+    return null;
+  }
+
+  @override
   Future<void> addEmployee(EmployeeModel employee) async {
     final document = firestore.collection('employees').doc(employee.id);
     await document.set(employee.toFirestore());

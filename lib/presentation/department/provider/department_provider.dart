@@ -9,61 +9,49 @@ import 'package:hr_management_system/domain/department/repository/department_rep
 import 'package:hr_management_system/domain/department/use_case/add_department.dart';
 import 'package:hr_management_system/domain/department/use_case/delete_department.dart';
 import 'package:hr_management_system/domain/department/use_case/get_department_by_id.dart';
+import 'package:hr_management_system/domain/department/use_case/get_department_by_name.dart';
 import 'package:hr_management_system/domain/department/use_case/get_departments.dart';
 import 'package:hr_management_system/domain/department/use_case/update_department.dart';
 import 'package:hr_management_system/presentation/department/provider/department_notifier.dart';
 
 final departmentProvider =
-AsyncNotifierProvider<DepartmentNotifier, List<DepartmentEntity>>(
-  DepartmentNotifier.new,
+    AsyncNotifierProvider<DepartmentNotifier, List<DepartmentEntity>>(
+      DepartmentNotifier.new,
+    );
+
+final departmentRemoteDataSourceProvider = Provider<DepartmentRemoteDataSource>(
+  (ref) {
+    return DepartmentRemoteDataSourceImpl(
+      FirebaseAuth.instance,
+      FirebaseFirestore.instance,
+    );
+  },
 );
 
-final departmentRemoteDataSourceProvider =
-Provider<DepartmentRemoteDataSource>((ref) {
-  return DepartmentRemoteDataSourceImpl(
-    FirebaseAuth.instance,
-    FirebaseFirestore.instance,
-  );
+final departmentRepositoryProvider = Provider<DepartmentRepository>((ref) {
+  return DepartmentRepositoryImpl(ref.read(departmentRemoteDataSourceProvider));
 });
 
-final departmentRepositoryProvider =
-Provider<DepartmentRepository>((ref) {
-  return DepartmentRepositoryImpl(
-    ref.read(departmentRemoteDataSourceProvider),
-  );
+final getDepartmentsUseCaseProvider = Provider<GetDepartments>((ref) {
+  return GetDepartments(ref.read(departmentRepositoryProvider));
 });
 
-final getDepartmentsUseCaseProvider =
-Provider<GetDepartments>((ref) {
-  return GetDepartments(
-    ref.read(departmentRepositoryProvider),
-  );
+final getDepartmentByIdUseCaseProvider = Provider<GetDepartmentById>((ref) {
+  return GetDepartmentById(ref.read(departmentRepositoryProvider));
 });
 
-final getDepartmentByIdUseCaseProvider =
-Provider<GetDepartmentById>((ref) {
-  return GetDepartmentById(
-    ref.read(departmentRepositoryProvider),
-  );
+final getDepartmentByNameUseCaseProvider = Provider<GetDepartmentByName>((ref) {
+  return GetDepartmentByName(ref.read(departmentRepositoryProvider));
 });
 
-final addDepartmentUseCaseProvider =
-Provider<AddDepartment>((ref) {
-  return AddDepartment(
-    ref.read(departmentRepositoryProvider),
-  );
+final addDepartmentUseCaseProvider = Provider<AddDepartment>((ref) {
+  return AddDepartment(ref.read(departmentRepositoryProvider));
 });
 
-final updateDepartmentUseCaseProvider =
-Provider<UpdateDepartment>((ref) {
-  return UpdateDepartment(
-    ref.read(departmentRepositoryProvider),
-  );
+final updateDepartmentUseCaseProvider = Provider<UpdateDepartment>((ref) {
+  return UpdateDepartment(ref.read(departmentRepositoryProvider));
 });
 
-final deleteDepartmentUseCaseProvider =
-Provider<DeleteDepartment>((ref) {
-  return DeleteDepartment(
-    ref.read(departmentRepositoryProvider),
-  );
+final deleteDepartmentUseCaseProvider = Provider<DeleteDepartment>((ref) {
+  return DeleteDepartment(ref.read(departmentRepositoryProvider));
 });
