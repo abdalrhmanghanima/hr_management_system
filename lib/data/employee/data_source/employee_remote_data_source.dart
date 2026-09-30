@@ -15,4 +15,6 @@ abstract class EmployeeRemoteDataSource {
   Future<void> updateEmployee(EmployeeModel employee);
 
   Future<void> deleteEmployee(String id);
+
+  Future<void> linkEmployeeAccount(String id, String authUid);
 }

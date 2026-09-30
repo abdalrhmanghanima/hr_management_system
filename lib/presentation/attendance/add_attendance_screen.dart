@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -5,10 +6,13 @@ import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
+import 'package:hr_management_system/domain/group/entity/group_module.dart';
+import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/selected_attendance_status_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/selected_employee_provider.dart';
 import 'package:hr_management_system/presentation/attendance/widgets/attendance_form.dart';
+import 'package:hr_management_system/presentation/authorization/widgets/permission_guard.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
 import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
@@ -92,13 +96,13 @@ class _AddAttendanceScreenState extends ConsumerState<AddAttendanceScreen> {
       case SaveResult.duplicate:
         CustomSnackBar.show(
           context,
-          message: 'An attendance record already exists for this date',
+          message: 'attendance.duplicate'.tr(),
         );
         break;
       case SaveResult.failure:
         CustomSnackBar.show(
           context,
-          message: 'Failed to add attendance. Please try again',
+          message: 'attendance.add_failed'.tr(),
         );
         break;
     }
@@ -107,33 +111,37 @@ class _AddAttendanceScreenState extends ConsumerState<AddAttendanceScreen> {
   @override
   Widget build(BuildContext context) {
     final attendanceState = ref.watch(attendanceProvider);
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: CustomAppBar(title: "Add Attendance"),
-      body: Padding(
-        padding: EdgeInsets.all(16.r),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AttendanceForm(
-              formKey: formKey,
-              attendanceDateController: attendanceDateController,
-              checkInTimeController: checkInTimeController,
-              checkOutTimeController: checkOutTimeController,
-            ),
-            SizedBox(height: 16.h),
+    return PermissionGuard(
+      module: GroupModules.attendance,
+      action: PermissionAction.add,
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        appBar: CustomAppBar(title: "attendance.add_title".tr()),
+        body: Padding(
+          padding: EdgeInsets.all(16.r),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AttendanceForm(
+                formKey: formKey,
+                attendanceDateController: attendanceDateController,
+                checkInTimeController: checkInTimeController,
+                checkOutTimeController: checkOutTimeController,
+              ),
+              SizedBox(height: 16.h),
 
-            CustomButton(
-              title: "Save Attendance",
-              fontSize: 15.sp,
-              isLoading: attendanceState.isLoading,
-              fontWeight: FontWeight.w400,
-              onTap: _saveAttendance,
-              bg: AppColors.primary,
-            ),
+              CustomButton(
+                title: 'attendance.save_button'.tr(),
+                fontSize: 15.sp,
+                isLoading: attendanceState.isLoading,
+                fontWeight: FontWeight.w400,
+                onTap: _saveAttendance,
+                bg: AppColors.primary,
+              ),
 
-            SizedBox(height: 8.h),
-          ],
+              SizedBox(height: 8.h),
+            ],
+          ),
         ),
       ),
     );

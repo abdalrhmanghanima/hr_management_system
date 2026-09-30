@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hr_management_system/main.dart';
+import '../../helpers/localization_test_helper.dart';
 import 'package:hr_management_system/presentation/attendance/attendance_import_screen.dart';
 
 void main() {
@@ -11,10 +13,12 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          navigatorKey: navigatorKey,
-          home: const AttendanceImportScreen(),
+      wrapWithLocalization(
+        ProviderScope(
+          child: TestApp(
+            navigatorKey: navigatorKey,
+            home: const AttendanceImportScreen(),
+          ),
         ),
       ),
     );
@@ -22,8 +26,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Import Attendance'), findsWidgets);
-    expect(find.text('Choose File'), findsOneWidget);
+    expect(find.text('attendance_import.title'.tr()), findsWidgets);
+    expect(find.text('attendance_import.choose_file'.tr()), findsOneWidget);
 
     await tester.drag(find.byType(ListView), const Offset(0, -200));
     await tester.pumpAndSettle();

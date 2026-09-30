@@ -10,6 +10,8 @@ class EmployeeEntity {
   final String departmentId;
   final DateTime contractDate;
   final double salary;
+  final bool hasAccount;
+  final String? authUid;
 
   const EmployeeEntity({
     required this.id,
@@ -23,5 +25,7 @@ class EmployeeEntity {
     required this.departmentId,
     required this.contractDate,
     required this.salary,
+    this.hasAccount = false,
+    this.authUid,
   });
 }

@@ -37,6 +37,20 @@ class FakeAuthRepo implements AuthRepo {
       throw Exception('sign out failed');
     }
   }
+
+  @override
+  Future<UserEntity?> getUserByUid(String uid) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateUserGroup({
+    required String uid,
+    required String employeeId,
+    String? groupId,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 class FakeEmployeeRepository implements EmployeeRepository {
@@ -72,6 +86,11 @@ class FakeEmployeeRepository implements EmployeeRepository {
 
   @override
   Future<void> deleteEmployee(String id) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> linkEmployeeAccount(String id, String authUid) {
     throw UnimplementedError();
   }
 }

@@ -11,29 +11,47 @@ class EmployeeValidator {
 
   static final RegExp _displayDatePattern = RegExp(r'^\d{2}/\d{2}/\d{4}$');
 
+  static const String addressRequiredKey =
+      'validation.employee.address_required';
+
+  static const String departmentRequiredKey =
+      'validation.employee.department_required';
+
+  static const String nationalityRequiredKey =
+      'validation.employee.nationality_required';
+
+  static const String genderRequiredKey =
+      'validation.employee.gender_required';
+
+  static const String contractDateRequiredKey =
+      'validation.employee.contract_date_required';
+
+  static const String birthDateRequiredKey =
+      'validation.employee.birth_date_required';
+
   static String? fullName(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Full Name is required';
+      return 'validation.employee.full_name_required';
     }
 
     if (value.trim().length < 3) {
-      return 'Full Name must be at least 3 characters';
+      return 'validation.employee.full_name_short';
     }
 
     return null;
   }
 
   static String? address(String? value) {
-    return required(value, 'Address');
+    return required(value, addressRequiredKey);
   }
 
   static String? phoneNumber(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Phone Number is required';
+      return 'validation.employee.phone_required';
     }
 
     if (!_phonePattern.hasMatch(value.trim())) {
-      return 'Enter a valid Egyptian phone number';
+      return 'validation.employee.phone_invalid';
     }
 
     return null;
@@ -41,41 +59,41 @@ class EmployeeValidator {
 
   static String? nationalId(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'National ID is required';
+      return 'validation.employee.national_id_required';
     }
 
     if (!_nationalIdPattern.hasMatch(value.trim())) {
-      return 'National ID must be 14 digits';
+      return 'validation.employee.national_id_invalid';
     }
 
     return null;
   }
 
   static String? nationality(String? value) {
-    return required(value, 'Nationality');
+    return required(value, nationalityRequiredKey);
   }
 
   static String? gender(String? value) {
-    return required(value, 'Gender');
+    return required(value, genderRequiredKey);
   }
 
   static String? department(String? value) {
-    return required(value, 'Department');
+    return required(value, departmentRequiredKey);
   }
 
   static String? salaryText(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Salary is required';
+      return 'validation.employee.salary_required';
     }
 
     final salary = double.tryParse(value.trim());
 
     if (salary == null) {
-      return 'Enter a valid salary';
+      return 'validation.employee.salary_invalid';
     }
 
     if (salary <= 0) {
-      return 'Salary must be greater than 0';
+      return 'validation.employee.salary_positive';
     }
 
     return null;
@@ -83,25 +101,25 @@ class EmployeeValidator {
 
   static String? salary(double? value) {
     if (value == null) {
-      return 'Salary is required';
+      return 'validation.employee.salary_required';
     }
 
     if (value <= 0) {
-      return 'Salary must be greater than 0';
+      return 'validation.employee.salary_positive';
     }
 
     return null;
   }
 
-  static String? displayDate(String? value, String fieldName) {
+  static String? displayDate(String? value, String requiredKey) {
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
+      return requiredKey;
     }
 
     final date = value.trim();
 
     if (!_displayDatePattern.hasMatch(date)) {
-      return 'Enter date as dd/mm/yyyy';
+      return 'validation.date_format';
     }
 
     final parts = date.split('/');
@@ -111,7 +129,7 @@ class EmployeeValidator {
     final year = int.tryParse(parts[2]);
 
     if (day == null || month == null || year == null) {
-      return 'Enter a valid date';
+      return 'validation.date_invalid';
     }
 
     final parsedDate = DateTime(year, month, day);
@@ -119,26 +137,26 @@ class EmployeeValidator {
     if (parsedDate.year != year ||
         parsedDate.month != month ||
         parsedDate.day != day) {
-      return 'Enter a valid date';
+      return 'validation.date_invalid';
     }
 
     return null;
   }
 
   static String? contractDateText(String? value) {
-    return displayDate(value, 'Contract Date');
+    return displayDate(value, contractDateRequiredKey);
   }
 
   static String? contractDate(DateTime? value) {
     if (value == null) {
-      return 'Contract Date is required';
+      return contractDateRequiredKey;
     }
 
     return null;
   }
 
   static String? birthDateText(String? value) {
-    final error = displayDate(value, 'Birth Date');
+    final error = displayDate(value, birthDateRequiredKey);
 
     if (error != null) {
       return error;
@@ -149,7 +167,7 @@ class EmployeeValidator {
 
   static String? birthDate(DateTime? value) {
     if (value == null) {
-      return 'Birth Date is required';
+      return birthDateRequiredKey;
     }
 
     final today = DateTime.now();
@@ -157,15 +175,15 @@ class EmployeeValidator {
     final minimumBirthDate = DateTime(today.year - 20, today.month, today.day);
 
     if (value.isAfter(minimumBirthDate)) {
-      return 'Employee must be at least 20 years old';
+      return 'validation.employee.age_restriction';
     }
 
     return null;
   }
 
-  static String? required(String? value, String fieldName) {
+  static String? required(String? value, String requiredKey) {
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
+      return requiredKey;
     }
 
     return null;

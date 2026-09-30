@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
@@ -9,9 +10,8 @@ class AttendanceImportHeader extends StatelessWidget {
 
   const AttendanceImportHeader({
     super.key,
-    this.title = 'Import Attendance',
-    this.description =
-        'Select an attendance file to add attendance records for your employees in one step.',
+    this.title = 'attendance_import.title',
+    this.description = 'attendance_import.header_description',
   });
 
   @override
@@ -20,7 +20,7 @@ class AttendanceImportHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomText(
-          title: title,
+          title: title.tr(),
           fontSize: 20.sp,
           fontWeight: FontWeight.w700,
           fontColor: AppColors.black,
@@ -29,7 +29,7 @@ class AttendanceImportHeader extends StatelessWidget {
         SizedBox(height: 6.h),
 
         CustomText(
-          title: description,
+          title: description.tr(),
           fontSize: 14.sp,
           fontWeight: FontWeight.w400,
           fontColor: AppColors.gray,

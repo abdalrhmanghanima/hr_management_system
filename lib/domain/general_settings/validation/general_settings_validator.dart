@@ -7,11 +7,11 @@ class GeneralSettingsValidator {
     final parsed = double.tryParse(value?.trim() ?? '');
 
     if (parsed == null) {
-      return 'Multiplier is required';
+      return 'validation.settings.multiplier_required';
     }
 
     if (parsed <= 0) {
-      return 'Multiplier must be greater than 0';
+      return 'validation.settings.multiplier_positive';
     }
 
     return null;
@@ -21,11 +21,11 @@ class GeneralSettingsValidator {
     final parsed = double.tryParse(value?.trim() ?? '');
 
     if (parsed == null) {
-      return 'Working Hours Per Day is required';
+      return 'validation.settings.working_hours_required';
     }
 
     if (parsed <= 0) {
-      return 'Working Hours Per Day must be greater than 0';
+      return 'validation.settings.working_hours_positive';
     }
 
     return null;
@@ -33,7 +33,7 @@ class GeneralSettingsValidator {
 
   static String? weekendDays(List<String> days) {
     if (days.isEmpty) {
-      return 'Select at least one weekend day';
+      return 'validation.settings.weekend_days_required';
     }
 
     return null;

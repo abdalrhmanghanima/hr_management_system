@@ -14,6 +14,8 @@ class EmployeeModel extends EmployeeEntity {
     required super.departmentId,
     required super.contractDate,
     required super.salary,
+    super.hasAccount,
+    super.authUid,
   });
 
   factory EmployeeModel.fromFirestore(
@@ -33,6 +35,8 @@ class EmployeeModel extends EmployeeEntity {
       departmentId: data['departmentId'] as String? ?? '',
       contractDate: (data['contractDate'] as Timestamp).toDate(),
       salary: (data['salary'] as num?)?.toDouble() ?? 0.0,
+      hasAccount: data['hasAccount'] as bool? ?? false,
+      authUid: data['authUid'] as String?,
     );
   }
 
@@ -48,8 +52,11 @@ class EmployeeModel extends EmployeeEntity {
       'departmentId': departmentId,
       'contractDate': Timestamp.fromDate(contractDate),
       'salary': salary,
+      'hasAccount': hasAccount,
+      'authUid': authUid,
     };
   }
+
   factory EmployeeModel.fromEntity(EmployeeEntity employee) {
     return EmployeeModel(
       id: employee.id,
@@ -63,6 +70,8 @@ class EmployeeModel extends EmployeeEntity {
       departmentId: employee.departmentId,
       contractDate: employee.contractDate,
       salary: employee.salary,
+      hasAccount: employee.hasAccount,
+      authUid: employee.authUid,
     );
   }
 }

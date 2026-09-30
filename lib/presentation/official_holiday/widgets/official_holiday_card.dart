@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
@@ -9,14 +10,14 @@ import 'package:hr_management_system/presentation/components/custom_text/custom_
 
 class OfficialHolidayCard extends StatelessWidget {
   final OfficialHolidayEntity holiday;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const OfficialHolidayCard({
     super.key,
     required this.holiday,
-    required this.onEdit,
-    required this.onDelete,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -72,7 +73,9 @@ class OfficialHolidayCard extends StatelessWidget {
                 SizedBox(height: 8.h),
 
                 CustomText(
-                  title: 'Date: ${DateParser.toIsoDate(holiday.date)}',
+                  title: 'holiday.date_line'.tr(
+                    namedArgs: {'date': DateParser.toIsoDate(holiday.date)},
+                  ),
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w400,
                   fontColor: AppColors.gray,

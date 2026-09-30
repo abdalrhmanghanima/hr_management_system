@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
@@ -20,9 +21,9 @@ class OfficialHolidayForm extends StatelessWidget {
     this.initialDate,
   });
 
-  String? _requiredValidator(String? value, String fieldName) {
+  String? _requiredValidator(String? value, String errorKey) {
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
+      return errorKey.tr();
     }
 
     return null;
@@ -50,7 +51,7 @@ class OfficialHolidayForm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomText(
-              title: 'Holiday Information',
+              title: 'holiday.form_title'.tr(),
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
             ),
@@ -70,23 +71,24 @@ class OfficialHolidayForm extends StatelessWidget {
                   children: [
                     CustomTextFormField(
                       controller: nameController,
-                      label: 'Holiday Name',
+                      label: 'holiday.name_label'.tr(),
                       isRequired: true,
-                      hint: 'Enter holiday name',
-                      validator: (value) =>
-                          _requiredValidator(value, 'Holiday Name'),
+                      hint: 'holiday.name_hint'.tr(),
+      validator: (value) =>
+          _requiredValidator(value, 'validation.holiday.name_required'),
                     ),
 
                     SizedBox(height: 16.h),
 
                     CustomTextFormField(
                       controller: dateController,
-                      label: 'Date',
+                      label: 'holiday.date_label'.tr(),
                       isRequired: true,
-                      hint: 'dd/mm/yyyy',
+                      hint: 'holiday.date_hint'.tr(),
                       readOnly: true,
                       onTap: () => _pickHolidayDate(context),
-                      validator: (value) => _requiredValidator(value, 'Date'),
+                      validator: (value) =>
+          _requiredValidator(value, 'validation.holiday.date_required'),
                       suffix: Padding(
                         padding: EdgeInsets.all(14.r),
                         child: Icon(
@@ -106,3 +108,4 @@ class OfficialHolidayForm extends StatelessWidget {
     );
   }
 }
+

@@ -1,14 +1,16 @@
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../../main.dart';
-
-String get currentLang =>
-    navigatorKey.currentContext?.locale.languageCode ?? 'ar';
+String get currentLang => AppLocalization.languageCode;
 
 class AppTextStyles {
-  static const String fontFamily = 'DMSerifDisplay';
+  static const String fontFamily = AppTextFontFamily.display;
+
+  static String? get resolvedFontFamily => AppLocalization.fontFamily();
+
+  static List<String>? get resolvedFontFamilyFallback =>
+      AppLocalization.fontFamilyFallback();
 
   TextStyle normalText({
     double fontSize = 14,
@@ -16,7 +18,8 @@ class AppTextStyles {
   }) {
     return TextStyle(
       fontSize: fontSize,
-      fontFamily: fontFamily,
+      fontFamily: resolvedFontFamily,
+      fontFamilyFallback: resolvedFontFamilyFallback,
       decoration: decoration,
       decorationColor: AppColors.gray,
     );
@@ -28,10 +31,11 @@ class AppTextStyles {
   }) {
     return TextStyle(
       fontSize: fontSize,
-      fontFamily: fontFamily,
-      fontStyle: FontStyle.italic,
+      fontFamily: resolvedFontFamily,
+      fontFamilyFallback: resolvedFontFamilyFallback,
       decoration: decoration,
       decorationColor: AppColors.gray,
+      fontStyle: FontStyle.italic,
     );
   }
 }
@@ -39,12 +43,14 @@ class AppTextStyles {
 extension TextStyleExtension on TextStyle {
   TextStyle textColorNormal(Color color) => copyWith(
     color: color,
-    fontFamily: AppTextStyles.fontFamily,
+    fontFamily: AppTextStyles.resolvedFontFamily,
+    fontFamilyFallback: AppTextStyles.resolvedFontFamilyFallback,
   );
 
   TextStyle textColorBold(Color color) => copyWith(
     color: color,
-    fontFamily: AppTextStyles.fontFamily,
+    fontFamily: AppTextStyles.resolvedFontFamily,
+    fontFamilyFallback: AppTextStyles.resolvedFontFamilyFallback,
     fontWeight: FontWeight.bold,
   );
 
@@ -54,7 +60,8 @@ extension TextStyleExtension on TextStyle {
       ) =>
       copyWith(
         color: color,
-        fontFamily: AppTextStyles.fontFamily,
+        fontFamily: AppTextStyles.resolvedFontFamily,
+        fontFamilyFallback: AppTextStyles.resolvedFontFamilyFallback,
         decorationColor: decoration,
         decoration: TextDecoration.underline,
       );
@@ -65,7 +72,8 @@ extension TextStyleExtension on TextStyle {
       ) =>
       copyWith(
         color: color,
-        fontFamily: AppTextStyles.fontFamily,
+        fontFamily: AppTextStyles.resolvedFontFamily,
+        fontFamilyFallback: AppTextStyles.resolvedFontFamilyFallback,
         fontWeight: FontWeight.bold,
         decorationColor: decoration,
         decoration: TextDecoration.underline,

@@ -5,6 +5,7 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/resources/font_size.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
+import '../custom_svg/custom_svg_icon.dart';
 import '../custom_text/custom_text.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -61,10 +62,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? IconButton(
         onPressed: onPressed ?? () => Navigator.pop(context),
         padding: EdgeInsets.zero,
-        icon: SvgPicture.asset(
-          AppIcons.leftArrow,
+        icon: CustomSvgIcon(
+          assetName: AppIcons.leftArrow,
           width: 22.w,
           height: 22.w,
+          mirrorInRtl: true,
         ),
       )
           : null,

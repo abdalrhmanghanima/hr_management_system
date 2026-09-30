@@ -18,6 +18,18 @@ const List<String> weekDayNames = [
   'Sunday',
 ];
 
+const List<String> genderValues = [
+  'Male',
+  'Female',
+];
+
+const List<String> attendanceStatusValues = [
+  'Present',
+  'Absent',
+  'Late',
+  'Leave',
+];
+
 const String playStore = 'https://play.google.com/store/apps/details?id=';
 const String appStore = 'https://apps.apple.com/app/';
 const String appId = '';

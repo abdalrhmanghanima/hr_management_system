@@ -1,8 +1,10 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:hr_management_system/core/utils/date_picker_helper.dart';
 import 'package:hr_management_system/domain/employee/validation/employee_validator.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
@@ -68,7 +70,7 @@ class EmployeeForm extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomText(
-              title: "Personal Information",
+              title: "employee.personal_information".tr(),
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
             ),
@@ -86,43 +88,47 @@ class EmployeeForm extends ConsumerWidget {
                   children: [
                     CustomTextFormField(
                       controller: fullNameController,
-                      label: "Full Name",
+                      label: "employee.field.full_name".tr(),
                       isRequired: true,
-                      hint: "e.g. Ahmed Mohamed",
-                      validator: EmployeeValidator.fullName,
+                      hint: "employee.hint.full_name".tr(),
+                      validator: AppLocalization.translateValidator(EmployeeValidator.fullName),
                     ),
 
                     SizedBox(height: 16.h),
 
                     CustomTextFormField(
                       controller: addressController,
-                      label: "Address",
+                      label: "employee.field.address".tr(),
                       isRequired: true,
-                      hint: "home address",
-                      validator: EmployeeValidator.address,
+                      hint: "employee.hint.address".tr(),
+                      validator: AppLocalization.translateValidator(EmployeeValidator.address),
                     ),
 
                     SizedBox(height: 16.h),
 
                     CustomTextFormField(
                       controller: phoneNumberController,
-                      label: "Phone Number",
+                      label: "employee.field.phone_number".tr(),
                       isRequired: true,
-                      hint: "e.g. 01012345678",
+                      hint: "employee.hint.phone_number".tr(),
                       textInputType: TextInputType.phone,
-                      validator: EmployeeValidator.phoneNumber,
+                      validator: AppLocalization.translateValidator(
+                        EmployeeValidator.phoneNumber,
+                      ),
                     ),
 
                     SizedBox(height: 16.h),
 
                     CustomTextFormField(
                       controller: birthDateController,
-                      label: "Birth Date",
+                      label: "employee.field.birth_date".tr(),
                       isRequired: true,
-                      hint: "dd/mm/yyyy",
+                      hint: "employee.hint.date".tr(),
                       readOnly: true,
                       onTap: () => _pickBirthDate(context),
-                      validator: EmployeeValidator.birthDateText,
+                      validator: AppLocalization.translateValidator(
+                        EmployeeValidator.birthDateText,
+                      ),
                       suffix: Padding(
                         padding: EdgeInsets.all(14.r),
                         child: Icon(
@@ -136,41 +142,41 @@ class EmployeeForm extends ConsumerWidget {
                     SizedBox(height: 16.h),
 
                     CustomDropdownField<String>(
-                      label: "Gender",
+                      label: "employee.field.gender".tr(),
                       isRequired: true,
-                      hint: "Select Gender",
+                      hint: "employee.select_gender".tr(),
                       value: selectedGender,
                       items: genders.map((gender) {
                         return DropdownMenuItem<String>(
                           value: gender,
-                          child: Text(gender),
+                          child: Text(AppLocalization.gender(context, gender)),
                         );
                       }).toList(),
                       onChanged: (value) {
                         ref.read(genderProvider.notifier).state = value;
                       },
-                      validator: EmployeeValidator.gender,
+                      validator: AppLocalization.translateValidator(EmployeeValidator.gender),
                     ),
 
                     SizedBox(height: 16.h),
 
                     CustomTextFormField(
                       controller: nationalIdController,
-                      label: "National ID",
+                      label: "employee.field.national_id".tr(),
                       isRequired: true,
-                      hint: "14 digits national ID",
+                      hint: "employee.hint.national_id".tr(),
                       textInputType: TextInputType.number,
-                      validator: EmployeeValidator.nationalId,
+                      validator: AppLocalization.translateValidator(EmployeeValidator.nationalId),
                     ),
 
                     SizedBox(height: 16.h),
 
                     CustomTextFormField(
                       controller: nationalityController,
-                      label: "Nationality",
+                      label: "employee.field.nationality".tr(),
                       isRequired: true,
-                      hint: "Egyptian",
-                      validator: EmployeeValidator.nationality,
+                      hint: "employee.hint.nationality".tr(),
+                      validator: AppLocalization.translateValidator(EmployeeValidator.nationality),
                     ),
                   ],
                 ),
@@ -180,7 +186,7 @@ class EmployeeForm extends ConsumerWidget {
             SizedBox(height: 12.h),
 
             CustomText(
-              title: "Work Information",
+              title: "employee.work_information".tr(),
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
             ),
@@ -203,16 +209,16 @@ class EmployeeForm extends ConsumerWidget {
 
                       error: (error, stackTrace) {
                         return CustomText(
-                          title: 'Failed to load departments',
+                          title: 'department.load_failed'.tr(),
                           fontColor: AppColors.red,
                         );
                       },
 
                       data: (departments) {
                         return CustomDropdownField<String>(
-                          label: 'Department',
+                          label: 'employee.field.department'.tr(),
                           isRequired: true,
-                          hint: 'Select Department',
+                          hint: 'employee.select_department'.tr(),
                           value: selectedDepartment,
                           items: departments.map((department) {
                             return DropdownMenuItem<String>(
@@ -226,7 +232,9 @@ class EmployeeForm extends ConsumerWidget {
                                     .state =
                                 value;
                           },
-                          validator: EmployeeValidator.department,
+                          validator: AppLocalization.translateValidator(
+                            EmployeeValidator.department,
+                          ),
                         );
                       },
                     ),
@@ -235,12 +243,14 @@ class EmployeeForm extends ConsumerWidget {
 
                     CustomTextFormField(
                       controller: contractDateController,
-                      label: "Contract Date",
+                      label: "employee.field.contract_date".tr(),
                       isRequired: true,
-                      hint: "dd/mm/yyyy",
+                      hint: "employee.hint.date".tr(),
                       readOnly: true,
                       onTap: () => _pickContractDate(context),
-                      validator: EmployeeValidator.contractDateText,
+                      validator: AppLocalization.translateValidator(
+                        EmployeeValidator.contractDateText,
+                      ),
                       suffix: Padding(
                         padding: EdgeInsets.all(14.r),
                         child: Icon(
@@ -255,11 +265,11 @@ class EmployeeForm extends ConsumerWidget {
 
                     CustomTextFormField(
                       controller: salaryController,
-                      label: "Salary (EGP)",
+                      label: "employee.field.salary".tr(),
                       isRequired: true,
-                      hint: "Monthly Salary",
+                      hint: "employee.hint.salary".tr(),
                       textInputType: TextInputType.number,
-                      validator: EmployeeValidator.salaryText,
+                      validator: AppLocalization.translateValidator(EmployeeValidator.salaryText),
                     ),
                   ],
                 ),
@@ -271,3 +281,4 @@ class EmployeeForm extends ConsumerWidget {
     );
   }
 }
+

@@ -1,0 +1,170 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function currentUserPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function userDocExists() {
+      return isSignedIn() && exists(currentUserPath());
+    }
+
+    function isActive() {
+      return userDocExists() && get(currentUserPath()).data.isActive == true;
+    }
+
+    function currentGroupId() {
+      return get(currentUserPath()).data.groupId;
+    }
+
+    function currentEmployeeId() {
+      return get(currentUserPath()).data.employeeId;
+    }
+
+    function currentGroupPath() {
+      return /databases/$(database)/documents/groups/$(currentGroupId());
+    }
+
+    function hasGroup() {
+      return isActive()
+        && currentGroupId() != null
+        && exists(currentGroupPath());
+    }
+
+    function groupPermissions() {
+      return get(currentGroupPath()).data.permissions;
+    }
+
+    function can(module, action) {
+      return hasGroup() && groupPermissions()[module][action] == true;
+    }
+
+    function scopeOf(module) {
+      return hasGroup() ? groupPermissions()[module].scope : 'own';
+    }
+
+    function isAllScope(module) {
+      return scopeOf(module) == 'all';
+    }
+
+    function isOwnScope(module) {
+      return scopeOf(module) == 'own';
+    }
+
+    function inScope(module, employeeId) {
+      return isAllScope(module) || (isOwnScope(module) && employeeId == currentEmployeeId());
+    }
+
+    function canReadScoped(module, employeeId) {
+      return can(module, 'view') && inScope(module, employeeId);
+    }
+
+    function canWriteScoped(module, action, employeeId) {
+      return can(module, action) && inScope(module, employeeId);
+    }
+
+    match /users/{userId} {
+
+      allow read: if isSignedIn() && (
+        request.auth.uid == userId
+        || can('applicationUsers', 'view')
+      );
+
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.isActive == true
+        && request.resource.data.groupId == null;
+
+      allow update: if isSignedIn() && request.auth.uid == userId
+        && request.resource.data.isActive == resource.data.isActive
+        && request.resource.data.employeeId == resource.data.employeeId
+        && request.resource.data.groupId == resource.data.groupId;
+
+      allow update: if can('applicationUsers', 'edit');
+
+      allow delete: if can('applicationUsers', 'delete');
+    }
+
+    match /groups/{groupId} {
+
+      allow read: if hasGroup()
+        && (can('groups', 'view') || currentGroupId() == groupId);
+
+      allow create: if can('groups', 'add');
+
+      allow update: if can('groups', 'edit')
+        && request.resource.data.name is string
+        && request.resource.data.employeeIds is list
+        && request.resource.data.permissions is map;
+
+      allow delete: if can('groups', 'delete');
+    }
+
+    match /employees/{employeeId} {
+
+      allow get: if can('employees', 'view')
+        || (can('profile', 'view') && employeeId == currentEmployeeId())
+        || (can('payroll', 'view') && employeeId == currentEmployeeId());
+
+      allow list: if can('employees', 'view') || (can('payroll', 'view') && isAllScope('payroll'));
+
+      allow create: if can('employees', 'add');
+
+      allow update: if can('employees', 'edit')
+        || (can('profile', 'edit') && employeeId == currentEmployeeId());
+
+      allow delete: if can('employees', 'delete');
+    }
+
+    match /attendance/{attendanceId} {
+
+      allow read: if canReadScoped('attendance', resource.data.employeeId);
+
+      allow create: if canWriteScoped('attendance', 'add', request.resource.data.employeeId);
+
+      allow update: if canWriteScoped('attendance', 'edit', resource.data.employeeId)
+        && request.resource.data.employeeId == resource.data.employeeId;
+
+      allow delete: if can('attendance', 'delete') && isAllScope('attendance');
+    }
+
+    match /departments/{departmentId} {
+
+      allow read: if can('departments', 'view') || can('employees', 'view');
+
+      allow create: if can('departments', 'add');
+
+      allow update: if can('departments', 'edit');
+
+      allow delete: if can('departments', 'delete');
+    }
+
+    match /official_holidays/{holidayId} {
+
+      allow read: if can('officialHolidays', 'view') || can('attendance', 'view');
+
+      allow create: if can('officialHolidays', 'add');
+
+      allow update: if can('officialHolidays', 'edit');
+
+      allow delete: if can('officialHolidays', 'delete');
+    }
+
+    match /general_settings/{settingId} {
+
+      allow read: if hasGroup();
+
+      allow write: if can('profile', 'edit');
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

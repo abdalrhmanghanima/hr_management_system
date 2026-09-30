@@ -14,6 +14,8 @@ import 'package:hr_management_system/presentation/official_holiday/provider/offi
 import 'package:hr_management_system/presentation/payroll/tab/payroll_tab.dart';
 
 import '../../helpers/attendance_test_data.dart';
+import '../../helpers/authorization_test_data.dart';
+import '../../helpers/localization_test_helper.dart';
 
 const Size testSurface = Size(400, 800);
 
@@ -59,18 +61,23 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          employeeRepositoryProvider.overrideWithValue(employeeRepository),
-          attendanceRepositoryProvider.overrideWithValue(attendanceRepository),
-          generalSettingsRepositoryProvider.overrideWithValue(
-            generalSettingsRepository,
-          ),
-          officialHolidayRepositoryProvider.overrideWithValue(
-            officialHolidayRepository,
-          ),
-        ],
-        child: MaterialApp(navigatorKey: navigatorKey, home: const HomeTab()),
+      wrapWithLocalization(
+        ProviderScope(
+          overrides: [
+            fullAccessAuthorizationOverride(),
+            employeeRepositoryProvider.overrideWithValue(employeeRepository),
+            attendanceRepositoryProvider.overrideWithValue(
+              attendanceRepository,
+            ),
+            generalSettingsRepositoryProvider.overrideWithValue(
+              generalSettingsRepository,
+            ),
+            officialHolidayRepositoryProvider.overrideWithValue(
+              officialHolidayRepository,
+            ),
+          ],
+          child: TestApp(navigatorKey: navigatorKey, home: const HomeTab()),
+        ),
       ),
     );
 
@@ -96,14 +103,19 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          employeeRepositoryProvider.overrideWithValue(employeeRepository),
-          departmentRepositoryProvider.overrideWithValue(departmentRepository),
-        ],
-        child: MaterialApp(
-          navigatorKey: navigatorKey,
-          home: const EmployeesTab(),
+      wrapWithLocalization(
+        ProviderScope(
+          overrides: [
+            fullAccessAuthorizationOverride(),
+            employeeRepositoryProvider.overrideWithValue(employeeRepository),
+            departmentRepositoryProvider.overrideWithValue(
+              departmentRepository,
+            ),
+          ],
+          child: TestApp(
+            navigatorKey: navigatorKey,
+            home: const EmployeesTab(),
+          ),
         ),
       ),
     );
@@ -134,6 +146,7 @@ void main() {
 
     final container = ProviderContainer(
       overrides: [
+        fullAccessAuthorizationOverride(),
         employeeRepositoryProvider.overrideWithValue(employeeRepository),
         attendanceRepositoryProvider.overrideWithValue(attendanceRepository),
         departmentRepositoryProvider.overrideWithValue(departmentRepository),
@@ -158,11 +171,13 @@ void main() {
     await container.read(attendanceProvider.notifier).getAttendances();
 
     await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: MaterialApp(
-          navigatorKey: navigatorKey,
-          home: const AttendanceTab(),
+      wrapWithLocalization(
+        UncontrolledProviderScope(
+          container: container,
+          child: TestApp(
+            navigatorKey: navigatorKey,
+            home: const AttendanceTab(),
+          ),
         ),
       ),
     );
@@ -200,21 +215,25 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          employeeRepositoryProvider.overrideWithValue(employeeRepository),
-          attendanceRepositoryProvider.overrideWithValue(attendanceRepository),
-          departmentRepositoryProvider.overrideWithValue(departmentRepository),
-          generalSettingsRepositoryProvider.overrideWithValue(
-            generalSettingsRepository,
-          ),
-          officialHolidayRepositoryProvider.overrideWithValue(
-            officialHolidayRepository,
-          ),
-        ],
-        child: MaterialApp(
-          navigatorKey: navigatorKey,
-          home: const PayrollTab(),
+      wrapWithLocalization(
+        ProviderScope(
+          overrides: [
+            fullAccessAuthorizationOverride(),
+            employeeRepositoryProvider.overrideWithValue(employeeRepository),
+            attendanceRepositoryProvider.overrideWithValue(
+              attendanceRepository,
+            ),
+            departmentRepositoryProvider.overrideWithValue(
+              departmentRepository,
+            ),
+            generalSettingsRepositoryProvider.overrideWithValue(
+              generalSettingsRepository,
+            ),
+            officialHolidayRepositoryProvider.overrideWithValue(
+              officialHolidayRepository,
+            ),
+          ],
+          child: TestApp(navigatorKey: navigatorKey, home: const PayrollTab()),
         ),
       ),
     );

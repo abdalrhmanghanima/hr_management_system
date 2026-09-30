@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
@@ -55,7 +56,7 @@ class AttendanceImportCard extends StatelessWidget {
           SizedBox(height: 14.h),
 
           CustomText(
-            title: 'Import Attendance',
+            title: 'attendance_import.title'.tr(),
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
             fontColor: AppColors.black,
@@ -65,8 +66,7 @@ class AttendanceImportCard extends StatelessWidget {
           SizedBox(height: 6.h),
 
           CustomText(
-            title:
-                'Choose the attendance file you want to import, then continue with the import.',
+            title: 'attendance_import.card_description'.tr(),
             fontSize: 13.sp,
             fontWeight: FontWeight.w400,
             fontColor: AppColors.gray,
@@ -76,7 +76,7 @@ class AttendanceImportCard extends StatelessWidget {
           SizedBox(height: 16.h),
 
           CustomButton(
-            title: 'Choose File',
+            title: 'attendance_import.choose_file'.tr(),
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
             bg: AppColors.primary,

@@ -5,6 +5,8 @@ import 'package:hr_management_system/domain/auth/entity/user_entity.dart';
 import 'package:hr_management_system/domain/auth/repository/auth_repo.dart';
 import 'package:hr_management_system/injection.dart';
 import 'package:hr_management_system/main.dart';
+import '../../helpers/authorization_test_data.dart';
+import '../../helpers/localization_test_helper.dart';
 import 'package:hr_management_system/presentation/auth/providers/auth_state_provider.dart';
 import 'package:hr_management_system/presentation/auth/providers/login_notifier.dart';
 import 'package:hr_management_system/presentation/more/tab/more_tab.dart';
@@ -30,6 +32,20 @@ class FakeAuthRepo implements AuthRepo {
       throw Exception('sign out failed');
     }
   }
+
+  @override
+  Future<UserEntity?> getUserByUid(String uid) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateUserGroup({
+    required String uid,
+    required String employeeId,
+    String? groupId,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {
@@ -39,12 +55,18 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authRepoProvider.overrideWithValue(authRepo),
-          authStateProvider.overrideWith((ref) => Stream.value(null)),
-        ],
-        child: MaterialApp(navigatorKey: navigatorKey, home: const MoreTab()),
+      wrapWithLocalization(
+        ProviderScope(
+          overrides: [
+            fullAccessAuthorizationOverride(),
+            authRepoProvider.overrideWithValue(authRepo),
+            authStateProvider.overrideWith((ref) => Stream.value(null)),
+          ],
+          child: TestApp(
+            navigatorKey: navigatorKey,
+            home: const MoreTab(),
+          ),
+        ),
       ),
     );
 

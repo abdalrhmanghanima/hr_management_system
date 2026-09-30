@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -92,7 +93,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     if (error != null) {
       if (showErrors) {
-        _showError(error);
+        _showError(error.tr());
       }
 
       return;
@@ -111,7 +112,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         );
 
     if (!saved && showErrors && mounted) {
-      _showError('Unable to save general settings');
+      _showError('settings.save_failed'.tr());
     }
   }
 
@@ -157,7 +158,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   String get selectedDaysText {
     if (selectedWeekendDays.isEmpty) {
-      return 'Select weekend days';
+      return 'settings.select_weekend_days'.tr();
     }
 
     return selectedWeekendDays.join(' + ');
@@ -171,40 +172,43 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: const CustomAppBar(title: 'General Settings'),
+      appBar: CustomAppBar(title: 'settings.title'.tr()),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(20.r, 20.r, 20.r, 30.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SettingsSectionTitle(
-              title: 'Payroll Calculation',
-              subtitle: 'Configure standard payroll calculation settings',
+              title: 'settings.payroll_calculation'.tr(),
+              subtitle: 'settings.payroll_calculation_subtitle'.tr(),
             ),
             SizedBox(height: 12.h),
             SettingsCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SettingsFieldLabel(title: 'Multiplier', required: true),
+                  SettingsFieldLabel(
+                    title: 'settings.multiplier'.tr(),
+                    required: true,
+                  ),
                   SizedBox(height: 8.h),
                   SettingsTextField(
                     controller: multiplierController,
-                    hintText: 'Enter multiplier',
+                    hintText: 'settings.multiplier_hint'.tr(),
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
                     onChanged: (value) => _persist(),
                   ),
                   SizedBox(height: 20.h),
-                  const SettingsFieldLabel(
-                    title: 'Working Hours Per Day',
+                  SettingsFieldLabel(
+                    title: 'settings.working_hours_per_day'.tr(),
                     required: true,
                   ),
                   SizedBox(height: 8.h),
                   SettingsTextField(
                     controller: workingHoursController,
-                    hintText: 'Enter working hours',
+                    hintText: 'settings.working_hours_hint'.tr(),
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -215,16 +219,16 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             ),
             SizedBox(height: 24.h),
             SettingsSectionTitle(
-              title: 'Weekly Holidays',
-              subtitle: 'Select the weekly days excluded from attendance',
+              title: 'settings.weekly_holidays'.tr(),
+              subtitle: 'settings.weekly_holidays_subtitle'.tr(),
             ),
             SizedBox(height: 12.h),
             SettingsCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SettingsFieldLabel(
-                    title: 'Weekend Days',
+                  SettingsFieldLabel(
+                    title: 'settings.weekend_days'.tr(),
                     required: true,
                   ),
                   SizedBox(height: 8.h),
@@ -271,13 +275,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       color: const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(14.r),
                     ),
-                    child: Text(
-                      'Impact Note: Weekly holiday days are automatically excluded from working days when calculating monthly payroll and absence deductions.',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        height: 1.5,
-                        color: AppColors.gray,
-                      ),
+                    child: CustomText(
+                      title: 'settings.impact_note'.tr(),
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w400,
+                      fontColor: AppColors.gray,
                     ),
                   ),
                 ],

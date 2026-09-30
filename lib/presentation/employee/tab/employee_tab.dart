@@ -1,9 +1,12 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/domain/group/entity/group_module.dart';
+import 'package:hr_management_system/domain/group/entity/permission_action.dart';
+import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
 import 'package:hr_management_system/presentation/employee/add_employee.dart';
@@ -49,13 +52,19 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
   Widget build(BuildContext context) {
     final employeeState = ref.watch(employeeProvider);
     final departmentState = ref.watch(departmentProvider);
+    final canAddEmployees = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.employees,
+        action: PermissionAction.add,
+      )),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         title: CustomText(
-          title: 'Employees',
+          title: 'nav.employees'.tr(),
           fontSize: 18.sp,
           fontWeight: FontWeight.w400,
         ),
@@ -67,7 +76,7 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
           children: [
             AppSearchField(
               controller: searchController,
-              hintText: 'Search by name, phone, national ID...',
+              hintText: 'employee.search_hint'.tr(),
               onChanged: (value) {
                 setState(() {
                   searchQuery = value.trim().toLowerCase();
@@ -107,8 +116,8 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
                     return Center(
                       child: CustomText(
                         title: searchQuery.isEmpty
-                            ? 'No employees found'
-                            : 'No employees match your search',
+                            ? 'employee.empty'.tr()
+                            : 'employee.empty_search'.tr(),
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.gray,
@@ -140,7 +149,7 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
                           group: departmentNames[employee.departmentId] ?? '',
                           phone: employee.phoneNumber,
                           salary: employee.salary.toStringAsFixed(0),
-                          workShift: companyWorkingScheduleLabel,
+                          workShift: 'common.working_shift'.tr(),
                           onTap: () {
                             NavigatorHandler.push(
                               EmployeeDetails(employeeId: employee.id),
@@ -156,12 +165,15 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
           ],
         ),
       ),
-      floatingActionButton: AppFloatingActionButton(
-        onPressed: () {
-          NavigatorHandler.push(const AddEmployee());
-        },
-      ),
+      floatingActionButton: canAddEmployees
+          ? AppFloatingActionButton(
+              onPressed: () {
+                NavigatorHandler.push(const AddEmployee());
+              },
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
+

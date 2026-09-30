@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/firebase_options.dart';
 
 import 'core/app_theme/theme.dart';
+import 'core/localization/app_localization.dart';
 import 'injection.dart';
 import 'presentation/splash_screen.dart';
 
@@ -19,16 +20,29 @@ void main() async {
   runApp(
     ProviderScope(
       child: EasyLocalization(
-        supportedLocales: const [Locale('en'), Locale('ar')],
-        path: 'assets/languages',
-        fallbackLocale: const Locale('en'),
-        startLocale: const Locale('en'),
+        supportedLocales: AppLocalization.supportedLocales,
+        path: AppLocalization.path,
+        fallbackLocale: AppLocalization.fallbackLocale,
+        startLocale: AppLocalization.en,
         saveLocale: true,
-        child: const HRManagementSystemApp(),
+        child: const AppLocaleSync(child: HRManagementSystemApp()),
       ),
     ),
   );
   await init();
+}
+
+class AppLocaleSync extends StatelessWidget {
+  final Widget child;
+
+  const AppLocaleSync({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalization.update(context.locale);
+
+    return child;
+  }
 }
 
 class HRManagementSystemApp extends StatelessWidget {
@@ -37,10 +51,10 @@ class HRManagementSystemApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HR Management System',
+      onGenerateTitle: (context) => context.tr('app.name'),
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: context.localizationDelegates,
+      localizationsDelegates: AppLocalization.delegates(context),
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       theme: AppTheme().themeLight(),

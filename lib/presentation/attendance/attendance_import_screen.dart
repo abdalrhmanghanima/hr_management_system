@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -31,7 +32,7 @@ class AttendanceImportScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: CustomAppBar(title: 'Import Attendance'),
+      appBar: CustomAppBar(title: 'attendance_import.title'.tr()),
       body: SafeArea(
         child: ListView(
           padding: EdgeInsets.all(16.r),
@@ -110,13 +111,21 @@ class AttendanceImportScreen extends ConsumerWidget {
     AttendanceImportSummary summary,
   ) {
     final message = summary.added == 0 && summary.updated == 0
-        ? 'No attendance records were imported'
-        : '${summary.added} added, ${summary.updated} updated';
+        ? 'attendance_import.none_imported'.tr()
+        : 'attendance_import.summary'.tr(
+            namedArgs: {
+              'added': summary.added.toString(),
+              'updated': summary.updated.toString(),
+            },
+          );
 
     if (summary.failed > 0) {
+      final failedText = 'attendance_import.chip_failed'.tr(
+        namedArgs: {'count': summary.failed.toString()},
+      );
       CustomSnackBar.show(
         context,
-        message: '$message, ${summary.failed} failed',
+        message: '$message, $failedText',
       );
       return;
     }
@@ -127,7 +136,7 @@ class AttendanceImportScreen extends ConsumerWidget {
   void _showError(BuildContext context, String? message) {
     CustomSnackBar.show(
       context,
-      message: message ?? 'Failed to import attendance. Please try again',
+      message: message ?? 'attendance_import.status_error'.tr(),
     );
   }
 }

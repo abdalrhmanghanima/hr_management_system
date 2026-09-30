@@ -15,4 +15,6 @@ abstract class EmployeeRepository {
   Future<void> updateEmployee(EmployeeEntity employee);
 
   Future<void> deleteEmployee(String id);
+
+  Future<void> linkEmployeeAccount(String id, String authUid);
 }

@@ -118,14 +118,14 @@ void main() {
     test('a multiplier of zero is rejected', () {
       expect(
         GeneralSettingsValidator.multiplier('0'),
-        'Multiplier must be greater than 0',
+        'validation.settings.multiplier_positive',
       );
     });
 
     test('a negative multiplier is rejected', () {
       expect(
         GeneralSettingsValidator.multiplier('-1'),
-        'Multiplier must be greater than 0',
+        'validation.settings.multiplier_positive',
       );
     });
 
@@ -136,7 +136,7 @@ void main() {
     test('zero working hours are rejected', () {
       expect(
         GeneralSettingsValidator.workingHoursPerDay('0'),
-        'Working Hours Per Day must be greater than 0',
+        'validation.settings.working_hours_positive',
       );
     });
 
@@ -151,7 +151,7 @@ void main() {
     test('no weekend day is rejected', () {
       expect(
         GeneralSettingsValidator.weekendDays([]),
-        'Select at least one weekend day',
+        'validation.settings.weekend_days_required',
       );
     });
 

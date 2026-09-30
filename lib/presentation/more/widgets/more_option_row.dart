@@ -24,7 +24,7 @@ class MoreOptionRow extends StatelessWidget {
       child: SizedBox(
         height: 64.h,
         child: Padding(
-          padding: EdgeInsets.only(left: 16.w,right: 16.w,top: 14.h,bottom: 14.h),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
           child: Row(
             children: [
               SvgPicture.asset(
@@ -46,10 +46,10 @@ class MoreOptionRow extends StatelessWidget {
                 ),
               ),
               CustomSvgIcon(
-                assetName:
-                AppIcons.rightArrow,
+                assetName: AppIcons.rightArrow,
                 width: 20.w,
                 height: 20.w,
+                mirrorInRtl: true,
               ),
             ],
           ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -80,14 +81,14 @@ class PayrollCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   CustomText(
-                    title: 'Net Salary',
+                    title: 'payroll.net_salary'.tr(),
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w400,
                     fontColor: const Color(0xFF64748B),
                   ),
                   SizedBox(height: 2.h),
                   CustomText(
-                    title: '$netSalary EGP',
+                    title: 'payroll.net_salary_value'.tr(namedArgs: {'net': netSalary}),
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
                     fontColor: AppColors.primary,
@@ -105,7 +106,7 @@ class PayrollCard extends StatelessWidget {
                 child: Column(
                   children: [
                     CustomText(
-                      title: 'Basic',
+                      title: 'payroll.basic'.tr(),
                       fontSize: 13.sp,
                       fontColor: const Color(0xFF64748B),
                     ),
@@ -123,7 +124,7 @@ class PayrollCard extends StatelessWidget {
                 child: Column(
                   children: [
                     CustomText(
-                      title: 'Att / Abs',
+                      title: 'payroll.att_abs'.tr(),
                       fontSize: 13.sp,
                       fontColor: const Color(0xFF64748B),
                     ),
@@ -141,7 +142,7 @@ class PayrollCard extends StatelessWidget {
                 child: Column(
                   children: [
                     CustomText(
-                      title: 'Overtime',
+                      title: 'payroll.overtime'.tr(),
                       fontSize: 13.sp,
                       fontColor: const Color(0xFF64748B),
                     ),
@@ -159,7 +160,7 @@ class PayrollCard extends StatelessWidget {
                 child: Column(
                   children: [
                     CustomText(
-                      title: 'Deduction',
+                      title: 'payroll.deduction'.tr(),
                       fontSize: 13.sp,
                       fontColor: const Color(0xFF64748B),
                     ),
@@ -200,7 +201,7 @@ class PayrollCard extends StatelessWidget {
                         ),
                         SizedBox(width: 8.w),
                         CustomText(
-                          title: 'Details',
+                          title: 'payroll.details'.tr(),
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           fontColor: AppColors.primary,
@@ -227,7 +228,7 @@ class PayrollCard extends StatelessWidget {
                         ),
                         SizedBox(width: 8.w),
                         CustomText(
-                          title: 'Salary Slip',
+                          title: 'payroll.salary_slip'.tr(),
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           fontColor: const Color(0xFF111827),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/app_images.dart';
 import 'package:hr_management_system/domain/auth/entity/user_entity.dart';
+import 'package:hr_management_system/domain/application_user/entity/application_user_exception.dart';
 import 'package:hr_management_system/presentation/auth/providers/login_provider.dart';
 import 'package:hr_management_system/presentation/auth/providers/password_visibility_provider.dart';
 import 'package:hr_management_system/presentation/components/custom_asset_image/custom_asset_image.dart';
@@ -48,34 +50,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             debugPrint('FIREBASE MESSAGE: ${error.message}');
           }
 
-          String message = 'An error occurred while signing in';
+          String message = 'auth.error_generic'.tr();
 
-          if (error is FirebaseAuthException) {
+          if (error is ApplicationUserException) {
+            message = error.messageKey.tr();
+          } else if (error is FirebaseAuthException) {
             switch (error.code) {
               case 'invalid-credential':
               case 'user-not-found':
               case 'wrong-password':
-                message = 'Incorrect email or password';
+                message = 'auth.error_incorrect_credentials'.tr();
                 break;
 
               case 'invalid-email':
-                message = 'Invalid email address';
+                message = 'auth.error_invalid_email'.tr();
                 break;
 
               case 'operation-not-allowed':
-                message = 'Email/password sign-in is not enabled';
+                message = 'auth.error_sign_in_disabled'.tr();
                 break;
 
               case 'network-request-failed':
-                message = 'Please check your internet connection and try again';
+                message = 'auth.error_network'.tr();
                 break;
 
               case 'too-many-requests':
-                message = 'Too many attempts. Please try again later';
+                message = 'auth.error_too_many_requests'.tr();
                 break;
 
               default:
-                message = 'Firebase error: ${error.code}';
+                message = 'auth.error_firebase'.tr(
+                  namedArgs: {'code': error.code},
+                );
             }
           }
 
@@ -104,7 +110,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(left: 16.w, right: 16.w),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Form(
             key: formKey,
             child: Column(
@@ -122,7 +128,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         SizedBox(height: 4.h),
                         CustomText(
-                          title: "Human Resources Management System",
+                          title: "auth.app_title".tr(),
                           fontWeight: FontWeight.w600,
                           fontColor: AppColors.gray,
                         ),
@@ -142,13 +148,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomText(
-                          title: "Welcome back",
+                          title: "auth.welcome_back".tr(),
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                         ),
                         SizedBox(height: 4.h),
                         CustomText(
-                          title: "Sign in to access your HR portal",
+                          title: "auth.subtitle".tr(),
                           fontSize: 13.sp,
                           fontColor: AppColors.gray,
                           fontWeight: FontWeight.w700,
@@ -156,7 +162,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         SizedBox(height: 12.h),
                         CustomTextFormField(
                           controller: emailController,
-                          label: 'Email',
+                          label: 'auth.email'.tr(),
                           isRequired: true,
                           prefix: Padding(
                             padding: EdgeInsets.all(14.r),
@@ -166,18 +172,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               height: 21.h,
                             ),
                           ),
-                          hint: "ENTER YOUR EMAIL",
+                          hint: "auth.email_hint".tr(),
                           validator: (value) {
                             final email = value?.trim() ?? '';
 
                             if (email.isEmpty) {
-                              return "Email is required";
+                              return "auth.email_required".tr();
                             }
 
                             if (!RegExp(
                               r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                             ).hasMatch(email)) {
-                              return "Please enter a valid email address";
+                              return "auth.email_invalid".tr();
                             }
 
                             return null;
@@ -186,7 +192,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         SizedBox(height: 14.h),
                         CustomTextFormField(
                           controller: passwordController,
-                          label: 'Password',
+                          label: 'auth.password'.tr(),
                           isRequired: true,
                           obscureText: ref.watch(passwordVisibilityProvider)
                               ? false
@@ -208,17 +214,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ),
                           ),
-                          hint: "ENTER YOUR Password",
+                          hint: "auth.password_hint".tr(),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Password is required";
+                              return "auth.password_required".tr();
                             }
                             return null;
                           },
                         ),
                         SizedBox(height: 24.h),
                         CustomButton(
-                          title: "Sign in",
+                          title: "auth.sign_in".tr(),
                           fontWeight: FontWeight.w400,
                           bg: AppColors.primary,
                           isLoading: loginState.isLoading,

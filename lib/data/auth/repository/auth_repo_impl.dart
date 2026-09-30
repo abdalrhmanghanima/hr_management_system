@@ -13,4 +13,20 @@ class AuthRepoImpl implements AuthRepo{
   Future<void> logout() {
     return authRemoteDataSource.logout();
   }
+  @override
+  Future<UserEntity?> getUserByUid(String uid) {
+    return authRemoteDataSource.getUserByUid(uid);
+  }
+  @override
+  Future<void> updateUserGroup({
+    required String uid,
+    required String employeeId,
+    String? groupId,
+  }) {
+    return authRemoteDataSource.updateUserGroup(
+      uid: uid,
+      employeeId: employeeId,
+      groupId: groupId,
+    );
+  }
 }

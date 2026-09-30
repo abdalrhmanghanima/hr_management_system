@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -6,12 +7,15 @@ import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
+import 'package:hr_management_system/domain/group/entity/group_module.dart';
+import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/presentation/attendance/attendance_import_screen.dart';
 import 'package:hr_management_system/presentation/attendance/add_attendance_screen.dart';
 import 'package:hr_management_system/presentation/attendance/edit_attendance_screen.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/today_attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/widgets/attendance_record_card.dart';
+import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/department/provider/department_by_id_provider.dart';
@@ -51,6 +55,25 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
     final attendanceAsync = ref.watch(attendanceProvider);
     final employeesAsync = ref.watch(employeeProvider);
 
+    final canAddAttendances = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.add,
+      )),
+    );
+    final canEditAttendances = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.edit,
+      )),
+    );
+    final canDeleteAttendances = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.delete,
+      )),
+    );
+
     final attendances = attendanceAsync.value ?? [];
     final employees = employeesAsync.value ?? [];
 
@@ -84,32 +107,33 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: CustomText(
-          title: 'Attendance Records',
+          title: 'attendance.records_title'.tr(),
           fontSize: 18.sp,
           fontWeight: FontWeight.w700,
           fontColor: const Color(0xFF111827),
         ),
         actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16.w),
-            child: InkWell(
-              onTap: () {
-                NavigatorHandler.push(const AttendanceImportScreen());
-              },
-              child: Row(
-                children: [
-                  CustomSvgIcon(
-                    assetName: AppIcons.file,
-                    width: 16.w,
-                    height: 16.w,
-                  ),
-                  SizedBox(width: 4.w),
-                  CustomText(
-                    title: 'Import',
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    fontColor: AppColors.primary,
-                  ),
+          if (canAddAttendances)
+            Padding(
+              padding: EdgeInsets.only(right: 16.w),
+              child: InkWell(
+                onTap: () {
+                  NavigatorHandler.push(const AttendanceImportScreen());
+                },
+                child: Row(
+                  children: [
+                    CustomSvgIcon(
+                      assetName: AppIcons.file,
+                      width: 16.w,
+                      height: 16.w,
+                    ),
+                    SizedBox(width: 4.w),
+                    CustomText(
+                      title: 'attendance_import.title'.tr(),
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      fontColor: AppColors.primary,
+                    ),
                 ],
               ),
             ),
@@ -126,7 +150,7 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
           children: [
             AppSearchField(
               controller: searchController,
-              hintText: 'Search by employee or date...',
+              hintText: 'attendance.search_hint'.tr(),
               onChanged: (value) {
                 setState(() {
                   searchQuery = value.trim().toLowerCase();
@@ -141,8 +165,8 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
                   ? Center(
                       child: CustomText(
                         title: searchQuery.isEmpty
-                            ? 'No attendance records found'
-                            : 'No attendance records match your search',
+                            ? 'attendance.empty'.tr()
+                            : 'attendance.empty_search'.tr(),
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         fontColor: const Color(0xFF64748B),
@@ -177,7 +201,7 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
 
                           final departmentName =
                               departmentState.value?.name ??
-                              'Unknown Department';
+                              'common.unknown_department'.tr();
 
                           return AttendanceRecordCard(
                             name: employee.fullName,
@@ -186,33 +210,45 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
                             status: attendance.status,
                             checkIn: attendance.checkInTime,
                             checkOut: attendance.checkOutTime,
-                            onEdit: () {
-                              NavigatorHandler.push(
-                                EditAttendanceScreen(attendance: attendance),
-                              );
-                            },
-                            onDelete: () {
-                              showDialog(
-                                context: context,
-                                builder: (dialogContext) {
-                                  return DeleteConfirmationDialog(
-                                    title: 'Delete Attendance',
-                                    message:
-                                        'Are you sure you want to delete this attendance record?',
-                                    isLoading: attendanceAsync.isLoading,
-                                    onDelete: () async {
-                                      await ref
-                                          .read(attendanceProvider.notifier)
-                                          .deleteAttendance(attendance.id);
+                            onEdit: canEditAttendances
+                                ? () {
+                                    NavigatorHandler.push(
+                                      EditAttendanceScreen(
+                                        attendance: attendance,
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            onDelete: canDeleteAttendances
+                                ? () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (dialogContext) {
+                                        return DeleteConfirmationDialog(
+                                          title: 'attendance.delete_title'
+                                              .tr(),
+                                          message:
+                                              'attendance.delete_confirmation'
+                                                  .tr(),
+                                          isLoading: attendanceAsync.isLoading,
+                                          onDelete: () async {
+                                            await ref
+                                                .read(
+                                                  attendanceProvider.notifier,
+                                                )
+                                                .deleteAttendance(
+                                                  attendance.id,
+                                                );
 
-                                      if (dialogContext.mounted) {
-                                        Navigator.pop(dialogContext);
-                                      }
-                                    },
-                                  );
-                                },
-                              );
-                            },
+                                            if (dialogContext.mounted) {
+                                              Navigator.pop(dialogContext);
+                                            }
+                                          },
+                                        );
+                                      },
+                                    );
+                                  }
+                                : null,
                           );
                         },
                       ),
@@ -221,11 +257,13 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
           ],
         ),
       ),
-      floatingActionButton: AppFloatingActionButton(
-        onPressed: () {
-          NavigatorHandler.push(const AddAttendanceScreen());
-        },
-      ),
+      floatingActionButton: canAddAttendances
+          ? AppFloatingActionButton(
+              onPressed: () {
+                NavigatorHandler.push(const AddAttendanceScreen());
+              },
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }

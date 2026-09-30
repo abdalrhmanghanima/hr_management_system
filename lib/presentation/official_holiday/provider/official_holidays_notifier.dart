@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/domain/official_holiday/entity/official_holiday_entity.dart';
+import 'package:hr_management_system/domain/group/entity/group_module.dart';
+import 'package:hr_management_system/domain/group/entity/permission_action.dart';
+import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
 import 'package:hr_management_system/presentation/official_holiday/provider/official_holidays_provider.dart';
 import 'package:hr_management_system/presentation/payroll/provider/payroll_provider.dart';
 
@@ -19,7 +22,18 @@ class OfficialHolidaysNotifier
     );
   }
 
+  bool _can(PermissionAction action) {
+    return ref
+        .read(permissionCheckerProvider)
+        .authorization
+        .isGranted(GroupModules.officialHolidays, action);
+  }
+
   Future<SaveResult> addOfficialHoliday(OfficialHolidayEntity holiday) async {
+    if (!_can(PermissionAction.add)) {
+      return SaveResult.failure;
+    }
+
     try {
       final existing = await ref
           .read(getOfficialHolidayByNameAndDateUseCaseProvider)
@@ -50,6 +64,10 @@ class OfficialHolidaysNotifier
   Future<SaveResult> updateOfficialHoliday(
     OfficialHolidayEntity holiday,
   ) async {
+    if (!_can(PermissionAction.edit)) {
+      return SaveResult.failure;
+    }
+
     try {
       final existing = await ref
           .read(getOfficialHolidayByNameAndDateUseCaseProvider)
@@ -78,6 +96,10 @@ class OfficialHolidaysNotifier
   }
 
   Future<bool> deleteOfficialHoliday(String id) async {
+    if (!_can(PermissionAction.delete)) {
+      return false;
+    }
+
     state = const AsyncLoading();
 
     try {

@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -63,13 +64,13 @@ class _EditDepartmentBottomSheetState
       case SaveResult.duplicate:
         CustomSnackBar.show(
           context,
-          message: 'A department with this name already exists',
+          message: 'department.duplicate'.tr(),
         );
         break;
       case SaveResult.failure:
         CustomSnackBar.show(
           context,
-          message: 'Failed to update department. Please try again',
+          message: 'department.update_failed'.tr(),
         );
         break;
     }
@@ -114,9 +115,9 @@ class _EditDepartmentBottomSheetState
 
               CustomTextFormField(
                 controller: departmentController,
-                label: 'Department',
+                label: 'department.name_label'.tr(),
                 isRequired: true,
-                hint: 'e.g. Human Resources',
+                hint: 'department.name_hint'.tr(),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Department is required';
@@ -133,7 +134,7 @@ class _EditDepartmentBottomSheetState
               SizedBox(height: 20.h),
 
               CustomButton(
-                title: 'Save Changes',
+                title: 'common.save_changes'.tr(),
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w400,
                 isLoading: departmentState.isLoading,
@@ -149,3 +150,4 @@ class _EditDepartmentBottomSheetState
     );
   }
 }
+

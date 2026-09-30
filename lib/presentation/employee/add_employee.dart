@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -6,13 +7,16 @@ import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/employee_id_generator.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
+import 'package:hr_management_system/domain/group/entity/group_module.dart';
+import 'package:hr_management_system/domain/group/entity/permission_action.dart';
+import 'package:hr_management_system/presentation/authorization/widgets/permission_guard.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
 import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
-import 'package:hr_management_system/presentation/employee/providers/selected_department_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/gender_provider.dart';
+import 'package:hr_management_system/presentation/employee/providers/selected_department_provider.dart';
 import 'package:hr_management_system/presentation/employee/widgets/employee_form.dart';
 
 class AddEmployee extends ConsumerStatefulWidget {
@@ -99,13 +103,13 @@ class _AddEmployeeState extends ConsumerState<AddEmployee> {
       case SaveResult.duplicate:
         CustomSnackBar.show(
           context,
-          message: 'An employee with this National ID already exists',
+          message: 'employee.duplicate'.tr(),
         );
         break;
       case SaveResult.failure:
         CustomSnackBar.show(
           context,
-          message: 'Failed to add employee. Please try again',
+          message: 'employee.add_failed'.tr(),
         );
         break;
     }
@@ -114,40 +118,45 @@ class _AddEmployeeState extends ConsumerState<AddEmployee> {
   @override
   Widget build(BuildContext context) {
     final employeeState = ref.watch(employeeProvider);
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: const CustomAppBar(title: "Add New Employee"),
-      body: Padding(
-        padding: EdgeInsets.all(16.r),
-        child: Column(
-          children: [
-            Expanded(
-              child: EmployeeForm(
-                formKey: formKey,
-                fullNameController: fullNameController,
-                addressController: addressController,
-                phoneNumberController: phoneNumberController,
-                birthDateController: birthDateController,
-                nationalIdController: nationalIdController,
-                nationalityController: nationalityController,
-                contractDateController: contractDateController,
-                salaryController: salaryController,
+
+    return PermissionGuard(
+      module: GroupModules.employees,
+      action: PermissionAction.add,
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        appBar: CustomAppBar(title: "employee.add_title".tr()),
+        body: Padding(
+          padding: EdgeInsets.all(16.r),
+          child: Column(
+            children: [
+              Expanded(
+                child: EmployeeForm(
+                  formKey: formKey,
+                  fullNameController: fullNameController,
+                  addressController: addressController,
+                  phoneNumberController: phoneNumberController,
+                  birthDateController: birthDateController,
+                  nationalIdController: nationalIdController,
+                  nationalityController: nationalityController,
+                  contractDateController: contractDateController,
+                  salaryController: salaryController,
+                ),
               ),
-            ),
 
-            SizedBox(height: 16.h),
+              SizedBox(height: 16.h),
 
-            CustomButton(
-              title: "Save Employee",
-              fontSize: 15.sp,
-              isLoading: employeeState.isLoading,
-              fontWeight: FontWeight.w400,
-              onTap: _saveEmployee,
-              bg: AppColors.primary,
-            ),
+              CustomButton(
+                title: "employee.save_button".tr(),
+                fontSize: 15.sp,
+                isLoading: employeeState.isLoading,
+                fontWeight: FontWeight.w400,
+                onTap: _saveEmployee,
+                bg: AppColors.primary,
+              ),
 
-            SizedBox(height: 8.h),
-          ],
+              SizedBox(height: 8.h),
+            ],
+          ),
         ),
       ),
     );

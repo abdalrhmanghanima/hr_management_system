@@ -59,4 +59,13 @@ class EmployeeRemoteDataSourceImpl implements EmployeeRemoteDataSource {
     final document = firestore.collection('employees').doc(id);
     await document.delete();
   }
+
+  @override
+  Future<void> linkEmployeeAccount(String id, String authUid) async {
+    final document = firestore.collection('employees').doc(id);
+    await document.update({
+      'hasAccount': true,
+      'authUid': authUid,
+    });
+  }
 }

@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 
@@ -11,8 +13,8 @@ class AttendanceRecordCard extends StatelessWidget {
   final String status;
   final DateTime? checkIn;
   final DateTime? checkOut;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const AttendanceRecordCard({
     super.key,
@@ -98,14 +100,14 @@ class AttendanceRecordCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _TimeInfo(
-                  label: 'Check In',
+                  label: 'attendance.check_in_short'.tr(),
                   value: _formatTime(checkIn),
                 ),
               ),
               SizedBox(width: 12.w),
               Expanded(
                 child: _TimeInfo(
-                  label: 'Check Out',
+                  label: 'attendance.check_out_short'.tr(),
                   value: _formatTime(checkOut),
                 ),
               ),
@@ -121,55 +123,63 @@ class AttendanceRecordCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              InkWell(
-                onTap: onEdit,
-                borderRadius: BorderRadius.circular(8.r),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 17.w,
-                        color: AppColors.primary,
-                      ),
-                      SizedBox(width: 5.w),
-                      CustomText(
-                        title: 'Edit',
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
-                        fontColor: AppColors.primary,
-                      ),
-                    ],
+              if (onEdit != null)
+                InkWell(
+                  onTap: onEdit,
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 6.h,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.edit_outlined,
+                          size: 17.w,
+                          color: AppColors.primary,
+                        ),
+                        SizedBox(width: 5.w),
+                        CustomText(
+                          title: 'common.edit'.tr(),
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          fontColor: AppColors.primary,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              SizedBox(width: 10.w),
+              if (onEdit != null && onDelete != null) SizedBox(width: 10.w),
 
-              InkWell(
-                onTap: onDelete,
-                borderRadius: BorderRadius.circular(8.r),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.delete_outline,
-                        size: 17.w,
-                        color: AppColors.red,
-                      ),
-                      SizedBox(width: 5.w),
-                      CustomText(
-                        title: 'Delete',
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
-                        fontColor: AppColors.red,
-                      ),
-                    ],
+              if (onDelete != null)
+                InkWell(
+                  onTap: onDelete,
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 6.h,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete_outline,
+                          size: 17.w,
+                          color: AppColors.red,
+                        ),
+                        SizedBox(width: 5.w),
+                        CustomText(
+                          title: 'common.delete'.tr(),
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          fontColor: AppColors.red,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ],
@@ -260,7 +270,7 @@ class _StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: CustomText(
-        title: status,
+        title: AppLocalization.attendanceStatus(context, status),
         fontSize: 11.sp,
         fontWeight: FontWeight.w600,
         fontColor: color,

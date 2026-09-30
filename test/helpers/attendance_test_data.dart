@@ -321,16 +321,32 @@ class FakeEmployeeRepository implements EmployeeRepository {
   }
 
   @override
-  Future<EmployeeEntity> getEmployeeById(String id) {
-    throw UnimplementedError();
+  Future<EmployeeEntity> getEmployeeById(String id) async {
+    for (final employee in employees) {
+      if (employee.id == id) {
+        return employee;
+      }
+    }
+
+    throw StateError('Employee not found: $id');
   }
 
   @override
   Future<EmployeeEntity?> getEmployeeByNationalId(
     String nationalId, {
     String? excludingId,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    for (final employee in employees) {
+      if (employee.id == excludingId) {
+        continue;
+      }
+
+      if (employee.nationalId == nationalId) {
+        return employee;
+      }
+    }
+
+    return null;
   }
 
   @override
@@ -346,6 +362,11 @@ class FakeEmployeeRepository implements EmployeeRepository {
 
   @override
   Future<void> deleteEmployee(String id) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> linkEmployeeAccount(String id, String authUid) {
     throw UnimplementedError();
   }
 }

@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -5,6 +6,9 @@ import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
+import 'package:hr_management_system/domain/group/entity/group_module.dart';
+import 'package:hr_management_system/domain/group/entity/permission_action.dart';
+import 'package:hr_management_system/presentation/authorization/widgets/permission_guard.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
 import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
@@ -35,6 +39,9 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
 
   final formKey = GlobalKey<FormState>();
 
+  bool hasAccount = false;
+  String? authUid;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +63,9 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
       employee.contractDate,
     );
     salaryController.text = employee.salary.toString();
+
+    hasAccount = employee.hasAccount;
+    authUid = employee.authUid;
 
     ref.read(genderProvider.notifier).state = employee.gender;
     ref.read(selectedDepartmentProvider.notifier).state = employee.departmentId;
@@ -101,6 +111,8 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
         contractDateController.text.trim(),
       ),
       salary: double.parse(salaryController.text.trim()),
+      hasAccount: hasAccount,
+      authUid: authUid,
     );
 
     final result = await ref
@@ -120,13 +132,13 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
       case SaveResult.duplicate:
         CustomSnackBar.show(
           context,
-          message: 'An employee with this National ID already exists',
+          message: 'employee.duplicate'.tr(),
         );
         break;
       case SaveResult.failure:
         CustomSnackBar.show(
           context,
-          message: 'Failed to update employee. Please try again',
+          message: 'employee.update_failed'.tr(),
         );
         break;
     }
@@ -135,42 +147,47 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
   @override
   Widget build(BuildContext context) {
     final employeeState = ref.watch(employeeProvider);
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: const CustomAppBar(title: "Edit Employee"),
-      body: Padding(
-        padding: EdgeInsets.all(16.r),
-        child: Column(
-          children: [
-            Expanded(
-              child: EmployeeForm(
-                formKey: formKey,
-                fullNameController: fullNameController,
-                addressController: addressController,
-                phoneNumberController: phoneNumberController,
-                birthDateController: birthDateController,
-                nationalIdController: nationalIdController,
-                nationalityController: nationalityController,
-                contractDateController: contractDateController,
-                salaryController: salaryController,
+    return PermissionGuard(
+      module: GroupModules.employees,
+      action: PermissionAction.edit,
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        appBar: CustomAppBar(title: "employee.edit_title".tr()),
+        body: Padding(
+          padding: EdgeInsets.all(16.r),
+          child: Column(
+            children: [
+              Expanded(
+                child: EmployeeForm(
+                  formKey: formKey,
+                  fullNameController: fullNameController,
+                  addressController: addressController,
+                  phoneNumberController: phoneNumberController,
+                  birthDateController: birthDateController,
+                  nationalIdController: nationalIdController,
+                  nationalityController: nationalityController,
+                  contractDateController: contractDateController,
+                  salaryController: salaryController,
+                ),
               ),
-            ),
 
-            SizedBox(height: 16.h),
+              SizedBox(height: 16.h),
 
-            CustomButton(
-              title: "Update Employee",
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w400,
-              onTap: _updateEmployee,
-              bg: AppColors.primary,
-              isLoading: employeeState.isLoading,
-            ),
+              CustomButton(
+                title: "employee.update_button".tr(),
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w400,
+                onTap: _updateEmployee,
+                bg: AppColors.primary,
+                isLoading: employeeState.isLoading,
+              ),
 
-            SizedBox(height: 8.h),
-          ],
+              SizedBox(height: 8.h),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+

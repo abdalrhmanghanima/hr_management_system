@@ -419,7 +419,10 @@ void main() {
       );
 
       expect(summary.failed, 1);
-      expect(summary.issues.first.reason, 'Nationality is required');
+      expect(
+        summary.issues.first.reason,
+        'validation.employee.nationality_required',
+      );
       expect(summary.issues.first.rowNumber, 2);
       expect(lastEmployeeRepository.added, isEmpty);
       expect(lastAttendanceRepository.records, isEmpty);
@@ -446,7 +449,10 @@ void main() {
       );
 
       expect(summary.failed, 1);
-      expect(summary.issues.first.reason, 'National ID must be 14 digits');
+      expect(
+        summary.issues.first.reason,
+        'validation.employee.national_id_invalid',
+      );
       expect(lastEmployeeRepository.added, isEmpty);
     });
 

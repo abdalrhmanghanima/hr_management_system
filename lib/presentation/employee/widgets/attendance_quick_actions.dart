@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -41,7 +42,7 @@ class AttendanceQuickActions extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomText(
-          title: "Today's Attendance",
+          title: "employee.today_attendance".tr(),
           fontSize: 16.sp,
           fontWeight: FontWeight.w700,
         ),
@@ -52,7 +53,7 @@ class AttendanceQuickActions extends ConsumerWidget {
           children: [
             Expanded(
               child: _QuickActionCard(
-                label: 'Check In',
+                label: "employee.check_in".tr(),
                 time: attendance?.checkInTime,
                 icon: Icons.login_rounded,
                 color: AppColors.green,
@@ -66,7 +67,7 @@ class AttendanceQuickActions extends ConsumerWidget {
 
             Expanded(
               child: _QuickActionCard(
-                label: 'Check Out',
+                label: "employee.check_out".tr(),
                 time: attendance?.checkOutTime,
                 icon: Icons.logout_rounded,
                 color: AppColors.red,
@@ -104,14 +105,14 @@ class AttendanceQuickActions extends ConsumerWidget {
     }
 
     final message = switch (result) {
-      AttendanceActionResult.success => 'Checked in successfully',
+      AttendanceActionResult.success => "employee.checked_in".tr(),
       AttendanceActionResult.alreadyCheckedIn =>
-        'You have already checked in today',
+        "employee.already_checked_in".tr(),
       AttendanceActionResult.alreadyCheckedOut =>
-        'You have already checked out today',
+        "employee.already_checked_out".tr(),
       AttendanceActionResult.checkInRequired =>
-        'Check in first before checking out',
-      AttendanceActionResult.failure => 'Failed to check in. Please try again',
+        "employee.check_in_first".tr(),
+      AttendanceActionResult.failure => "employee.check_in_failed".tr(),
     };
 
     CustomSnackBar.show(
@@ -131,14 +132,14 @@ class AttendanceQuickActions extends ConsumerWidget {
     }
 
     final message = switch (result) {
-      AttendanceActionResult.success => 'Checked out successfully',
+      AttendanceActionResult.success => "employee.checked_out".tr(),
       AttendanceActionResult.alreadyCheckedOut =>
-        'You have already checked out today',
+        "employee.already_checked_out".tr(),
       AttendanceActionResult.checkInRequired =>
-        'Check in first before checking out',
+        "employee.check_in_first".tr(),
       AttendanceActionResult.alreadyCheckedIn =>
-        'You have already checked in today',
-      AttendanceActionResult.failure => 'Failed to check out. Please try again',
+        "employee.already_checked_in".tr(),
+      AttendanceActionResult.failure => "employee.check_out_failed".tr(),
     };
 
     CustomSnackBar.show(
@@ -224,7 +225,7 @@ class _QuickActionCard extends StatelessWidget {
 
               CustomText(
                 title: time == null
-                    ? 'Not recorded'
+                    ? "employee.not_recorded".tr()
                     : DateParser.toDisplayTime(time!),
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w400,
@@ -249,8 +250,8 @@ class _StatusMessage extends StatelessWidget {
 
     return CustomText(
       title: hasCheckedOut
-          ? 'Attendance completed for today'
-          : 'Checked in. Check out is now available',
+          ? "employee.attendance_completed".tr()
+          : "employee.check_out_available".tr(),
       fontSize: 12.sp,
       fontWeight: FontWeight.w400,
       fontColor: AppColors.gray,
@@ -290,7 +291,7 @@ class _WorkedHoursSummary extends ConsumerWidget {
           ),
         ),
         error: (error, stackTrace) => CustomText(
-          title: 'Unable to load working hours settings',
+          title: "employee.settings_unavailable".tr(),
           fontSize: 12.sp,
           fontWeight: FontWeight.w400,
           fontColor: AppColors.red,
@@ -310,22 +311,28 @@ class _WorkedHoursSummary extends ConsumerWidget {
             children: [
               Expanded(
                 child: _SummaryItem(
-                  label: 'Worked',
-                  value: '${calculation.actualWorkedHours} hrs',
+                  label: "employee.worked".tr(),
+                  value: "employee.hours".tr(
+                        namedArgs: {'hours': calculation.actualWorkedHours.toString()},
+                      ),
                   color: AppColors.black,
                 ),
               ),
               Expanded(
                 child: _SummaryItem(
-                  label: 'Overtime',
-                  value: '${calculation.overtimeHours} hrs',
+                  label: "employee.overtime".tr(),
+                  value: "employee.hours".tr(
+                        namedArgs: {'hours': calculation.overtimeHours.toString()},
+                      ),
                   color: AppColors.green,
                 ),
               ),
               Expanded(
                 child: _SummaryItem(
-                  label: 'Deduction',
-                  value: '${calculation.deductionHours} hrs',
+                  label: "employee.deduction".tr(),
+                  value: "employee.hours".tr(
+                        namedArgs: {'hours': calculation.deductionHours.toString()},
+                      ),
                   color: AppColors.red,
                 ),
               ),
@@ -370,3 +377,4 @@ class _SummaryItem extends StatelessWidget {
     );
   }
 }
+

@@ -1,13 +1,19 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
+import 'package:hr_management_system/domain/authorization/entity/authorization_status.dart';
+import 'package:hr_management_system/domain/group/entity/group_module.dart';
+import 'package:hr_management_system/domain/group/entity/permission_action.dart';
+import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
+import 'package:hr_management_system/presentation/authorization/widgets/permission_guard.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
@@ -26,16 +32,65 @@ class EmployeeDetails extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final status = ref.watch(authorizationStatusProvider);
+
+    if (status == AuthorizationStatus.loading) {
+      return const Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final canViewEmployees = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.employees,
+        action: PermissionAction.view,
+      )),
+    );
+    final canViewOwnProfile = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.profile,
+        action: PermissionAction.view,
+      )),
+    );
+    final isOwnProfile = ref.watch(currentEmployeeIdProvider) == employeeId;
+
+    if (!canViewEmployees && !(canViewOwnProfile && isOwnProfile)) {
+      return AuthorizationDeniedView(
+        message: 'employee.profile_denied'.tr(),
+      );
+    }
+
     final employeeState = ref.watch(employeeDetailsProvider(employeeId));
+
+    final canEditEmployees = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.employees,
+        action: PermissionAction.edit,
+      )),
+    );
+    final canDeleteEmployees = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.employees,
+        action: PermissionAction.delete,
+      )),
+    );
+    final canAddAttendance = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.add,
+      )),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: CustomAppBar(
-        title: "Employee Details",
+        title: "employee.details_title".tr(),
         actionIconPath: AppIcons.edit,
-        actionText: "Edit",
-        onActionPressed: () =>
-            NavigatorHandler.push(EditEmployee(employeeId: employeeId)),
+        actionText: "common.edit".tr(),
+        onActionPressed: canEditEmployees
+            ? () => NavigatorHandler.push(EditEmployee(employeeId: employeeId))
+            : null,
       ),
       body: employeeState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -110,7 +165,7 @@ class EmployeeDetails extends ConsumerWidget {
                               ),
                             ),
                             error: (error, stackTrace) => CustomText(
-                              title: 'Unknown Department',
+                              title: "common.unknown_department".tr(),
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
                               fontColor: AppColors.primary,
@@ -130,7 +185,7 @@ class EmployeeDetails extends ConsumerWidget {
                   ),
                   SizedBox(height: 16.h),
                   CustomText(
-                    title: "Personal Information",
+                    title: "employee.personal_information".tr(),
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -148,25 +203,25 @@ class EmployeeDetails extends ConsumerWidget {
                         children: [
                           EmployeeInfoRow(
                             icon: AppIcons.phone,
-                            title: "Phone Number",
+                            title: "employee.field.phone_number".tr(),
                             value: employee.phoneNumber,
                           ),
                           SizedBox(height: 14.h),
                           EmployeeInfoRow(
                             icon: AppIcons.location,
-                            title: "Address",
+                            title: "employee.field.address".tr(),
                             value: employee.address,
                           ),
                           SizedBox(height: 14.h),
                           EmployeeInfoRow(
                             icon: AppIcons.calendar,
-                            title: "Birth Date",
+                            title: "employee.field.birth_date".tr(),
                             value: DateParser.toDisplayDate(employee.birthDate),
                           ),
                           SizedBox(height: 14.h),
                           EmployeeInfoRow(
                             icon: AppIcons.nationalId,
-                            title: "National ID",
+                            title: "employee.field.national_id".tr(),
                             value: employee.nationalId,
                           ),
                           SizedBox(height: 14.h),
@@ -177,14 +232,17 @@ class EmployeeDetails extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     CustomText(
-                                      title: "Gender",
+                                      title: "employee.field.gender".tr(),
                                       fontSize: 11.sp,
                                       fontColor: AppColors.gray,
                                       fontWeight: FontWeight.w400,
                                     ),
                                     SizedBox(height: 4.h),
                                     CustomText(
-                                      title: employee.gender,
+                                      title: AppLocalization.gender(
+                                        context,
+                                        employee.gender,
+                                      ),
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -196,7 +254,7 @@ class EmployeeDetails extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     CustomText(
-                                      title: "Nationality",
+                                      title: "employee.field.nationality".tr(),
                                       fontSize: 11.sp,
                                       fontColor: AppColors.gray,
                                       fontWeight: FontWeight.w400,
@@ -218,7 +276,7 @@ class EmployeeDetails extends ConsumerWidget {
                   ),
                   SizedBox(height: 20.h),
                   CustomText(
-                    title: "Work Information",
+                    title: "employee.work_information".tr(),
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -236,7 +294,7 @@ class EmployeeDetails extends ConsumerWidget {
                         children: [
                           EmployeeInfoRow(
                             icon: AppIcons.bag,
-                            title: "Contract Date",
+                            title: "employee.field.contract_date".tr(),
                             value: DateParser.toDisplayDate(
                               employee.contractDate,
                             ),
@@ -244,57 +302,60 @@ class EmployeeDetails extends ConsumerWidget {
                           SizedBox(height: 14.h),
                           EmployeeInfoRow(
                             icon: AppIcons.payrollBlue,
-                            title: "Basic Monthly Salary",
-                            value: "${employee.salary.toStringAsFixed(0)} EGP",
+                            title: "employee.field.salary".tr(),
+                            value:
+                                "${employee.salary.toStringAsFixed(0)} ${'common.egp'.tr()}",
                           ),
                           SizedBox(height: 14.h),
                           EmployeeInfoRow(
                             icon: AppIcons.clock,
-                            title: "Working Hours Shift",
-                            value: companyWorkingScheduleLabel,
+                            title: "common.working_shift".tr(),
+                            value: "common.working_shift".tr(),
                           ),
                         ],
                       ),
                     ),
                   ),
                   SizedBox(height: 20.h),
-                  AttendanceQuickActions(
-                    employeeId: employee.id,
-                    monthlySalary: employee.salary,
-                  ),
-                  SizedBox(height: 24.h),
-                  CustomButton(
-                    title: "Delete Employee",
-                    isLoading: employeeState.isLoading,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (dialogContext) {
-                          return DeleteConfirmationDialog(
-                            title: 'Delete Employee',
-                            message:
-                                'Are you sure you want to delete this employee? This action cannot be undone.',
-                            isLoading: employeeState.isLoading,
-                            onDelete: () async {
-                              await ref
-                                  .read(employeeProvider.notifier)
-                                  .deleteEmployee(employeeId);
+                  if (canAddAttendance) ...[
+                    AttendanceQuickActions(
+                      employeeId: employee.id,
+                      monthlySalary: employee.salary,
+                    ),
+                    SizedBox(height: 24.h),
+                  ],
+                  if (canDeleteEmployees)
+                    CustomButton(
+                      title: "employee.delete_title".tr(),
+                      isLoading: employeeState.isLoading,
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (dialogContext) {
+                            return DeleteConfirmationDialog(
+                              title: "employee.delete_title".tr(),
+                              message: "employee.delete_confirmation".tr(),
+                              isLoading: employeeState.isLoading,
+                              onDelete: () async {
+                                await ref
+                                    .read(employeeProvider.notifier)
+                                    .deleteEmployee(employeeId);
 
-                              if (dialogContext.mounted) {
-                                Navigator.pop(dialogContext);
-                              }
+                                if (dialogContext.mounted) {
+                                  Navigator.pop(dialogContext);
+                                }
 
-                              if (context.mounted) {
-                                NavigatorHandler.pop();
-                              }
-                            },
-                          );
-                        },
-                      );
-                    },
-                    bg: AppColors.red,
-                    fontSize: 15.sp,
-                  ),
+                                if (context.mounted) {
+                                  NavigatorHandler.pop();
+                                }
+                              },
+                            );
+                          },
+                        );
+                      },
+                      bg: AppColors.red,
+                      fontSize: 15.sp,
+                    ),
                 ],
               ),
             ),
@@ -304,3 +365,4 @@ class EmployeeDetails extends ConsumerWidget {
     );
   }
 }
+

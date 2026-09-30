@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
@@ -102,7 +103,7 @@ class AttendanceSelectedFile extends StatelessWidget {
                       ),
                       SizedBox(width: 5.w),
                       CustomText(
-                        title: 'Change',
+                        title: 'common.change'.tr(),
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                         fontColor: AppColors.primary,
@@ -128,7 +129,7 @@ class AttendanceSelectedFile extends StatelessWidget {
                       ),
                       SizedBox(width: 5.w),
                       CustomText(
-                        title: 'Remove',
+                        title: 'common.remove'.tr(),
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                         fontColor: AppColors.red,
@@ -148,7 +149,7 @@ class AttendanceSelectedFile extends StatelessWidget {
     final dotIndex = name.lastIndexOf('.');
 
     if (dotIndex < 0 || dotIndex == name.length - 1) {
-      return 'File';
+      return 'common.file'.tr();
     }
 
     return name.substring(dotIndex + 1).toUpperCase();

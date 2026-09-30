@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
@@ -147,7 +148,9 @@ class EmployeeCard extends StatelessWidget {
                       SizedBox(width: 6.w),
                       Flexible(
                         child: CustomText(
-                          title: 'Salary: $salary EGP',
+                          title: "employee.salary_line".tr(
+                            namedArgs: {'salary': salary},
+                          ),
                           fontColor: const Color(0xFF64748B),
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w400,
@@ -171,7 +174,9 @@ class EmployeeCard extends StatelessWidget {
                 SizedBox(width: 6.w),
                 Flexible(
                   child: CustomText(
-                    title: 'Work Shift: $workShift',
+                    title: "employee.shift_line".tr(
+                      namedArgs: {'shift': workShift},
+                    ),
                     fontColor: const Color(0xFF64748B),
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
@@ -185,3 +190,4 @@ class EmployeeCard extends StatelessWidget {
     );
   }
 }
+

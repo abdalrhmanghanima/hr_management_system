@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:hr_management_system/core/utils/date_picker_helper.dart';
 import 'package:hr_management_system/presentation/attendance/provider/selected_attendance_status_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/selected_employee_provider.dart';
@@ -28,9 +30,9 @@ class AttendanceForm extends ConsumerWidget {
 
   static const List<String> statuses = ['Present', 'Absent', 'Late', 'Leave'];
 
-  String? _requiredValidator(String? value, String fieldName) {
+  String? _requiredValidator(String? value, String errorKey) {
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
+      return errorKey.tr();
     }
 
     return null;
@@ -56,7 +58,7 @@ class AttendanceForm extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomText(
-              title: 'Attendance Information',
+              title: 'attendance.form_title'.tr(),
               fontSize: 16.sp,
               fontWeight: FontWeight.w700,
             ),
@@ -77,9 +79,9 @@ class AttendanceForm extends ConsumerWidget {
                     employeeState.when(
                       data: (data) {
                         return CustomDropdownField<String>(
-                          label: 'Employee',
+                          label: 'attendance.employee'.tr(),
                           isRequired: true,
-                          hint: 'Select Employee',
+                          hint: 'attendance.select_employee'.tr(),
                           value: selectedEmployee,
                           items: data.map((employee) {
                             return DropdownMenuItem<String>(
@@ -93,7 +95,8 @@ class AttendanceForm extends ConsumerWidget {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Employee is required';
+                              return 'validation.attendance.employee_required'
+                                  .tr();
                             }
 
                             return null;
@@ -114,13 +117,15 @@ class AttendanceForm extends ConsumerWidget {
 
                     CustomTextFormField(
                       controller: attendanceDateController,
-                      label: 'Attendance Date',
+                      label: 'attendance.date'.tr(),
                       isRequired: true,
-                      hint: 'dd/mm/yyyy',
+                      hint: 'attendance.date_hint'.tr(),
                       readOnly: true,
                       onTap: () => _pickAttendanceDate(context),
-                      validator: (value) =>
-                          _requiredValidator(value, 'Attendance Date'),
+                      validator: (value) => _requiredValidator(
+                        value,
+                        'validation.attendance.date_required',
+                      ),
                       suffix: Padding(
                         padding: EdgeInsets.all(14.r),
                         child: Icon(
@@ -134,14 +139,19 @@ class AttendanceForm extends ConsumerWidget {
                     SizedBox(height: 16.h),
 
                     CustomDropdownField<String>(
-                      label: 'Attendance Status',
+                      label: 'attendance.status'.tr(),
                       isRequired: true,
-                      hint: 'Select Status',
+                      hint: 'attendance.select_status'.tr(),
                       value: selectedStatus,
                       items: statuses.map((status) {
                         return DropdownMenuItem<String>(
                           value: status,
-                          child: Text(status),
+                          child: Text(
+                            AppLocalization.attendanceStatus(
+                              context,
+                              status,
+                            ),
+                          ),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -152,7 +162,7 @@ class AttendanceForm extends ConsumerWidget {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Attendance Status is required';
+                          return 'validation.attendance.status_required'.tr();
                         }
 
                         return null;
@@ -166,8 +176,8 @@ class AttendanceForm extends ConsumerWidget {
                         Expanded(
                           child: CustomTextFormField(
                             controller: checkInTimeController,
-                            label: 'Check-In Time',
-                            hint: 'e.g. 09:00 AM',
+                            label: 'attendance.check_in'.tr(),
+                            hint: 'attendance.check_in_hint'.tr(),
                             readOnly: true,
                             onTap: () async {
                               final time = await showTimePicker(
@@ -189,8 +199,8 @@ class AttendanceForm extends ConsumerWidget {
                         Expanded(
                           child: CustomTextFormField(
                             controller: checkOutTimeController,
-                            label: 'Check-Out Time',
-                            hint: 'e.g. 05:00 PM',
+                            label: 'attendance.check_out'.tr(),
+                            hint: 'attendance.check_out_hint'.tr(),
                             readOnly: true,
                             onTap: () async {
                               final time = await showTimePicker(

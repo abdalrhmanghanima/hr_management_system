@@ -45,4 +45,9 @@ class EmployeeRepositoryImpl implements EmployeeRepository {
   Future<void> deleteEmployee(String id) {
     return dataSource.deleteEmployee(id);
   }
+
+  @override
+  Future<void> linkEmployeeAccount(String id, String authUid) {
+    return dataSource.linkEmployeeAccount(id, authUid);
+  }
 }

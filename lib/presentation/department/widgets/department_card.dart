@@ -1,3 +1,4 @@
+﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
@@ -26,14 +27,15 @@ class DepartmentCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20.r),
           ),
           title: CustomText(
-            title: 'Delete Department',
+            title: 'department.delete_title'.tr(),
             fontSize: 18.sp,
             fontWeight: FontWeight.w700,
             fontColor: AppColors.black,
           ),
           content: CustomText(
-            title:
-            'Are you sure you want to delete "${department.name}"?',
+            title: 'department.delete_confirmation'.tr(
+              namedArgs: {'name': department.name},
+            ),
             fontSize: 14.sp,
             fontColor: AppColors.gray,
           ),
@@ -43,7 +45,7 @@ class DepartmentCard extends ConsumerWidget {
                 Navigator.pop(dialogContext);
               },
               child: CustomText(
-                title: 'Cancel',
+                title: 'common.cancel'.tr(),
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.gray,
@@ -58,7 +60,7 @@ class DepartmentCard extends ConsumerWidget {
                     .deleteDepartment(department.id);
               },
               child: CustomText(
-                title: 'Delete',
+                title: 'common.delete'.tr(),
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 fontColor: AppColors.red,

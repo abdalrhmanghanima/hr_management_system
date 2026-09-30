@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
@@ -57,14 +58,14 @@ class _WeekendDaysPickerState extends State<WeekendDaysPicker> {
             ),
             SizedBox(height: 20.h),
             CustomText(
-              title: 'Select Weekend Days',
+              title: 'settings.select_weekend_days_title'.tr(),
               fontSize: 20.sp,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
             ),
             SizedBox(height: 5.h),
             CustomText(
-              title: 'You can select more than one day.',
+              title: 'settings.select_weekend_days_hint'.tr(),
               fontSize: 14.sp,
               fontWeight: FontWeight.w400,
               fontColor: AppColors.gray,
@@ -127,7 +128,7 @@ class _WeekendDaysPickerState extends State<WeekendDaysPicker> {
                   ),
                 ),
                 child: Text(
-                  'Done',
+                  'common.done'.tr(),
                   style: TextStyle(
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,

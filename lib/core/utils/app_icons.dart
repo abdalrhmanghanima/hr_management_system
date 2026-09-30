@@ -32,6 +32,7 @@ class AppIcons {
   static const String permission = "assets/icons/permission.svg";
 
   static const String settings = "assets/icons/settings.svg";
+  static const String language = "assets/icons/language.svg";
   static const String signOut = "assets/icons/sign_out.svg";
 
   static const String leftArrow = "assets/icons/left_arrow.svg";

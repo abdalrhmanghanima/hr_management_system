@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/enums/attendance_import_status.dart';
@@ -15,7 +16,7 @@ class AttendanceImportButton extends StatelessWidget {
     super.key,
     this.status = AttendanceImportStatus.idle,
     this.onPressed,
-    this.title = 'Import Attendance',
+    this.title = 'attendance_import.title',
     this.statusMessage,
   });
 
@@ -35,7 +36,7 @@ class AttendanceImportButton extends StatelessWidget {
         Opacity(
           opacity: isLoading || isDisabled || onPressed == null ? 0.6 : 1,
           child: CustomButton(
-            title: title,
+            title: title.tr(),
             fontSize: 15.sp,
             fontWeight: FontWeight.w500,
             bg: AppColors.primary,
@@ -63,19 +64,19 @@ class AttendanceImportButton extends StatelessWidget {
   String? get _defaultStatusMessage {
     switch (status) {
       case AttendanceImportStatus.parsing:
-        return 'Reading the attendance file, please wait...';
+        return 'attendance_import.status_parsing'.tr();
 
       case AttendanceImportStatus.importing:
-        return 'Importing attendance, please wait...';
+        return 'attendance_import.status_importing'.tr();
 
       case AttendanceImportStatus.success:
-        return 'Attendance imported successfully';
+        return 'attendance_import.status_success'.tr();
 
       case AttendanceImportStatus.partialSuccess:
-        return 'Attendance imported with some rows skipped';
+        return 'attendance_import.status_partial'.tr();
 
       case AttendanceImportStatus.error:
-        return 'Failed to import attendance. Please try again';
+        return 'attendance_import.status_error'.tr();
 
       case AttendanceImportStatus.selectingFile:
       case AttendanceImportStatus.idle:
