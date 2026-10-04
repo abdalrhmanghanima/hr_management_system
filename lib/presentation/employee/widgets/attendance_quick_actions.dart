@@ -1,8 +1,7 @@
-﻿import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
@@ -311,7 +310,7 @@ class _WorkedHoursSummary extends ConsumerWidget {
     final settingsState = ref.watch(generalSettingsProvider);
 
     return Container(
-      width: Dimens.width,
+      width: double.infinity,
       padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
         color: AppColors.backgroundColor,

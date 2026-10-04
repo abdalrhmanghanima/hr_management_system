@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
@@ -27,7 +26,7 @@ class GroupPermissionSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: Dimens.width,
+      width: double.infinity,
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: AppColors.white,

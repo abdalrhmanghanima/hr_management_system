@@ -5,6 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/sign_out_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
@@ -86,7 +88,10 @@ class MoreTab extends ConsumerWidget {
       body: Padding(
         padding: EdgeInsets.all(16.r),
         child: SingleChildScrollView(
-          child: Column(
+          child: MaxWidthBox(
+            maxWidth: AppBreakpoints.menuContentMaxWidth,
+            applyFromWidth: AppBreakpoints.desktopMinWidth,
+            child: Column(
             children: [
               Container(
                 padding: EdgeInsets.all(20.r),
@@ -270,6 +275,7 @@ class MoreTab extends ConsumerWidget {
                 ),
               ),
             ],
+            ),
           ),
         ),
       ),

@@ -5,6 +5,8 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/payroll_format.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
@@ -118,189 +120,192 @@ class _DetailsBody extends StatelessWidget {
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.r),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _card(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      child: MaxWidthBox(
+        maxWidth: AppBreakpoints.documentMaxWidth,
+        applyFromWidth: AppBreakpoints.desktopMinWidth,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _card(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText(
+                          title: summary.employeeName,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          fontColor: _ink,
+                        ),
+                        SizedBox(height: 6.h),
+                        CustomText(
+                          title: 'payroll.department_month'.tr(
+                            namedArgs: {
+                              'department': departmentName,
+                              'month': month,
+                            },
+                          ),
+                          fontSize: 13.sp,
+                          fontColor: _muted,
+                        ),
+                        SizedBox(height: 6.h),
+                        CustomText(
+                          title: 'payroll.reference'.tr(
+                            namedArgs: {'reference': reference},
+                          ),
+                          fontSize: 12.sp,
+                          fontColor: _muted,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       CustomText(
-                        title: summary.employeeName,
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w700,
-                        fontColor: _ink,
-                      ),
-                      SizedBox(height: 6.h),
-                      CustomText(
-                        title: 'payroll.department_month'.tr(
-                          namedArgs: {
-                            'department': departmentName,
-                            'month': month,
-                          },
-                        ),
+                        title: 'payroll.net_salary'.tr(),
                         fontSize: 13.sp,
                         fontColor: _muted,
                       ),
-                      SizedBox(height: 6.h),
+                      SizedBox(height: 2.h),
                       CustomText(
-                        title: 'payroll.reference'.tr(
-                          namedArgs: {'reference': reference},
-                        ),
-                        fontSize: 12.sp,
-                        fontColor: _muted,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    CustomText(
-                      title: 'payroll.net_salary'.tr(),
-                      fontSize: 13.sp,
-                      fontColor: _muted,
-                    ),
-                    SizedBox(height: 2.h),
-                    CustomText(
-                      title: 'payroll.net_salary_value'.tr(
-                        namedArgs: {
-                          'net': PayrollFormat.amount(summary.netSalary),
-                        },
-                      ),
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      fontColor: AppColors.primary,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 16.h),
-
-          CustomText(
-            title: 'payroll.attendance_statistics'.tr(),
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-          ),
-
-          SizedBox(height: 12.h),
-
-          Row(
-            children: [
-              _statCard(
-                label: 'payroll.attendance_days'.tr(),
-                value: '${summary.presentDays}',
-              ),
-              SizedBox(width: 12.w),
-              _statCard(
-                label: 'payroll.absence_days'.tr(),
-                value: '${summary.absentDays}',
-              ),
-            ],
-          ),
-
-          SizedBox(height: 12.h),
-
-          Row(
-            children: [
-              _statCard(
-                label: 'payroll.overtime_hours'.tr(),
-                value:
-                    '+${'employee.hours'.tr(namedArgs: {'hours': PayrollFormat.hours(summary.overtimeHours)})}',
-                valueColor: AppColors.green,
-              ),
-              SizedBox(width: 12.w),
-              _statCard(
-                label: 'payroll.deduction_hours'.tr(),
-                value:
-                    '-${'employee.hours'.tr(namedArgs: {'hours': PayrollFormat.hours(summary.deductionHours)})}',
-                valueColor: AppColors.red,
-              ),
-            ],
-          ),
-
-          SizedBox(height: 16.h),
-
-          CustomText(
-            title: 'payroll.financial_breakdown'.tr(),
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w700,
-          ),
-
-          SizedBox(height: 12.h),
-
-          _card(
-            child: Column(
-              children: [
-                _amountRow(
-                  label: 'payroll.basic_salary'.tr(),
-                  value:
-                      '${PayrollFormat.amount(summary.basicSalary)} $egp',
-                ),
-                _amountRow(
-                  label: 'payroll.total_overtime_addition'.tr(),
-                  value:
-                      '+${PayrollFormat.amount(summary.overtimeAmount)} $egp',
-                  valueColor: AppColors.green,
-                ),
-                _amountRow(
-                  label: 'payroll.total_deduction'.tr(),
-                  value:
-                      '-${PayrollFormat.amount(summary.totalDeductions)} $egp',
-                  valueColor: AppColors.red,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 6.h),
-                  child: const Divider(height: 1, color: _border),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: CustomText(
-                        title: 'payroll.net_monthly_salary'.tr(),
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
-                        fontColor: _ink,
-                      ),
-                    ),
-                    Flexible(
-                      child: CustomText(
                         title: 'payroll.net_salary_value'.tr(
                           namedArgs: {
                             'net': PayrollFormat.amount(summary.netSalary),
                           },
                         ),
-                        fontSize: 18.sp,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.w700,
                         fontColor: AppColors.primary,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 16.h),
+
+            CustomText(
+              title: 'payroll.attendance_statistics'.tr(),
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+            ),
+
+            SizedBox(height: 12.h),
+
+            Row(
+              children: [
+                _statCard(
+                  label: 'payroll.attendance_days'.tr(),
+                  value: '${summary.presentDays}',
+                ),
+                SizedBox(width: 12.w),
+                _statCard(
+                  label: 'payroll.absence_days'.tr(),
+                  value: '${summary.absentDays}',
                 ),
               ],
             ),
-          ),
 
-          SizedBox(height: 20.h),
+            SizedBox(height: 12.h),
 
-          CustomButton(
-            title: 'payroll.view_print_salary_slip'.tr(),
-            iconPath: AppIcons.print,
-            bg: AppColors.primary,
-            fontColor: AppColors.white,
-            fontWeight: FontWeight.w700,
-            onTap: onOpenSlip,
-          ),
-        ],
+            Row(
+              children: [
+                _statCard(
+                  label: 'payroll.overtime_hours'.tr(),
+                  value:
+                      '+${'employee.hours'.tr(namedArgs: {'hours': PayrollFormat.hours(summary.overtimeHours)})}',
+                  valueColor: AppColors.green,
+                ),
+                SizedBox(width: 12.w),
+                _statCard(
+                  label: 'payroll.deduction_hours'.tr(),
+                  value:
+                      '-${'employee.hours'.tr(namedArgs: {'hours': PayrollFormat.hours(summary.deductionHours)})}',
+                  valueColor: AppColors.red,
+                ),
+              ],
+            ),
+
+            SizedBox(height: 16.h),
+
+            CustomText(
+              title: 'payroll.financial_breakdown'.tr(),
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+            ),
+
+            SizedBox(height: 12.h),
+
+            _card(
+              child: Column(
+                children: [
+                  _amountRow(
+                    label: 'payroll.basic_salary'.tr(),
+                    value: '${PayrollFormat.amount(summary.basicSalary)} $egp',
+                  ),
+                  _amountRow(
+                    label: 'payroll.total_overtime_addition'.tr(),
+                    value:
+                        '+${PayrollFormat.amount(summary.overtimeAmount)} $egp',
+                    valueColor: AppColors.green,
+                  ),
+                  _amountRow(
+                    label: 'payroll.total_deduction'.tr(),
+                    value:
+                        '-${PayrollFormat.amount(summary.totalDeductions)} $egp',
+                    valueColor: AppColors.red,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6.h),
+                    child: const Divider(height: 1, color: _border),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: CustomText(
+                          title: 'payroll.net_monthly_salary'.tr(),
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w700,
+                          fontColor: _ink,
+                        ),
+                      ),
+                      Flexible(
+                        child: CustomText(
+                          title: 'payroll.net_salary_value'.tr(
+                            namedArgs: {
+                              'net': PayrollFormat.amount(summary.netSalary),
+                            },
+                          ),
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          fontColor: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 20.h),
+
+            CustomButton(
+              title: 'payroll.view_print_salary_slip'.tr(),
+              iconPath: AppIcons.print,
+              bg: AppColors.primary,
+              fontColor: AppColors.white,
+              fontWeight: FontWeight.w700,
+              onTap: onOpenSlip,
+            ),
+          ],
+        ),
       ),
     );
   }

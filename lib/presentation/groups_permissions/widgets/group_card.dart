@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
@@ -19,7 +18,7 @@ class GroupCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20.r),
       child: Container(
-        width: Dimens.width,
+        width: double.infinity,
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
           color: AppColors.white,

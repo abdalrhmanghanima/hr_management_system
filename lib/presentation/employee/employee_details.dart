@@ -1,11 +1,12 @@
-﻿import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
@@ -104,11 +105,14 @@ class EmployeeDetails extends ConsumerWidget {
           return Padding(
             padding: EdgeInsets.all(16.r),
             child: SingleChildScrollView(
-              child: Column(
+              child: MaxWidthBox(
+                maxWidth: AppBreakpoints.detailsContentMaxWidth,
+                applyFromWidth: AppBreakpoints.desktopMinWidth,
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: Dimens.width,
+                    width: double.infinity,
                     padding: EdgeInsets.symmetric(
                       vertical: 24.h,
                       horizontal: 16.w,
@@ -191,7 +195,7 @@ class EmployeeDetails extends ConsumerWidget {
                   ),
                   SizedBox(height: 12.h),
                   Container(
-                    width: Dimens.width,
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(20.r),
@@ -282,7 +286,7 @@ class EmployeeDetails extends ConsumerWidget {
                   ),
                   SizedBox(height: 12.h),
                   Container(
-                    width: Dimens.width,
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(20.r),
@@ -357,6 +361,7 @@ class EmployeeDetails extends ConsumerWidget {
                       fontSize: 15.sp,
                     ),
                 ],
+                ),
               ),
             ),
           );

@@ -2,7 +2,6 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/custom_loading.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:flutter/material.dart';
-import '../../../core/dimens/dimens.dart';
 import '../custom_svg/custom_svg_icon.dart';
 import '../custom_text/custom_text.dart';
 import 'dart:async';
@@ -47,7 +46,7 @@ class CustomButton extends StatelessWidget {
       focusColor: Colors.transparent,
       onTap: isLoading ? null : onTap,
       child: Container(
-        width: width ?? Dimens.width,
+        width: width ?? double.infinity,
         height: height ?? 56.h,
         alignment: Alignment.center,
         decoration: BoxDecoration(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
@@ -19,10 +20,7 @@ import 'package:hr_management_system/presentation/more/provider/general_settings
 class EmployeeAttendanceRecordsScreen extends ConsumerStatefulWidget {
   final String employeeId;
 
-  const EmployeeAttendanceRecordsScreen({
-    super.key,
-    required this.employeeId,
-  });
+  const EmployeeAttendanceRecordsScreen({super.key, required this.employeeId});
 
   @override
   ConsumerState<EmployeeAttendanceRecordsScreen> createState() =>
@@ -75,8 +73,7 @@ class _EmployeeAttendanceRecordsScreenState
             );
 
             final departmentName =
-                departmentAsync.value?.name ??
-                'common.unknown_department'.tr();
+                departmentAsync.value?.name ?? 'common.unknown_department'.tr();
 
             final records = _sortedByDateDesc(
               (attendancesAsync.value ?? const []).where((attendance) {
@@ -85,6 +82,37 @@ class _EmployeeAttendanceRecordsScreenState
                     attendance.attendanceDate.month == selectedMonth.month;
               }).toList(),
             );
+
+            final recordCards = <Widget>[];
+            for (final attendance in records) {
+              final calculation = settings == null
+                  ? null
+                  : ref
+                        .read(calculateAttendanceHoursUseCaseProvider)
+                        .call(
+                          monthlySalary: employee.salary,
+                          checkInTime: attendance.checkInTime,
+                          checkOutTime: attendance.checkOutTime,
+                          workingHoursPerDay: settings.workingHoursPerDay,
+                          multiplier: settings.multiplier,
+                        );
+
+              recordCards.add(
+                AttendanceRecordCard(
+                  name: employee.fullName,
+                  department: departmentName,
+                  date: attendance.attendanceDate,
+                  status: attendance.status,
+                  checkIn: attendance.checkInTime,
+                  checkOut: attendance.checkOutTime,
+                  workedHours: calculation?.actualWorkedHours,
+                  overtimeHours: calculation?.overtimeHours,
+                  deductionHours: calculation?.deductionHours,
+                  onEdit: null,
+                  onDelete: null,
+                ),
+              );
+            }
 
             return Padding(
               padding: EdgeInsets.all(16.r),
@@ -115,45 +143,10 @@ class _EmployeeAttendanceRecordsScreenState
                               fontColor: const Color(0xFF64748B),
                             ),
                           )
-                        : ListView.separated(
-                            padding: EdgeInsets.zero,
+                        : AdaptiveCardList(
                             physics: const AlwaysScrollableScrollPhysics(),
-                            itemCount: records.length,
-                            separatorBuilder: (context, index) {
-                              return SizedBox(height: 16.h);
-                            },
-                            itemBuilder: (context, index) {
-                              final attendance = records[index];
-
-                              final calculation = settings == null
-                                  ? null
-                                  : ref
-                                        .read(
-                                          calculateAttendanceHoursUseCaseProvider,
-                                        )
-                                        .call(
-                                          monthlySalary: employee.salary,
-                                          checkInTime: attendance.checkInTime,
-                                          checkOutTime: attendance.checkOutTime,
-                                          workingHoursPerDay:
-                                              settings.workingHoursPerDay,
-                                          multiplier: settings.multiplier,
-                                        );
-
-                              return AttendanceRecordCard(
-                                name: employee.fullName,
-                                department: departmentName,
-                                date: attendance.attendanceDate,
-                                status: attendance.status,
-                                checkIn: attendance.checkInTime,
-                                checkOut: attendance.checkOutTime,
-                                workedHours: calculation?.actualWorkedHours,
-                                overtimeHours: calculation?.overtimeHours,
-                                deductionHours: calculation?.deductionHours,
-                                onEdit: null,
-                                onDelete: null,
-                              );
-                            },
+                            spacing: 16.h,
+                            children: recordCards,
                           ),
                   ),
                 ],
@@ -170,10 +163,7 @@ class _EmployeeHeaderCard extends StatelessWidget {
   final String name;
   final String department;
 
-  const _EmployeeHeaderCard({
-    required this.name,
-    required this.department,
-  });
+  const _EmployeeHeaderCard({required this.name, required this.department});
 
   @override
   Widget build(BuildContext context) {

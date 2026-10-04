@@ -1,9 +1,11 @@
-﻿import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/employee_id_generator.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
@@ -98,19 +100,18 @@ class _AddEmployeeState extends ConsumerState<AddEmployee> {
 
     switch (result) {
       case SaveResult.success:
+        CustomSnackBar.show(
+          context,
+          message: 'employee.add_success'.tr(),
+          success: true,
+        );
         Navigator.pop(context);
         break;
       case SaveResult.duplicate:
-        CustomSnackBar.show(
-          context,
-          message: 'employee.duplicate'.tr(),
-        );
+        CustomSnackBar.show(context, message: 'employee.duplicate'.tr());
         break;
       case SaveResult.failure:
-        CustomSnackBar.show(
-          context,
-          message: 'employee.add_failed'.tr(),
-        );
+        CustomSnackBar.show(context, message: 'employee.add_failed'.tr());
         break;
     }
   }
@@ -127,35 +128,39 @@ class _AddEmployeeState extends ConsumerState<AddEmployee> {
         appBar: CustomAppBar(title: "employee.add_title".tr()),
         body: Padding(
           padding: EdgeInsets.all(16.r),
-          child: Column(
-            children: [
-              Expanded(
-                child: EmployeeForm(
-                  formKey: formKey,
-                  fullNameController: fullNameController,
-                  addressController: addressController,
-                  phoneNumberController: phoneNumberController,
-                  birthDateController: birthDateController,
-                  nationalIdController: nationalIdController,
-                  nationalityController: nationalityController,
-                  contractDateController: contractDateController,
-                  salaryController: salaryController,
+          child: MaxWidthBox(
+            maxWidth: AppBreakpoints.formMaxWidth,
+            applyFromWidth: AppBreakpoints.desktopMinWidth,
+            child: Column(
+              children: [
+                Expanded(
+                  child: EmployeeForm(
+                    formKey: formKey,
+                    fullNameController: fullNameController,
+                    addressController: addressController,
+                    phoneNumberController: phoneNumberController,
+                    birthDateController: birthDateController,
+                    nationalIdController: nationalIdController,
+                    nationalityController: nationalityController,
+                    contractDateController: contractDateController,
+                    salaryController: salaryController,
+                  ),
                 ),
-              ),
 
-              SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
 
-              CustomButton(
-                title: "employee.save_button".tr(),
-                fontSize: 15.sp,
-                isLoading: employeeState.isLoading,
-                fontWeight: FontWeight.w400,
-                onTap: _saveEmployee,
-                bg: AppColors.primary,
-              ),
+                CustomButton(
+                  title: "employee.save_button".tr(),
+                  fontSize: 15.sp,
+                  isLoading: employeeState.isLoading,
+                  fontWeight: FontWeight.w400,
+                  onTap: _saveEmployee,
+                  bg: AppColors.primary,
+                ),
 
-              SizedBox(height: 8.h),
-            ],
+                SizedBox(height: 8.h),
+              ],
+            ),
           ),
         ),
       ),

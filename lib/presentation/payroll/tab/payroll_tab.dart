@@ -5,6 +5,8 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/domain/payroll/entity/payroll_calculation_entity.dart';
@@ -97,14 +99,19 @@ class _PayrollTabState extends ConsumerState<PayrollTab> {
           padding: EdgeInsets.all(16.r),
           child: Column(
             children: [
-              AppSearchField(
-                hintText: 'payroll.search_hint'.tr(),
-                controller: searchController,
-                onChanged: (value) {
-                  setState(() {
-                    searchTerm = value;
-                  });
-                },
+              MaxWidthBox(
+                maxWidth: AppBreakpoints.searchMaxWidth,
+                center: false,
+                applyFromWidth: AppBreakpoints.desktopMinWidth,
+                child: AppSearchField(
+                  hintText: 'payroll.search_hint'.tr(),
+                  controller: searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      searchTerm = value;
+                    });
+                  },
+                ),
               ),
               SizedBox(height: 12.h),
 
@@ -170,44 +177,42 @@ class _PayrollTabState extends ConsumerState<PayrollTab> {
                         );
                       }
 
-                      return ListView.separated(
-                        padding: EdgeInsets.zero,
+                      return AdaptiveCardList(
+                        spacing: 16.h,
                         physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: visible.length,
-                        separatorBuilder: (context, index) =>
-                            SizedBox(height: 16.h),
-                        itemBuilder: (context, index) {
-                          final summary = visible[index];
-
-                          return PayrollCard(
-                            employeeName: summary.employeeName,
-                            department:
-                                departmentNames[summary.departmentId] ?? '',
-                            month: summary.monthLabel,
-                            netSalary: summary.netSalary.toStringAsFixed(0),
-                            basicSalary: summary.basicSalary.toStringAsFixed(0),
-                            attendanceAbsence:
-                                '${summary.presentDays}d / ${summary.absentDays}d',
-                            overtime:
-                                '+${summary.overtimeAmount.toStringAsFixed(0)}',
-                            deduction:
-                                '-${summary.totalDeductions.toStringAsFixed(0)}',
-                            onDetails: () {
-                              NavigatorHandler.push(
-                                PayrollDetailsScreen(
-                                  employeeId: summary.employeeId,
-                                ),
-                              );
-                            },
-                            onSalarySlip: () {
-                              NavigatorHandler.push(
-                                OfficialSalarySlipScreen(
-                                  employeeId: summary.employeeId,
-                                ),
-                              );
-                            },
-                          );
-                        },
+                        children: [
+                          for (final summary in visible)
+                            PayrollCard(
+                              employeeName: summary.employeeName,
+                              department:
+                                  departmentNames[summary.departmentId] ?? '',
+                              month: summary.monthLabel,
+                              netSalary:
+                                  summary.netSalary.toStringAsFixed(0),
+                              basicSalary:
+                                  summary.basicSalary.toStringAsFixed(0),
+                              attendanceAbsence:
+                                  '${summary.presentDays}d / ${summary.absentDays}d',
+                              overtime:
+                                  '+${summary.overtimeAmount.toStringAsFixed(0)}',
+                              deduction:
+                                  '-${summary.totalDeductions.toStringAsFixed(0)}',
+                              onDetails: () {
+                                NavigatorHandler.push(
+                                  PayrollDetailsScreen(
+                                    employeeId: summary.employeeId,
+                                  ),
+                                );
+                              },
+                              onSalarySlip: () {
+                                NavigatorHandler.push(
+                                  OfficialSalarySlipScreen(
+                                    employeeId: summary.employeeId,
+                                  ),
+                                );
+                              },
+                            ),
+                        ],
                       );
                     },
                   ),

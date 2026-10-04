@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
@@ -97,36 +98,31 @@ class OfficialHolidaysScreen extends ConsumerWidget {
                       );
                     }
 
-                    return ListView.separated(
-                      padding: EdgeInsets.zero,
-                      itemCount: holidays.length,
-                      separatorBuilder: (context, index) {
-                        return SizedBox(height: 14.h);
-                      },
-                      itemBuilder: (context, index) {
-                        final holiday = holidays[index];
-
-                        return OfficialHolidayCard(
-                          holiday: holiday,
-                          onEdit: canEditHolidays
-                              ? () {
-                                  NavigatorHandler.push(
-                                    EditOfficialHolidayScreen(
+                    return AdaptiveCardList(
+                      spacing: 14.h,
+                      children: [
+                        for (final holiday in holidays)
+                          OfficialHolidayCard(
+                            holiday: holiday,
+                            onEdit: canEditHolidays
+                                ? () {
+                                    NavigatorHandler.push(
+                                      EditOfficialHolidayScreen(
+                                        holiday: holiday,
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            onDelete: canDeleteHolidays
+                                ? () {
+                                    _showDeleteDialog(
+                                      context: context,
                                       holiday: holiday,
-                                    ),
-                                  );
-                                }
-                              : null,
-                          onDelete: canDeleteHolidays
-                              ? () {
-                                  _showDeleteDialog(
-                                    context: context,
-                                    holiday: holiday,
-                                  );
-                                }
-                              : null,
-                        );
-                      },
+                                    );
+                                  }
+                                : null,
+                          ),
+                      ],
                     );
                   },
                 ),

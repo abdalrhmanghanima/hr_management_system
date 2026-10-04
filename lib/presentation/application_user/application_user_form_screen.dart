@@ -5,6 +5,8 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/domain/application_user/entity/application_user_entity.dart';
 import 'package:hr_management_system/domain/application_user/entity/application_user_exception.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
@@ -78,79 +80,83 @@ class _ApplicationUserFormScreenState
           padding: EdgeInsets.all(16.r),
           child: Form(
             key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomTextFormField(
-                  controller: emailController,
-                  label: 'application_user.email_label'.tr(),
-                  readOnly: true,
-                  hint: 'application_user.email_locked'.tr(),
-                  validator: (value) {
-                    if ((value ?? '').trim().isEmpty) {
-                      return 'application_user.email_required'.tr();
-                    }
-                    return null;
-                  },
-                ),
+            child: MaxWidthBox(
+              maxWidth: AppBreakpoints.formMaxWidth,
+              applyFromWidth: AppBreakpoints.desktopMinWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomTextFormField(
+                    controller: emailController,
+                    label: 'application_user.email_label'.tr(),
+                    readOnly: true,
+                    hint: 'application_user.email_locked'.tr(),
+                    validator: (value) {
+                      if ((value ?? '').trim().isEmpty) {
+                        return 'application_user.email_required'.tr();
+                      }
+                      return null;
+                    },
+                  ),
 
-                SizedBox(height: 16.h),
+                  SizedBox(height: 16.h),
 
-CustomTextFormField(
-                  controller: readonlyEmployeeController
+                  CustomTextFormField(
+                    controller: readonlyEmployeeController
                       ..text = _findEmployeeName(allEmployees),
-                  label: 'application_user.employee_label'.tr(),
-                  readOnly: true,
-                  hint: 'application_user.employee_locked'.tr(),
-                ),
+                    label: 'application_user.employee_label'.tr(),
+                    readOnly: true,
+                    hint: 'application_user.employee_locked'.tr(),
+                  ),
 
-                SizedBox(height: 16.h),
+                  SizedBox(height: 16.h),
 
-                CustomDropdownField<String>(
-                  label: 'application_user.group_label'.tr(),
-                  isRequired: true,
-                  hint: 'application_user.select_group_hint'.tr(),
-                  value: groupId.isEmpty ? null : groupId,
-                  items: groups
-                      .map(
-                        (group) => DropdownMenuItem<String>(
-                          value: group.id,
-                          child: Text(
-                            group.name,
-                            overflow: TextOverflow.ellipsis,
+                  CustomDropdownField<String>(
+                    label: 'application_user.group_label'.tr(),
+                    isRequired: true,
+                    hint: 'application_user.select_group_hint'.tr(),
+                    value: groupId.isEmpty ? null : groupId,
+                    items: groups
+                        .map(
+                          (group) => DropdownMenuItem<String>(
+                            value: group.id,
+                            child: Text(
+                              group.name,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() => groupId = value ?? '');
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'application_user.group_required'.tr();
-                    }
-                    return null;
-                  },
-                ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() => groupId = value ?? '');
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'application_user.group_required'.tr();
+                      }
+                      return null;
+                    },
+                  ),
 
-                SizedBox(height: 16.h),
+                  SizedBox(height: 16.h),
 
-                _ActiveToggle(
-                  value: isActive,
-                  onChanged: (value) => setState(() => isActive = value),
-                ),
+                  _ActiveToggle(
+                    value: isActive,
+                    onChanged: (value) => setState(() => isActive = value),
+                  ),
 
-                SizedBox(height: 24.h),
+                  SizedBox(height: 24.h),
 
-                CustomButton(
-                  title: 'application_user.save_changes'.tr(),
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w400,
-                  isLoading: applicationUsersState.isLoading,
-                  onTap: _save,
-                  bg: AppColors.primary,
-                ),
-              ],
+                  CustomButton(
+                    title: 'application_user.save_changes'.tr(),
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w400,
+                    isLoading: applicationUsersState.isLoading,
+                    onTap: _save,
+                    bg: AppColors.primary,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -188,6 +194,11 @@ CustomTextFormField(
     }
 
     if (result == SaveResult.success) {
+      CustomSnackBar.show(
+        context,
+        message: 'application_user.update_success'.tr(),
+        success: true,
+      );
       NavigatorHandler.pop();
       return;
     }

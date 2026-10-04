@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
@@ -81,22 +82,18 @@ data: (groups) {
                     return RefreshIndicator(
                       onRefresh: () =>
                           ref.read(groupProvider.notifier).getGroups(),
-                      child: ListView.separated(
-                        padding: EdgeInsets.zero,
+                      child: AdaptiveCardList(
+                        spacing: 12.h,
                         physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: groups.length,
-                        separatorBuilder: (context, index) =>
-                            SizedBox(height: 12.h),
-                        itemBuilder: (context, index) {
-                          final group = groups[index];
-
-                          return GroupCard(
-                            group: group,
-                            onTap: () => NavigatorHandler.push(
-                              GroupDetailsScreen(groupId: group.id),
+                        children: [
+                          for (final group in groups)
+                            GroupCard(
+                              group: group,
+                              onTap: () => NavigatorHandler.push(
+                                GroupDetailsScreen(groupId: group.id),
+                              ),
                             ),
-                          );
-                        },
+                        ],
                       ),
                     );
                   },

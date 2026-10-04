@@ -4,8 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/app_images.dart';
@@ -85,10 +86,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             }
           }
 
-          CustomSnackBar.show(
-            context,
-            message: message,
-          );
+          CustomSnackBar.show(context, message: message);
         },
       );
     });
@@ -113,136 +111,144 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Form(
             key: formKey,
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 90.h, bottom: 35.h),
-                  child: SizedBox(
-                    width: Dimens.width,
-                    child: Column(
-                      children: [
-                        CustomAssetImage(
-                          assetName: AppImages.appLogo,
-                          width: 80.w,
-                          height: 80.w,
-                        ),
-                        SizedBox(height: 4.h),
-                        CustomText(
-                          title: "auth.app_title".tr(),
-                          fontWeight: FontWeight.w600,
-                          fontColor: AppColors.gray,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  width: Dimens.width,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(24.r),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomText(
-                          title: "auth.welcome_back".tr(),
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        SizedBox(height: 4.h),
-                        CustomText(
-                          title: "auth.subtitle".tr(),
-                          fontSize: 13.sp,
-                          fontColor: AppColors.gray,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        SizedBox(height: 12.h),
-                        CustomTextFormField(
-                          controller: emailController,
-                          label: 'auth.email'.tr(),
-                          isRequired: true,
-                          prefix: Padding(
-                            padding: EdgeInsets.all(14.r),
-                            child: CustomSvgIcon(
-                              assetName: AppIcons.person,
-                              width: 18.w,
-                              height: 21.h,
+            child: SingleChildScrollView(
+              child: MaxWidthBox(
+                maxWidth: AppBreakpoints.loginMaxWidth,
+                applyFromWidth: AppBreakpoints.desktopMinWidth,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 90.h, bottom: 35.h),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          children: [
+                            CustomAssetImage(
+                              assetName: AppImages.appLogo,
+                              width: 80.w,
+                              height: 80.w,
                             ),
-                          ),
-                          hint: "auth.email_hint".tr(),
-                          validator: (value) {
-                            final email = value?.trim() ?? '';
-
-                            if (email.isEmpty) {
-                              return "auth.email_required".tr();
-                            }
-
-                            if (!RegExp(
-                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                            ).hasMatch(email)) {
-                              return "auth.email_invalid".tr();
-                            }
-
-                            return null;
-                          },
+                            SizedBox(height: 4.h),
+                            CustomText(
+                              title: "auth.app_title".tr(),
+                              fontWeight: FontWeight.w600,
+                              fontColor: AppColors.gray,
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 14.h),
-                        CustomTextFormField(
-                          controller: passwordController,
-                          label: 'auth.password'.tr(),
-                          isRequired: true,
-                          obscureText: ref.watch(passwordVisibilityProvider)
-                              ? false
-                              : true,
-                          suffix: Padding(
-                            padding: EdgeInsets.all(14.r),
-                            child: InkWell(
-                              onTap: () {
-                                ref
-                                    .read(passwordVisibilityProvider.notifier)
-                                    .state = !ref.read(
-                                  passwordVisibilityProvider,
-                                );
-                              },
-                              child: Icon(
-                                ref.watch(passwordVisibilityProvider)
-                                    ? CupertinoIcons.eye
-                                    : CupertinoIcons.eye_slash,
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(24.r),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              title: "auth.welcome_back".tr(),
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            SizedBox(height: 4.h),
+                            CustomText(
+                              title: "auth.subtitle".tr(),
+                              fontSize: 13.sp,
+                              fontColor: AppColors.gray,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            SizedBox(height: 12.h),
+                            CustomTextFormField(
+                              controller: emailController,
+                              label: 'auth.email'.tr(),
+                              isRequired: true,
+                              prefix: Padding(
+                                padding: EdgeInsets.all(14.r),
+                                child: CustomSvgIcon(
+                                  assetName: AppIcons.person,
+                                  width: 18.w,
+                                  height: 21.h,
+                                ),
                               ),
+                              hint: "auth.email_hint".tr(),
+                              validator: (value) {
+                                final email = value?.trim() ?? '';
+
+                                if (email.isEmpty) {
+                                  return "auth.email_required".tr();
+                                }
+
+                                if (!RegExp(
+                                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                ).hasMatch(email)) {
+                                  return "auth.email_invalid".tr();
+                                }
+
+                                return null;
+                              },
                             ),
-                          ),
-                          hint: "auth.password_hint".tr(),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "auth.password_required".tr();
-                            }
-                            return null;
-                          },
+                            SizedBox(height: 14.h),
+                            CustomTextFormField(
+                              controller: passwordController,
+                              label: 'auth.password'.tr(),
+                              isRequired: true,
+                              obscureText: ref.watch(passwordVisibilityProvider)
+                                  ? false
+                                  : true,
+                              suffix: Padding(
+                                padding: EdgeInsets.all(14.r),
+                                child: InkWell(
+                                  onTap: () {
+                                    ref
+                                        .read(
+                                          passwordVisibilityProvider.notifier,
+                                        )
+                                        .state = !ref.read(
+                                      passwordVisibilityProvider,
+                                    );
+                                  },
+                                  child: Icon(
+                                    ref.watch(passwordVisibilityProvider)
+                                        ? CupertinoIcons.eye
+                                        : CupertinoIcons.eye_slash,
+                                  ),
+                                ),
+                              ),
+                              hint: "auth.password_hint".tr(),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "auth.password_required".tr();
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 24.h),
+                            CustomButton(
+                              title: "auth.sign_in".tr(),
+                              fontWeight: FontWeight.w400,
+                              bg: AppColors.primary,
+                              isLoading: loginState.isLoading,
+                              onTap: () async {
+                                if (!formKey.currentState!.validate()) return;
+                                await ref
+                                    .read(loginProvider.notifier)
+                                    .login(
+                                      email: emailController.text,
+                                      password: passwordController.text,
+                                    );
+                              },
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 24.h),
-                        CustomButton(
-                          title: "auth.sign_in".tr(),
-                          fontWeight: FontWeight.w400,
-                          bg: AppColors.primary,
-                          isLoading: loginState.isLoading,
-                          onTap: () async {
-                            if (!formKey.currentState!.validate()) return;
-                            await ref
-                                .read(loginProvider.notifier)
-                                .login(
-                                  email: emailController.text,
-                                  password: passwordController.text,
-                                );
-                          },
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

@@ -59,19 +59,18 @@ class _EditDepartmentBottomSheetState
 
     switch (result) {
       case SaveResult.success:
+        CustomSnackBar.show(
+          context,
+          message: 'department.update_success'.tr(),
+          success: true,
+        );
         Navigator.pop(context);
         break;
       case SaveResult.duplicate:
-        CustomSnackBar.show(
-          context,
-          message: 'department.duplicate'.tr(),
-        );
+        Navigator.pop(context, 'department.duplicate');
         break;
       case SaveResult.failure:
-        CustomSnackBar.show(
-          context,
-          message: 'department.update_failed'.tr(),
-        );
+        Navigator.pop(context, 'department.update_failed');
         break;
     }
   }

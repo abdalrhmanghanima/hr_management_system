@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
@@ -57,42 +59,46 @@ class OfficialSalarySlipScreen extends ConsumerWidget {
 
             return SingleChildScrollView(
               padding: EdgeInsets.all(16.r),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _SlipCard(document: document),
-                  SizedBox(height: 20.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomButton(
-                          title: 'payroll.print_salary_slip'.tr(),
-                          iconPath: AppIcons.print,
-                          bg: AppColors.primary,
-                          fontColor: AppColors.white,
-                          fontWeight: FontWeight.w700,
-                          isLoading: busy,
-                          onTap: busy
-                              ? null
-                              : () => _print(context, ref, document),
+              child: MaxWidthBox(
+                maxWidth: AppBreakpoints.documentMaxWidth,
+                applyFromWidth: AppBreakpoints.desktopMinWidth,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _SlipCard(document: document),
+                    SizedBox(height: 20.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomButton(
+                            title: 'payroll.print_salary_slip'.tr(),
+                            iconPath: AppIcons.print,
+                            bg: AppColors.primary,
+                            fontColor: AppColors.white,
+                            fontWeight: FontWeight.w700,
+                            isLoading: busy,
+                            onTap: busy
+                                ? null
+                                : () => _print(context, ref, document),
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: CustomButton(
-                          title: 'payroll.share_slip'.tr(),
-                          bg: const Color(0xFFEAF3FF),
-                          fontColor: AppColors.primary,
-                          fontWeight: FontWeight.w700,
-                          isLoading: busy,
-                          onTap: busy
-                              ? null
-                              : () => _share(context, ref, document),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: CustomButton(
+                            title: 'payroll.share_slip'.tr(),
+                            bg: const Color(0xFFEAF3FF),
+                            fontColor: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                            isLoading: busy,
+                            onTap: busy
+                                ? null
+                                : () => _share(context, ref, document),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             );
           },

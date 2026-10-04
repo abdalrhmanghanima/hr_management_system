@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/localization/app_localization.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 
 class LanguageOption {
@@ -18,21 +19,21 @@ class LanguageSelectorSheet extends StatelessWidget {
   const LanguageSelectorSheet({super.key, required this.currentLocale});
 
   static List<LanguageOption> get options => [
-        LanguageOption(AppLocalization.en, 'language.english'),
-        LanguageOption(AppLocalization.ar, 'language.arabic'),
-      ];
+    LanguageOption(AppLocalization.en, 'language.english'),
+    LanguageOption(AppLocalization.ar, 'language.arabic'),
+  ];
 
   static Future<void> show(BuildContext context) async {
     final selected = await showModalBottomSheet<Locale>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       builder: (_) {
-        return LanguageSelectorSheet(
-          currentLocale: context.locale,
+        return ResponsiveSheetContent(
+          child: LanguageSelectorSheet(currentLocale: context.locale),
         );
       },
     );
@@ -83,8 +84,8 @@ class LanguageSelectorSheet extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 8.h),
                 child: _LanguageTile(
                   option: option,
-                  isSelected: option.locale.languageCode ==
-                      currentLocale.languageCode,
+                  isSelected:
+                      option.locale.languageCode == currentLocale.languageCode,
                   onTap: () {
                     Navigator.pop(context, option.locale);
                   },
@@ -138,11 +139,7 @@ class _LanguageTile extends StatelessWidget {
               ),
             ),
             if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: AppColors.primary,
-                size: 22.w,
-              ),
+              Icon(Icons.check_circle, color: AppColors.primary, size: 22.w),
           ],
         ),
       ),

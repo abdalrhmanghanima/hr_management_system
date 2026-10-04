@@ -1,10 +1,13 @@
-﻿import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/domain/department/entity/department_entity.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
@@ -13,15 +16,14 @@ import 'package:hr_management_system/presentation/department/widgets/edit_depart
 class DepartmentCard extends ConsumerWidget {
   final DepartmentEntity department;
 
-  const DepartmentCard({
-    required this.department,
-  });
+  const DepartmentCard({required this.department});
 
   void _showDeleteDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
+          constraints: BoxConstraints(maxWidth: AppBreakpoints.dialogMaxWidth),
           backgroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.r),
@@ -72,20 +74,22 @@ class DepartmentCard extends ConsumerWidget {
     );
   }
 
-  void _showEditBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+  Future<void> _showEditBottomSheet(BuildContext context) async {
+    final errorKey = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24.r),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
-      builder: (_) => EditDepartmentBottomSheet(
-        department: department,
+      builder: (_) => ResponsiveSheetContent(
+        child: EditDepartmentBottomSheet(department: department),
       ),
     );
+
+    if (errorKey != null && context.mounted) {
+      CustomSnackBar.show(context, message: errorKey.tr());
+    }
   }
 
   @override
@@ -96,9 +100,7 @@ class DepartmentCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-        ),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
         children: [

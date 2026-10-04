@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/update_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
@@ -15,6 +17,7 @@ import 'package:hr_management_system/presentation/attendance/widgets/attendance_
 import 'package:hr_management_system/presentation/authorization/widgets/permission_guard.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_button/custom_button.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
 
 class EditAttendanceScreen extends ConsumerStatefulWidget {
@@ -133,9 +136,24 @@ class _EditAttendanceScreenState extends ConsumerState<EditAttendanceScreen> {
       ),
     );
 
-    await ref.read(attendanceProvider.notifier).updateAttendance(attendance);
+    try {
+      await ref.read(attendanceProvider.notifier).updateAttendance(attendance);
+    } catch (_) {
+      if (mounted) {
+        CustomSnackBar.show(
+          context,
+          message: 'attendance.update_failed'.tr(),
+        );
+      }
+      return;
+    }
 
     if (mounted) {
+      CustomSnackBar.show(
+        context,
+        message: 'attendance.update_success'.tr(),
+        success: true,
+      );
       Navigator.pop(context);
     }
   }
@@ -152,28 +170,32 @@ class _EditAttendanceScreenState extends ConsumerState<EditAttendanceScreen> {
         appBar: CustomAppBar(title: 'attendance.edit_title'.tr()),
         body: Padding(
           padding: EdgeInsets.all(16.r),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: AttendanceForm(
-                  formKey: formKey,
-                  attendanceDateController: attendanceDateController,
-                  checkInTimeController: checkInTimeController,
-                  checkOutTimeController: checkOutTimeController,
+          child: MaxWidthBox(
+            maxWidth: AppBreakpoints.formMaxWidth,
+            applyFromWidth: AppBreakpoints.desktopMinWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: AttendanceForm(
+                    formKey: formKey,
+                    attendanceDateController: attendanceDateController,
+                    checkInTimeController: checkInTimeController,
+                    checkOutTimeController: checkOutTimeController,
+                  ),
                 ),
-              ),
-              SizedBox(height: 16.h),
-              CustomButton(
-                title: 'attendance.update_button'.tr(),
-                fontSize: 15.sp,
-                isLoading: attendanceState.isLoading,
-                fontWeight: FontWeight.w400,
-                onTap: _confirmAndUpdate,
-                bg: AppColors.primary,
-              ),
-              SizedBox(height: 8.h),
-            ],
+                SizedBox(height: 16.h),
+                CustomButton(
+                  title: 'attendance.update_button'.tr(),
+                  fontSize: 15.sp,
+                  isLoading: attendanceState.isLoading,
+                  fontWeight: FontWeight.w400,
+                  onTap: _confirmAndUpdate,
+                  bg: AppColors.primary,
+                ),
+                SizedBox(height: 8.h),
+              ],
+            ),
           ),
         ),
       ),

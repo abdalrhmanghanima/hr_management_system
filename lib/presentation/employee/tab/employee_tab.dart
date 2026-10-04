@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
@@ -78,14 +80,19 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppSearchField(
-              controller: searchController,
-              hintText: 'employee.search_hint'.tr(),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value.trim().toLowerCase();
-                });
-              },
+            MaxWidthBox(
+              maxWidth: AppBreakpoints.searchMaxWidth,
+              center: false,
+              applyFromWidth: AppBreakpoints.desktopMinWidth,
+              child: AppSearchField(
+                controller: searchController,
+                hintText: 'employee.search_hint'.tr(),
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value.trim().toLowerCase();
+                  });
+                },
+              ),
             ),
 
             SizedBox(height: 16.h),
@@ -153,29 +160,25 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
 
                   return RefreshIndicator(
                     onRefresh: _refresh,
-                    child: ListView.separated(
-                      padding: EdgeInsets.zero,
+                    child: AdaptiveCardList(
+                      spacing: 16.h,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: filteredEmployees.length,
-                      separatorBuilder: (context, index) {
-                        return SizedBox(height: 16.h);
-                      },
-                      itemBuilder: (context, index) {
-                        final employee = filteredEmployees[index];
-
-                        return EmployeeCard(
-                          name: employee.fullName,
-                          group: departmentNames[employee.departmentId] ?? '',
-                          phone: employee.phoneNumber,
-                          salary: employee.salary.toStringAsFixed(0),
-                          workShift: 'common.working_shift'.tr(),
-                          onTap: () {
-                            NavigatorHandler.push(
-                              EmployeeDetails(employeeId: employee.id),
-                            );
-                          },
-                        );
-                      },
+                      children: [
+                        for (final employee in filteredEmployees)
+                          EmployeeCard(
+                            name: employee.fullName,
+                            group:
+                                departmentNames[employee.departmentId] ?? '',
+                            phone: employee.phoneNumber,
+                            salary: employee.salary.toStringAsFixed(0),
+                            workShift: 'common.working_shift'.tr(),
+                            onTap: () {
+                              NavigatorHandler.push(
+                                EmployeeDetails(employeeId: employee.id),
+                              );
+                            },
+                          ),
+                      ],
                     ),
                   );
                 },

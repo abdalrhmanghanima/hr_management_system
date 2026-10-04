@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
@@ -91,19 +93,18 @@ class _AddAttendanceScreenState extends ConsumerState<AddAttendanceScreen> {
 
     switch (result) {
       case SaveResult.success:
+        CustomSnackBar.show(
+          context,
+          message: 'attendance.add_success'.tr(),
+          success: true,
+        );
         Navigator.pop(context);
         break;
       case SaveResult.duplicate:
-        CustomSnackBar.show(
-          context,
-          message: 'attendance.duplicate'.tr(),
-        );
+        CustomSnackBar.show(context, message: 'attendance.duplicate'.tr());
         break;
       case SaveResult.failure:
-        CustomSnackBar.show(
-          context,
-          message: 'attendance.add_failed'.tr(),
-        );
+        CustomSnackBar.show(context, message: 'attendance.add_failed'.tr());
         break;
     }
   }
@@ -119,28 +120,32 @@ class _AddAttendanceScreenState extends ConsumerState<AddAttendanceScreen> {
         appBar: CustomAppBar(title: "attendance.add_title".tr()),
         body: Padding(
           padding: EdgeInsets.all(16.r),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AttendanceForm(
-                formKey: formKey,
-                attendanceDateController: attendanceDateController,
-                checkInTimeController: checkInTimeController,
-                checkOutTimeController: checkOutTimeController,
-              ),
-              SizedBox(height: 16.h),
+          child: MaxWidthBox(
+            maxWidth: AppBreakpoints.formMaxWidth,
+            applyFromWidth: AppBreakpoints.desktopMinWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AttendanceForm(
+                  formKey: formKey,
+                  attendanceDateController: attendanceDateController,
+                  checkInTimeController: checkInTimeController,
+                  checkOutTimeController: checkOutTimeController,
+                ),
+                SizedBox(height: 16.h),
 
-              CustomButton(
-                title: 'attendance.save_button'.tr(),
-                fontSize: 15.sp,
-                isLoading: attendanceState.isLoading,
-                fontWeight: FontWeight.w400,
-                onTap: _saveAttendance,
-                bg: AppColors.primary,
-              ),
+                CustomButton(
+                  title: 'attendance.save_button'.tr(),
+                  fontSize: 15.sp,
+                  isLoading: attendanceState.isLoading,
+                  fontWeight: FontWeight.w400,
+                  onTap: _saveAttendance,
+                  bg: AppColors.primary,
+                ),
 
-              SizedBox(height: 8.h),
-            ],
+                SizedBox(height: 8.h),
+              ],
+            ),
           ),
         ),
       ),

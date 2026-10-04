@@ -1,8 +1,8 @@
-﻿import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/date_picker_helper.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/components/inputs/custom_text_form.dart';
@@ -59,7 +59,7 @@ class OfficialHolidayForm extends StatelessWidget {
             SizedBox(height: 12.h),
 
             Container(
-              width: Dimens.width,
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(20.r),
@@ -69,34 +69,39 @@ class OfficialHolidayForm extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CustomTextFormField(
-                      controller: nameController,
-                      label: 'holiday.name_label'.tr(),
-                      isRequired: true,
-                      hint: 'holiday.name_hint'.tr(),
-      validator: (value) =>
-          _requiredValidator(value, 'validation.holiday.name_required'),
-                    ),
-
-                    SizedBox(height: 16.h),
-
-                    CustomTextFormField(
-                      controller: dateController,
-                      label: 'holiday.date_label'.tr(),
-                      isRequired: true,
-                      hint: 'holiday.date_hint'.tr(),
-                      readOnly: true,
-                      onTap: () => _pickHolidayDate(context),
-                      validator: (value) =>
-          _requiredValidator(value, 'validation.holiday.date_required'),
-                      suffix: Padding(
-                        padding: EdgeInsets.all(14.r),
-                        child: Icon(
-                          Icons.calendar_month_outlined,
-                          size: 20.w,
-                          color: AppColors.black,
+                    AdaptiveFormRow(
+                      children: [
+                        CustomTextFormField(
+                          controller: nameController,
+                          label: 'holiday.name_label'.tr(),
+                          isRequired: true,
+                          hint: 'holiday.name_hint'.tr(),
+                          validator: (value) => _requiredValidator(
+                            value,
+                            'validation.holiday.name_required',
+                          ),
                         ),
-                      ),
+                        CustomTextFormField(
+                          controller: dateController,
+                          label: 'holiday.date_label'.tr(),
+                          isRequired: true,
+                          hint: 'holiday.date_hint'.tr(),
+                          readOnly: true,
+                          onTap: () => _pickHolidayDate(context),
+                          validator: (value) => _requiredValidator(
+                            value,
+                            'validation.holiday.date_required',
+                          ),
+                          suffix: Padding(
+                            padding: EdgeInsets.all(14.r),
+                            child: Icon(
+                              Icons.calendar_month_outlined,
+                              size: 20.w,
+                              color: AppColors.black,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

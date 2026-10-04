@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
@@ -70,10 +71,7 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
         .isGranted(GroupModules.groups, PermissionAction.edit);
 
     if (!granted) {
-      CustomSnackBar.show(
-        context,
-        message: 'group.edit_denied'.tr(),
-      );
+      CustomSnackBar.show(context, message: 'group.edit_denied'.tr());
       return;
     }
 
@@ -90,10 +88,7 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
       setState(() {
         isSaving = false;
       });
-      CustomSnackBar.show(
-        context,
-        message: 'group.unavailable'.tr(),
-      );
+      CustomSnackBar.show(context, message: 'group.unavailable'.tr());
       return;
     }
 
@@ -110,18 +105,12 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
     });
 
     if (result == SaveResult.failure) {
-      CustomSnackBar.show(
-        context,
-        message: 'group.members_save_failed'.tr(),
-      );
+      CustomSnackBar.show(context, message: 'group.members_save_failed'.tr());
       return;
     }
 
     if (result == SaveResult.duplicate) {
-      CustomSnackBar.show(
-        context,
-        message: 'group.duplicate'.tr(),
-      );
+      CustomSnackBar.show(context, message: 'group.duplicate'.tr());
       return;
     }
 
@@ -170,7 +159,11 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                     ),
                     SizedBox(height: 3.h),
                     CustomText(
-                      title: 'group.members_count'.tr(namedArgs: {'count': selectedEmployeeIds.length.toString()}),
+                      title: 'group.members_count'.tr(
+                        namedArgs: {
+                          'count': selectedEmployeeIds.length.toString(),
+                        },
+                      ),
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w500,
                       fontColor: AppColors.gray,
@@ -222,7 +215,9 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                         );
                       }
 
-                      return ListView(
+                      return AdaptiveCardList(
+                        spacing: 0,
+                        columnSpacing: 12.h,
                         children: filteredEmployees
                             .map(
                               (employee) => SelectableEmployeeTile(

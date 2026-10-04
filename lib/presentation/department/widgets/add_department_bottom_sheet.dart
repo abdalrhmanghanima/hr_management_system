@@ -51,19 +51,18 @@ class _AddDepartmentBottomSheetState
 
     switch (result) {
       case SaveResult.success:
+        CustomSnackBar.show(
+          context,
+          message: 'department.add_success'.tr(),
+          success: true,
+        );
         Navigator.pop(context);
         break;
       case SaveResult.duplicate:
-        CustomSnackBar.show(
-          context,
-          message: 'department.duplicate'.tr(),
-        );
+        Navigator.pop(context, 'department.duplicate');
         break;
       case SaveResult.failure:
-        CustomSnackBar.show(
-          context,
-          message: 'department.add_failed'.tr(),
-        );
+        Navigator.pop(context, 'department.add_failed');
         break;
     }
   }

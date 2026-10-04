@@ -1,9 +1,11 @@
-﻿import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/domain/official_holiday/entity/official_holiday_entity.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
@@ -70,19 +72,18 @@ class _EditOfficialHolidayScreenState
 
     switch (result) {
       case SaveResult.success:
+        CustomSnackBar.show(
+          context,
+          message: 'holiday.update_success'.tr(),
+          success: true,
+        );
         Navigator.pop(context);
         break;
       case SaveResult.duplicate:
-        CustomSnackBar.show(
-          context,
-          message: 'holiday.duplicate'.tr(),
-        );
+        CustomSnackBar.show(context, message: 'holiday.duplicate'.tr());
         break;
       case SaveResult.failure:
-        CustomSnackBar.show(
-          context,
-          message: 'holiday.update_failed'.tr(),
-        );
+        CustomSnackBar.show(context, message: 'holiday.update_failed'.tr());
         break;
     }
   }
@@ -99,35 +100,38 @@ class _EditOfficialHolidayScreenState
         appBar: CustomAppBar(title: 'holiday.edit_title'.tr()),
         body: Padding(
           padding: EdgeInsets.all(16.r),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: OfficialHolidayForm(
-                  formKey: formKey,
-                  nameController: nameController,
-                  dateController: dateController,
-                  initialDate: widget.holiday.date,
+          child: MaxWidthBox(
+            maxWidth: AppBreakpoints.formMaxWidth,
+            applyFromWidth: AppBreakpoints.desktopMinWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: OfficialHolidayForm(
+                    formKey: formKey,
+                    nameController: nameController,
+                    dateController: dateController,
+                    initialDate: widget.holiday.date,
+                  ),
                 ),
-              ),
 
-              SizedBox(height: 16.h),
+                SizedBox(height: 16.h),
 
-              CustomButton(
-                title: 'holiday.update_button'.tr(),
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w400,
-                isLoading: holidaysState.isLoading,
-                onTap: _updateHoliday,
-                bg: AppColors.primary,
-              ),
+                CustomButton(
+                  title: 'holiday.update_button'.tr(),
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w400,
+                  isLoading: holidaysState.isLoading,
+                  onTap: _updateHoliday,
+                  bg: AppColors.primary,
+                ),
 
-              SizedBox(height: 8.h),
-            ],
+                SizedBox(height: 8.h),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-

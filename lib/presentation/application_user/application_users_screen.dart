@@ -5,6 +5,8 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/domain/application_user/entity/application_user_entity.dart';
 import 'package:hr_management_system/domain/application_user/entity/application_user_exception.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
@@ -121,30 +123,36 @@ class ApplicationUsersList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
-          onChanged: (value) {
-            ref.read(applicationUserSearchProvider.notifier).state = value;
-          },
-decoration: InputDecoration(
-            hintText: 'application_user.search_hint'.tr(),
-            prefixIcon: Icon(Icons.search, size: 24.w, color: AppColors.gray),
-            filled: true,
-            fillColor: AppColors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.r),
-              borderSide: BorderSide(color: AppColors.primary, width: 1),
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 16.h,
+        MaxWidthBox(
+          maxWidth: AppBreakpoints.searchMaxWidth,
+          center: false,
+          applyFromWidth: AppBreakpoints.desktopMinWidth,
+          child: TextField(
+            onChanged: (value) {
+              ref.read(applicationUserSearchProvider.notifier).state = value;
+            },
+            decoration: InputDecoration(
+              hintText: 'application_user.search_hint'.tr(),
+              prefixIcon:
+                  Icon(Icons.search, size: 24.w, color: AppColors.gray),
+              filled: true,
+              fillColor: AppColors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16.r),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16.r),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16.r),
+                borderSide: BorderSide(color: AppColors.primary, width: 1),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 16.h,
+              ),
             ),
           ),
         ),
@@ -179,33 +187,37 @@ Expanded(
                         .read(applicationUserProvider.notifier)
                         .getApplicationUsers();
                   },
-                  child: ListView.separated(
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, _) => SizedBox(height: 12.h),
-                    itemBuilder: (context, index) {
-                      final applicationUser = filtered[index];
-
-                      return ApplicationUserCard(
-                        applicationUser: applicationUser,
-                        employeeName: _employeeName(
-                          employees,
-                          applicationUser.employeeId,
+                  child: AdaptiveCardList(
+                    spacing: 12.h,
+                    children: [
+                      for (final applicationUser in filtered)
+                        ApplicationUserCard(
+                          applicationUser: applicationUser,
+                          employeeName: _employeeName(
+                            employees,
+                            applicationUser.employeeId,
+                          ),
+                          groupName:
+                              _groupName(groups, applicationUser.groupId),
+                          canEdit: canEdit,
+                          canChangeStatus: canChangeStatus,
+                          onTap: () {
+                            NavigatorHandler.push(
+                              ApplicationUserFormScreen(
+                                applicationUser: applicationUser,
+                              ),
+                            );
+                          },
+                          onStatusChanged: (isActive) {
+                            _changeStatus(
+                              context,
+                              ref,
+                              applicationUser,
+                              isActive,
+                            );
+                          },
                         ),
-                        groupName: _groupName(groups, applicationUser.groupId),
-                        canEdit: canEdit,
-                        canChangeStatus: canChangeStatus,
-                        onTap: () {
-                          NavigatorHandler.push(
-                            ApplicationUserFormScreen(
-                              applicationUser: applicationUser,
-                            ),
-                          );
-                        },
-                        onStatusChanged: (isActive) {
-                          _changeStatus(context, ref, applicationUser, isActive);
-                        },
-                      );
-                    },
+                    ],
                   ),
                 ),
         ),

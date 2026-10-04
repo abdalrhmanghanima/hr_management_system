@@ -1,11 +1,10 @@
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
-import 'package:flutter/material.dart';
 
-import '../../main.dart';
+import '../responsive_service.dart';
 
 class Dimens{
-  static double width = MediaQuery.of(navigatorKey.currentContext!).size.width;
-  static double height = MediaQuery.of(navigatorKey.currentContext!).size.height;
+  static double get width => ResponsiveService.fullScreenWidth();
+  static double get height => ResponsiveService.fullScreenHeight();
 
   static double padding_4h  = 4.w;
   static double padding_8h  = 8.w;

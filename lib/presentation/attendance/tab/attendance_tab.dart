@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
@@ -169,14 +171,19 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
         padding: EdgeInsets.all(16.r),
         child: Column(
           children: [
-            AppSearchField(
-              controller: searchController,
-              hintText: 'attendance.search_hint'.tr(),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value.trim().toLowerCase();
-                });
-              },
+            MaxWidthBox(
+              maxWidth: AppBreakpoints.searchMaxWidth,
+              center: false,
+              applyFromWidth: AppBreakpoints.desktopMinWidth,
+              child: AppSearchField(
+                controller: searchController,
+                hintText: 'attendance.search_hint'.tr(),
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value.trim().toLowerCase();
+                  });
+                },
+              ),
             ),
 
             SizedBox(height: 12.h),
@@ -205,83 +212,90 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
                     )
                   : RefreshIndicator(
                       onRefresh: _refresh,
-                      child: ListView.separated(
-                        padding: EdgeInsets.zero,
+                      child: AdaptiveCardList(
+                        spacing: 16.h,
                         physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: filteredAttendances.length,
-                        separatorBuilder: (context, index) {
-                          return SizedBox(height: 16.h);
-                        },
-                        itemBuilder: (context, index) {
-                          final attendance = filteredAttendances[index];
+                        children: [
+                          for (final attendance in filteredAttendances)
+                            Builder(
+                              builder: (context) {
+                                final employee = employees
+                                    .where(
+                                      (employee) =>
+                                          employee.id ==
+                                          attendance.employeeId,
+                                    )
+                                    .firstOrNull;
 
-                          final employee = employees
-                              .where(
-                                (employee) =>
-                                    employee.id == attendance.employeeId,
-                              )
-                              .firstOrNull;
+                                if (employee == null) {
+                                  return const SizedBox.shrink();
+                                }
 
-                          if (employee == null) {
-                            return const SizedBox.shrink();
-                          }
+                                final departmentState = ref.watch(
+                                  departmentByIdProvider(
+                                    employee.departmentId,
+                                  ),
+                                );
 
-                          final departmentState = ref.watch(
-                            departmentByIdProvider(employee.departmentId),
-                          );
+                                final departmentName =
+                                    departmentState.value?.name ??
+                                    'common.unknown_department'.tr();
 
-                          final departmentName =
-                              departmentState.value?.name ??
-                              'common.unknown_department'.tr();
+                                return AttendanceRecordCard(
+                                  name: employee.fullName,
+                                  department: departmentName,
+                                  date: attendance.attendanceDate,
+                                  status: attendance.status,
+                                  checkIn: attendance.checkInTime,
+                                  checkOut: attendance.checkOutTime,
+                                  onEdit: canEditAttendances
+                                      ? () {
+                                          NavigatorHandler.push(
+                                            EditAttendanceScreen(
+                                              attendance: attendance,
+                                            ),
+                                          );
+                                        }
+                                      : null,
+                                  onDelete: canDeleteAttendances
+                                      ? () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return DeleteConfirmationDialog(
+                                                title:
+                                                    'attendance.delete_title'
+                                                        .tr(),
+                                                message:
+                                                    'attendance.delete_confirmation'
+                                                        .tr(),
+                                                isLoading:
+                                                    attendanceAsync.isLoading,
+                                                onDelete: () async {
+                                                  await ref
+                                                      .read(
+                                                        attendanceProvider
+                                                            .notifier,
+                                                      )
+                                                      .deleteAttendance(
+                                                        attendance.id,
+                                                      );
 
-                          return AttendanceRecordCard(
-                            name: employee.fullName,
-                            department: departmentName,
-                            date: attendance.attendanceDate,
-                            status: attendance.status,
-                            checkIn: attendance.checkInTime,
-                            checkOut: attendance.checkOutTime,
-                            onEdit: canEditAttendances
-                                ? () {
-                                    NavigatorHandler.push(
-                                      EditAttendanceScreen(
-                                        attendance: attendance,
-                                      ),
-                                    );
-                                  }
-                                : null,
-                            onDelete: canDeleteAttendances
-                                ? () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (dialogContext) {
-                                        return DeleteConfirmationDialog(
-                                          title: 'attendance.delete_title'
-                                              .tr(),
-                                          message:
-                                              'attendance.delete_confirmation'
-                                                  .tr(),
-                                          isLoading: attendanceAsync.isLoading,
-                                          onDelete: () async {
-                                            await ref
-                                                .read(
-                                                  attendanceProvider.notifier,
-                                                )
-                                                .deleteAttendance(
-                                                  attendance.id,
-                                                );
-
-                                            if (dialogContext.mounted) {
-                                              Navigator.pop(dialogContext);
-                                            }
-                                          },
-                                        );
-                                      },
-                                    );
-                                  }
-                                : null,
-                          );
-                        },
+                                                  if (dialogContext.mounted) {
+                                                    Navigator.pop(
+                                                      dialogContext,
+                                                    );
+                                                  }
+                                                },
+                                              );
+                                            },
+                                          );
+                                        }
+                                      : null,
+                                );
+                              },
+                            ),
+                        ],
                       ),
                     ),
             ),

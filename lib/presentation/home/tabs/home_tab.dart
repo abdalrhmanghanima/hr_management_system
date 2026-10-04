@@ -2,10 +2,11 @@ import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
 import 'package:hr_management_system/core/utils/payroll_format.dart';
@@ -13,6 +14,7 @@ import 'package:hr_management_system/presentation/attendance/add_attendance_scre
 import 'package:hr_management_system/presentation/attendance/edit_attendance_screen.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/widgets/attendance_record_card.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/department/widgets/add_department_bottom_sheet.dart';
@@ -64,41 +66,65 @@ class _HomeTabState extends ConsumerState<HomeTab> {
     final payrollState = ref.watch(payrollSummariesProvider(payrollMonth));
 
     final canAddEmployees = ref.watch(
-      modulePermissionProvider((module: GroupModules.employees, action: PermissionAction.add)),
+      modulePermissionProvider((
+        module: GroupModules.employees,
+        action: PermissionAction.add,
+      )),
     );
     final canAddDepartments = ref.watch(
-      modulePermissionProvider((module: GroupModules.departments, action: PermissionAction.add)),
+      modulePermissionProvider((
+        module: GroupModules.departments,
+        action: PermissionAction.add,
+      )),
     );
     final canAddAttendance = ref.watch(
-      modulePermissionProvider((module: GroupModules.attendance, action: PermissionAction.add)),
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.add,
+      )),
     );
     final canAddHolidays = ref.watch(
-      modulePermissionProvider((module: GroupModules.officialHolidays, action: PermissionAction.add)),
+      modulePermissionProvider((
+        module: GroupModules.officialHolidays,
+        action: PermissionAction.add,
+      )),
     );
     final canViewPayroll = ref.watch(
-      modulePermissionProvider((module: GroupModules.payroll, action: PermissionAction.view)),
+      modulePermissionProvider((
+        module: GroupModules.payroll,
+        action: PermissionAction.view,
+      )),
     );
     final canViewAttendance = ref.watch(
-      modulePermissionProvider((module: GroupModules.attendance, action: PermissionAction.view)),
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.view,
+      )),
     );
     final canEditAttendance = ref.watch(
-      modulePermissionProvider((module: GroupModules.attendance, action: PermissionAction.edit)),
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.edit,
+      )),
     );
     final canDeleteAttendance = ref.watch(
-      modulePermissionProvider((module: GroupModules.attendance, action: PermissionAction.delete)),
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.delete,
+      )),
     );
     final authorizationStatus = ref.watch(authorizationStatusProvider);
-    final isResolved =
-        authorizationStatus == AuthorizationStatus.authenticated;
-    final hasAnyModuleAccess = ref.watch(authorizationEntityProvider).hasAnyModuleAccess;
+    final isResolved = authorizationStatus == AuthorizationStatus.authenticated;
+    final hasAnyModuleAccess = ref
+        .watch(authorizationEntityProvider)
+        .hasAnyModuleAccess;
     final accessMessage = switch (authorizationStatus) {
       AuthorizationStatus.loading => 'home.access.loading'.tr(),
       AuthorizationStatus.missingUserDocument =>
         'home.access.missing_user_document'.tr(),
       AuthorizationStatus.inactive => 'home.access.inactive'.tr(),
       AuthorizationStatus.withoutGroup => 'home.access.without_group'.tr(),
-      AuthorizationStatus.groupNotFound =>
-        'home.access.group_not_found'.tr(),
+      AuthorizationStatus.groupNotFound => 'home.access.group_not_found'.tr(),
       AuthorizationStatus.failed => 'home.access.failed'.tr(),
       _ => 'home.access.no_modules'.tr(),
     };
@@ -118,20 +144,24 @@ class _HomeTabState extends ConsumerState<HomeTab> {
           iconPath: AppIcons.department,
           title: 'home.quick_add_department'.tr(),
           iconBackgroundColor: const Color(0xFFEFF6FF),
-          onTap: () {
-            showModalBottomSheet(
+          onTap: () async {
+            final errorKey = await showModalBottomSheet<String>(
               context: context,
               isScrollControlled: true,
-              backgroundColor: AppColors.white,
+              backgroundColor: Colors.transparent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(24.r),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
               ),
               builder: (_) {
-                return const AddDepartmentBottomSheet();
+                return const ResponsiveSheetContent(
+                  child: AddDepartmentBottomSheet(),
+                );
               },
             );
+
+            if (errorKey != null && context.mounted) {
+              CustomSnackBar.show(context, message: errorKey.tr());
+            }
           },
         ),
       if (canAddAttendance)
@@ -149,7 +179,8 @@ class _HomeTabState extends ConsumerState<HomeTab> {
           title: 'nav.payroll'.tr(),
           iconBackgroundColor: const Color(0xFFEFF6FF),
           onTap: () {
-            ref.read(currentHomeTabProvider.notifier).state = HomeTabItem.payroll;
+            ref.read(currentHomeTabProvider.notifier).state =
+                HomeTabItem.payroll;
           },
         ),
       if (canAddHolidays)
@@ -310,7 +341,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                   SizedBox(height: 20.h),
 
                   Container(
-                    width: Dimens.width,
+                    width: double.infinity,
                     padding: EdgeInsets.all(24.r),
                     decoration: BoxDecoration(
                       color: AppColors.darkBlue,
@@ -395,10 +426,9 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                               child: InkWell(
                                 onTap: () {
                                   ref
-                                      .read(
-                                        currentHomeTabProvider.notifier,
-                                      )
-                                      .state = HomeTabItem.payroll;
+                                          .read(currentHomeTabProvider.notifier)
+                                          .state =
+                                      HomeTabItem.payroll;
                                 },
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -415,9 +445,9 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                                     Transform.scale(
                                       scaleX:
                                           Directionality.of(context) ==
-                                                  TextDirection.rtl
-                                              ? -1
-                                              : 1,
+                                              TextDirection.rtl
+                                          ? -1
+                                          : 1,
                                       child: Icon(
                                         Icons.chevron_right,
                                         color: AppColors.primary,
@@ -444,19 +474,22 @@ class _HomeTabState extends ConsumerState<HomeTab> {
 
                   SizedBox(height: 12.h),
 
-                  SizedBox(
-                    height: 120.h,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: quickActions.length,
-                      separatorBuilder: (context, index) {
-                        return SizedBox(width: 8.w);
-                      },
-                      itemBuilder: (context, index) {
-                        return quickActions[index];
-                      },
-                    ),
-                  ),
+                  if (context.isMobileDevice)
+                    SizedBox(
+                      height: 120.h,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: quickActions.length,
+                        separatorBuilder: (context, index) {
+                          return SizedBox(width: 8.w);
+                        },
+                        itemBuilder: (context, index) {
+                          return quickActions[index];
+                        },
+                      ),
+                    )
+                  else
+                    _AdaptiveQuickActions(quickActions: quickActions),
 
                   if (canViewAttendance) ...[
                     SizedBox(height: 24.h),
@@ -504,73 +537,77 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                         ),
                       )
                     else
-                      ListView.separated(
-                        padding: EdgeInsets.zero,
+                      AdaptiveCardList(
+                        spacing: 16.h,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: latestThree.length,
-                        separatorBuilder: (context, index) {
-                          return SizedBox(height: 16.h);
-                        },
-                        itemBuilder: (context, index) {
-                          final attendance = latestThree[index];
+                        children: [
+                          for (final attendance in latestThree)
+                            Builder(
+                              builder: (context) {
+                                final employee = employees
+                                    .where(
+                                      (employee) =>
+                                          employee.id == attendance.employeeId,
+                                    )
+                                    .firstOrNull;
 
-                          final employee = employees
-                              .where(
-                                (employee) =>
-                                    employee.id == attendance.employeeId,
-                              )
-                              .firstOrNull;
+                                if (employee == null) {
+                                  return const SizedBox.shrink();
+                                }
 
-                          if (employee == null) {
-                            return const SizedBox.shrink();
-                          }
+                                return AttendanceRecordCard(
+                                  name: employee.fullName,
+                                  department: '',
+                                  date: attendance.attendanceDate,
+                                  status: attendance.status,
+                                  checkIn: attendance.checkInTime,
+                                  checkOut: attendance.checkOutTime,
+                                  onEdit: canEditAttendance
+                                      ? () {
+                                          NavigatorHandler.push(
+                                            EditAttendanceScreen(
+                                              attendance: attendance,
+                                            ),
+                                          );
+                                        }
+                                      : null,
+                                  onDelete: canDeleteAttendance
+                                      ? () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (dialogContext) {
+                                              return DeleteConfirmationDialog(
+                                                title: 'attendance.delete_title'
+                                                    .tr(),
+                                                message:
+                                                    'common.delete_attendance_confirmation'
+                                                        .tr(),
+                                                onDelete: () async {
+                                                  await ref
+                                                      .read(
+                                                        attendanceProvider
+                                                            .notifier,
+                                                      )
+                                                      .deleteAttendance(
+                                                        attendance.id,
+                                                      );
 
-                          return AttendanceRecordCard(
-                            name: employee.fullName,
-                            department: '',
-                            date: attendance.attendanceDate,
-                            status: attendance.status,
-                            checkIn: attendance.checkInTime,
-                            checkOut: attendance.checkOutTime,
-                            onEdit: canEditAttendance
-                                ? () {
-                                    NavigatorHandler.push(
-                                      EditAttendanceScreen(
-                                        attendance: attendance,
-                                      ),
-                                    );
-                                  }
-                                : null,
-                            onDelete: canDeleteAttendance
-                                ? () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (dialogContext) {
-                                        return DeleteConfirmationDialog(
-                                          title: 'attendance.delete_title'.tr(),
-                                          message:
-                                              'common.delete_attendance_confirmation'.tr(),
-                                          onDelete: () async {
-                                            await ref
-                                                .read(
-                                                  attendanceProvider.notifier,
-                                                )
-                                                .deleteAttendance(
-                                                  attendance.id,
-                                                );
-
-                                            if (dialogContext.mounted) {
-                                              Navigator.pop(dialogContext);
-                                            }
-                                          },
-                                        );
-                                      },
-                                    );
-                                  }
-                                : null,
-                          );
-                        },
+                                                  if (dialogContext.mounted) {
+                                                    Navigator.pop(
+                                                      dialogContext,
+                                                    );
+                                                  }
+                                                },
+                                              );
+                                            },
+                                          );
+                                        }
+                                      : null,
+                                );
+                              },
+                            ),
+                        ],
                       ),
 
                     SizedBox(height: 20.h),
@@ -581,6 +618,44 @@ class _HomeTabState extends ConsumerState<HomeTab> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Quick actions for tablet/desktop: same cards, laid out in a wrapping row
+/// that uses the available width instead of a horizontal mobile scroller.
+class _AdaptiveQuickActions extends StatelessWidget {
+  const _AdaptiveQuickActions({required this.quickActions});
+
+  final List<Widget> quickActions;
+
+  @override
+  Widget build(BuildContext context) {
+    if (quickActions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gap = 12.w;
+        final maxWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : 0.0;
+
+        final fitted =
+            ((maxWidth - gap * (quickActions.length - 1)) / quickActions.length)
+                .clamp(96.0, 160.0)
+                .toDouble();
+
+        return Wrap(
+          spacing: gap,
+          runSpacing: 12.h,
+          children: [
+            for (final action in quickActions)
+              SizedBox(width: fitted, height: 120.h, child: action),
+          ],
+        );
+      },
     );
   }
 }

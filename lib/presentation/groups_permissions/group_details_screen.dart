@@ -2,10 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
-import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/group/entity/group_entity.dart';
@@ -78,7 +79,9 @@ class _GroupDetailsScreenState extends ConsumerState<GroupDetailsScreen> {
     if (!granted) {
       CustomSnackBar.show(
         context,
-        message: 'group.action_denied'.tr(namedArgs: {'action': action.label.toLowerCase()}),
+        message: 'group.action_denied'.tr(
+          namedArgs: {'action': action.label.toLowerCase()},
+        ),
       );
     }
 
@@ -93,10 +96,7 @@ class _GroupDetailsScreenState extends ConsumerState<GroupDetailsScreen> {
     );
 
     if (!hasAnyPermission) {
-      CustomSnackBar.show(
-        context,
-        message: 'group.permissions_required'.tr(),
-      );
+      CustomSnackBar.show(context, message: 'group.permissions_required'.tr());
       return;
     }
 
@@ -125,10 +125,7 @@ class _GroupDetailsScreenState extends ConsumerState<GroupDetailsScreen> {
         );
         break;
       case SaveResult.duplicate:
-        CustomSnackBar.show(
-          context,
-          message: 'group.duplicate'.tr(),
-        );
+        CustomSnackBar.show(context, message: 'group.duplicate'.tr());
         break;
       case SaveResult.failure:
         CustomSnackBar.show(
@@ -157,8 +154,9 @@ class _GroupDetailsScreenState extends ConsumerState<GroupDetailsScreen> {
 
             return DeleteConfirmationDialog(
               title: 'group.delete_title'.tr(),
-              message:
-                  'group.delete_confirmation'.tr(namedArgs: {'name': group.name}),
+              message: 'group.delete_confirmation'.tr(
+                namedArgs: {'name': group.name},
+              ),
               isLoading: isLoading,
               onDelete: () async {
                 final success = await ref
@@ -246,125 +244,132 @@ class _GroupDetailsScreenState extends ConsumerState<GroupDetailsScreen> {
                 child: Padding(
                   padding: EdgeInsets.all(16.r),
                   child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomText(
-                          title: group.name,
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w600,
-                          fontColor: AppColors.black,
-                        ),
-                        SizedBox(height: 3.h),
-                        CustomText(
-                          title: group.description,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                          fontColor: AppColors.gray,
-                        ),
+                    child: MaxWidthBox(
+                      maxWidth: AppBreakpoints.detailsContentMaxWidth,
+                      applyFromWidth: AppBreakpoints.desktopMinWidth,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            title: group.name,
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w600,
+                            fontColor: AppColors.black,
+                          ),
+                          SizedBox(height: 3.h),
+                          CustomText(
+                            title: group.description,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w400,
+                            fontColor: AppColors.gray,
+                          ),
 
-                        SizedBox(height: 24.h),
+                          SizedBox(height: 24.h),
 
-                        CustomText(
-                          title: 'group.members'.tr(),
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                          fontColor: AppColors.black,
-                        ),
+                          CustomText(
+                            title: 'group.members'.tr(),
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            fontColor: AppColors.black,
+                          ),
 
-                        SizedBox(height: 12.h),
+                          SizedBox(height: 12.h),
 
-                        InkWell(
-                          onTap: canEditGroups
-                              ? () => NavigatorHandler.push(
-                                  GroupMembersScreen(
-                                    groupId: group.id,
-                                    groupName: group.name,
-                                    memberIds: group.employeeIds,
+                          InkWell(
+                            onTap: canEditGroups
+                                ? () => NavigatorHandler.push(
+                                    GroupMembersScreen(
+                                      groupId: group.id,
+                                      groupName: group.name,
+                                      memberIds: group.employeeIds,
+                                    ),
+                                  )
+                                : null,
+                            borderRadius: BorderRadius.circular(20.r),
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.all(16.r),
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                border: Border.all(
+                                  color: const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 48.w,
+                                    height: 48.w,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEFF6FF),
+                                      borderRadius: BorderRadius.circular(14.r),
+                                    ),
+                                    child: Center(
+                                      child: CustomSvgIcon(
+                                        assetName: AppIcons.applicationUser,
+                                        width: 24.w,
+                                        height: 24.w,
+                                      ),
+                                    ),
                                   ),
-                                )
-                              : null,
-                          borderRadius: BorderRadius.circular(20.r),
-                          child: Container(
-                            width: Dimens.width,
-                            padding: EdgeInsets.all(16.r),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(20.r),
-                              border: Border.all(
-                                color: const Color(0xFFE2E8F0),
+
+                                  SizedBox(width: 14.w),
+
+                                  Expanded(
+                                    child: CustomText(
+                                      title: 'group.members_count'.tr(
+                                        namedArgs: {
+                                          'count': group.membersCount
+                                              .toString(),
+                                        },
+                                      ),
+                                      fontSize: 15.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontColor: AppColors.black,
+                                    ),
+                                  ),
+
+                                  CustomSvgIcon(
+                                    assetName: AppIcons.rightArrow,
+                                    width: 18.w,
+                                    height: 18.w,
+                                  ),
+                                ],
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 48.w,
-                                  height: 48.w,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEFF6FF),
-                                    borderRadius: BorderRadius.circular(14.r),
-                                  ),
-                                  child: Center(
-                                    child: CustomSvgIcon(
-                                      assetName: AppIcons.applicationUser,
-                                      width: 24.w,
-                                      height: 24.w,
-                                    ),
-                                  ),
-                                ),
-
-                                SizedBox(width: 14.w),
-
-                                Expanded(
-                                  child: CustomText(
-                                    title: 'group.members_count'.tr(
-                                      namedArgs: {'count': group.membersCount.toString()},
-                                    ),
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.w600,
-                                    fontColor: AppColors.black,
-                                  ),
-                                ),
-
-                                CustomSvgIcon(
-                                  assetName: AppIcons.rightArrow,
-                                  width: 18.w,
-                                  height: 18.w,
-                                ),
-                              ],
-                            ),
                           ),
-                        ),
 
-                        SizedBox(height: 24.h),
+                          SizedBox(height: 24.h),
 
-                        CustomText(
-                          title: 'group.permissions'.tr(),
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                          fontColor: AppColors.black,
-                        ),
+                          CustomText(
+                            title: 'group.permissions'.tr(),
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            fontColor: AppColors.black,
+                          ),
 
-                        SizedBox(height: 12.h),
+                          SizedBox(height: 12.h),
 
-                        ...GroupModules.all.map((module) {
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 12.h),
-                            child: GroupPermissionSection(
-                              module: module,
-                              permission:
-                                  permissions[module.key] ??
-                                  const GroupPermissionEntity(),
-                              onActionToggled: (action) =>
-                                  _toggleAction(module.key, action),
-                              onScopeChanged: (scope) =>
-                                  _changeScope(module.key, scope),
-                            ),
-                          );
-                        }),
+                          ...GroupModules.all.map((module) {
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 12.h),
+                              child: GroupPermissionSection(
+                                module: module,
+                                permission:
+                                    permissions[module.key] ??
+                                    const GroupPermissionEntity(),
+                                onActionToggled: (action) =>
+                                    _toggleAction(module.key, action),
+                                onScopeChanged: (scope) =>
+                                    _changeScope(module.key, scope),
+                              ),
+                            );
+                          }),
 
-                        SizedBox(height: 12.h),
-                      ],
+                          SizedBox(height: 12.h),
+                        ],
+                      ),
                     ),
                   ),
                 ),

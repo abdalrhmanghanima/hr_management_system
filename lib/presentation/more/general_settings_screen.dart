@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/core/utils/update_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/general_settings/entity/general_settings_entity.dart';
 import 'package:hr_management_system/domain/general_settings/validation/general_settings_validator.dart';
@@ -108,9 +110,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           ),
         );
 
-    if (!saved && mounted) {
-      _showError('settings.save_failed'.tr());
+    if (!mounted) {
+      return;
     }
+
+    if (!saved) {
+      _showError('settings.save_failed'.tr());
+      return;
+    }
+
+    CustomSnackBar.show(
+      context,
+      message: 'settings.save_success'.tr(),
+      success: true,
+    );
   }
 
   void _handleFieldChanged() {
@@ -152,15 +165,17 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _showWeekendDaysPicker() async {
     final result = await showModalBottomSheet<List<String>>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       builder: (context) {
-        return WeekendDaysPicker(
-          days: weekDays,
-          selectedDays: selectedWeekendDays,
+        return ResponsiveSheetContent(
+          child: WeekendDaysPicker(
+            days: weekDays,
+            selectedDays: selectedWeekendDays,
+          ),
         );
       },
     );
@@ -211,146 +226,150 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       appBar: CustomAppBar(title: 'settings.title'.tr()),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(20.r, 20.r, 20.r, 30.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SettingsSectionTitle(
-              title: 'settings.payroll_calculation'.tr(),
-              subtitle: 'settings.payroll_calculation_subtitle'.tr(),
-            ),
-            SizedBox(height: 12.h),
-            SettingsCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SettingsFieldLabel(
-                    title: 'settings.multiplier'.tr(),
-                    required: true,
-                  ),
-                  SizedBox(height: 8.h),
-                  SettingsTextField(
-                    controller: multiplierController,
-                    hintText: 'settings.multiplier_hint'.tr(),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    onChanged: (_) => _handleFieldChanged(),
-                    onSubmitted: (_) => _handleFieldSubmitted(),
-                  ),
-                  if (multiplierError != null) ...[
-                    SizedBox(height: 8.h),
-                    CustomText(
-                      title: multiplierError.tr(),
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                      fontColor: AppColors.red,
-                    ),
-                  ],
-                  SizedBox(height: 20.h),
-                  SettingsFieldLabel(
-                    title: 'settings.working_hours_per_day'.tr(),
-                    required: true,
-                  ),
-                  SizedBox(height: 8.h),
-                  SettingsTextField(
-                    controller: workingHoursController,
-                    hintText: 'settings.working_hours_hint'.tr(),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    onChanged: (_) => _handleFieldChanged(),
-                    onSubmitted: (_) => _handleFieldSubmitted(),
-                  ),
-                  if (workingHoursError != null) ...[
-                    SizedBox(height: 8.h),
-                    CustomText(
-                      title: workingHoursError.tr(),
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                      fontColor: AppColors.red,
-                    ),
-                  ],
-                ],
+        child: MaxWidthBox(
+          maxWidth: AppBreakpoints.menuContentMaxWidth,
+          applyFromWidth: AppBreakpoints.desktopMinWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SettingsSectionTitle(
+                title: 'settings.payroll_calculation'.tr(),
+                subtitle: 'settings.payroll_calculation_subtitle'.tr(),
               ),
-            ),
-            SizedBox(height: 24.h),
-            SettingsSectionTitle(
-              title: 'settings.weekly_holidays'.tr(),
-              subtitle: 'settings.weekly_holidays_subtitle'.tr(),
-            ),
-            SizedBox(height: 12.h),
-            SettingsCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SettingsFieldLabel(
-                    title: 'settings.weekend_days'.tr(),
-                    required: true,
-                  ),
-                  SizedBox(height: 8.h),
-                  InkWell(
-                    onTap: _showWeekendDaysPicker,
-                    borderRadius: BorderRadius.circular(14.r),
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 15.h,
+              SizedBox(height: 12.h),
+              SettingsCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SettingsFieldLabel(
+                      title: 'settings.multiplier'.tr(),
+                      required: true,
+                    ),
+                    SizedBox(height: 8.h),
+                    SettingsTextField(
+                      controller: multiplierController,
+                      hintText: 'settings.multiplier_hint'.tr(),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
                       ),
+                      onChanged: (_) => _handleFieldChanged(),
+                      onSubmitted: (_) => _handleFieldSubmitted(),
+                    ),
+                    if (multiplierError != null) ...[
+                      SizedBox(height: 8.h),
+                      CustomText(
+                        title: multiplierError.tr(),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.red,
+                      ),
+                    ],
+                    SizedBox(height: 20.h),
+                    SettingsFieldLabel(
+                      title: 'settings.working_hours_per_day'.tr(),
+                      required: true,
+                    ),
+                    SizedBox(height: 8.h),
+                    SettingsTextField(
+                      controller: workingHoursController,
+                      hintText: 'settings.working_hours_hint'.tr(),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      onChanged: (_) => _handleFieldChanged(),
+                      onSubmitted: (_) => _handleFieldSubmitted(),
+                    ),
+                    if (workingHoursError != null) ...[
+                      SizedBox(height: 8.h),
+                      CustomText(
+                        title: workingHoursError.tr(),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.red,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              SizedBox(height: 24.h),
+              SettingsSectionTitle(
+                title: 'settings.weekly_holidays'.tr(),
+                subtitle: 'settings.weekly_holidays_subtitle'.tr(),
+              ),
+              SizedBox(height: 12.h),
+              SettingsCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SettingsFieldLabel(
+                      title: 'settings.weekend_days'.tr(),
+                      required: true,
+                    ),
+                    SizedBox(height: 8.h),
+                    InkWell(
+                      onTap: _showWeekendDaysPicker,
+                      borderRadius: BorderRadius.circular(14.r),
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 15.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(14.r),
+                          border: Border.all(color: const Color(0xFFD9E1EC)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: CustomText(
+                                title: selectedDaysText,
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w400,
+                                fontColor: selectedWeekendDays.isEmpty
+                                    ? AppColors.gray
+                                    : AppColors.black,
+                              ),
+                            ),
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: AppColors.black,
+                              size: 24.r,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (weekendError != null) ...[
+                      SizedBox(height: 8.h),
+                      CustomText(
+                        title: weekendError.tr(),
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.red,
+                      ),
+                    ],
+                    SizedBox(height: 18.h),
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(16.r),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(14.r),
-                        border: Border.all(color: const Color(0xFFD9E1EC)),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: CustomText(
-                              title: selectedDaysText,
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w400,
-                              fontColor: selectedWeekendDays.isEmpty
-                                  ? AppColors.gray
-                                  : AppColors.black,
-                            ),
-                          ),
-                          Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: AppColors.black,
-                            size: 24.r,
-                          ),
-                        ],
+                      child: CustomText(
+                        title: 'settings.impact_note'.tr(),
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w400,
+                        fontColor: AppColors.gray,
                       ),
-                    ),
-                  ),
-                  if (weekendError != null) ...[
-                    SizedBox(height: 8.h),
-                    CustomText(
-                      title: weekendError.tr(),
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                      fontColor: AppColors.red,
                     ),
                   ],
-                  SizedBox(height: 18.h),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(16.r),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(14.r),
-                    ),
-                    child: CustomText(
-                      title: 'settings.impact_note'.tr(),
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                      fontColor: AppColors.gray,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

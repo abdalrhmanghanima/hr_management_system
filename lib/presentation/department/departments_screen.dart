@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/responsive/breakpoints.dart';
+import 'package:hr_management_system/core/responsive/responsive_widgets.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
 import 'package:hr_management_system/presentation/authorization/widgets/permission_guard.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
 import 'package:hr_management_system/presentation/department/widgets/add_department_bottom_sheet.dart';
@@ -40,18 +43,27 @@ class DepartmentsScreen extends ConsumerWidget {
         appBar: CustomAppBar(title: "department.title".tr()),
         floatingActionButton: canAddDepartments
             ? AppFloatingActionButton(
-                onPressed: () {
-                  showModalBottomSheet(
+                onPressed: () async {
+                  final errorKey = await showModalBottomSheet<String>(
                     context: context,
                     isScrollControlled: true,
-                    backgroundColor: AppColors.white,
+                    backgroundColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24.r),
                       ),
                     ),
-                    builder: (_) => const AddDepartmentBottomSheet(),
+                    builder: (_) => const ResponsiveSheetContent(
+                      child: AddDepartmentBottomSheet(),
+                    ),
                   );
+
+                  if (errorKey != null && context.mounted) {
+                    CustomSnackBar.show(
+                      context,
+                      message: errorKey.tr(),
+                    );
+                  }
                 },
               )
             : null,
@@ -79,38 +91,43 @@ class DepartmentsScreen extends ConsumerWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextField(
-                    onChanged: (value) {
-                      ref.read(departmentSearchProvider.notifier).state =
-                          value;
-                    },
-                    decoration: InputDecoration(
-                      hintText: "department.search_hint".tr(),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: 24.w,
-                        color: AppColors.gray,
-                      ),
-                      filled: true,
-                      fillColor: AppColors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(
-                          color: AppColors.primary,
-                          width: 1,
+                  MaxWidthBox(
+                    maxWidth: AppBreakpoints.searchMaxWidth,
+                    center: false,
+                    applyFromWidth: AppBreakpoints.desktopMinWidth,
+                    child: TextField(
+                      onChanged: (value) {
+                        ref.read(departmentSearchProvider.notifier).state =
+                            value;
+                      },
+                      decoration: InputDecoration(
+                        hintText: "department.search_hint".tr(),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          size: 24.w,
+                          color: AppColors.gray,
                         ),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 16.h,
+                        filled: true,
+                        fillColor: AppColors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                            width: 1,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 16.h,
+                        ),
                       ),
                     ),
                   ),
@@ -145,17 +162,14 @@ class DepartmentsScreen extends ConsumerWidget {
                               fontColor: AppColors.gray,
                             ),
                           )
-                        : ListView.separated(
-                            itemCount: filteredDepartments.length,
-                            separatorBuilder: (_, _) =>
-                                SizedBox(height: 12.h),
-                            itemBuilder: (context, index) {
-                              final department = filteredDepartments[index];
-
-                              return DepartmentCard(
-                                department: department,
-                              );
-                            },
+                        : AdaptiveCardList(
+                            spacing: 12.h,
+                            maxColumns: 4,
+                            minCardWidth: 300,
+                            children: [
+                              for (final department in filteredDepartments)
+                                DepartmentCard(department: department),
+                            ],
                           ),
                   ),
                 ],
