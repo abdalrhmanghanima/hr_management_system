@@ -261,7 +261,10 @@ void main() {
         expect(summary.added, 0);
         expect(summary.issues, hasLength(1));
         expect(summary.issues.first.rowNumber, 2);
-        expect(summary.issues.first.reason, contains('different employees'));
+        expect(
+          summary.issues.first.reason,
+          'attendance_import.employee_key_mismatch',
+        );
         expect(lastAttendanceRepository.records, isEmpty);
       },
     );
@@ -394,7 +397,7 @@ void main() {
 
       expect(summary.failed, 1);
       expect(summary.employeesCreated, 0);
-      expect(summary.issues.first.reason, 'Department is required');
+      expect(summary.issues.first.reason, 'attendance_import.department_required');
       expect(lastEmployeeRepository.added, isEmpty);
       expect(lastAttendanceRepository.records, isEmpty);
     });
@@ -480,7 +483,10 @@ void main() {
         );
 
         expect(summary.failed, 1);
-        expect(summary.issues.first.reason, 'Invalid attendance date');
+        expect(
+          summary.issues.first.reason,
+          'attendance_import.invalid_date',
+        );
         expect(lastEmployeeRepository.added, isEmpty);
         expect(lastAttendanceRepository.records, isEmpty);
       },
@@ -618,8 +624,14 @@ void main() {
         expect(summary.added, 1);
         expect(summary.failed, 2);
         expect(summary.issues.map((issue) => issue.rowNumber), [2, 3]);
-        expect(summary.issues.first.reason, contains('both missing'));
-        expect(summary.issues.last.reason, 'Check-out without check-in');
+        expect(
+          summary.issues.first.reason,
+          'attendance_import.missing_times',
+        );
+        expect(
+          summary.issues.last.reason,
+          'attendance_import.check_out_without_check_in',
+        );
         expect(records, hasLength(1));
         expect(records.first.checkInTime, DateTime(2026, 9, 27, 8));
         expect(records.first.checkOutTime, isNull);
@@ -657,9 +669,18 @@ void main() {
         expect(summary.added, 1);
         expect(summary.failed, 3);
         expect(summary.issues.map((issue) => issue.rowNumber), [2, 3, 4]);
-        expect(summary.issues[0].reason, 'Invalid attendance date');
-        expect(summary.issues[1].reason, 'Invalid check-in time');
-        expect(summary.issues[2].reason, 'Invalid check-out time');
+        expect(
+          summary.issues[0].reason,
+          'attendance_import.invalid_date',
+        );
+        expect(
+          summary.issues[1].reason,
+          'attendance_import.invalid_check_in',
+        );
+        expect(
+          summary.issues[2].reason,
+          'attendance_import.invalid_check_out',
+        );
         expect(lastAttendanceRepository.records, hasLength(1));
         expect(
           lastAttendanceRepository.records.first.attendanceDate,

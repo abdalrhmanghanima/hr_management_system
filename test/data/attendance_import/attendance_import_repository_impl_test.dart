@@ -289,15 +289,15 @@ void main() {
 
       expect(
         await importExpectingError(missingEmployeeKey, attendanceRepository),
-        contains('Employee ID or National ID'),
+        'attendance_import.missing_columns',
       );
       expect(
         await importExpectingError(missingDate, attendanceRepository),
-        contains('Attendance Date'),
+        'attendance_import.missing_columns',
       );
       expect(
         await importExpectingError(missingTimes, attendanceRepository),
-        contains('Check In or Check Out'),
+        'attendance_import.missing_columns',
       );
       expect(attendanceRepository.records, isEmpty);
       expect(attendanceRepository.addedIds, isEmpty);
@@ -324,7 +324,7 @@ void main() {
       );
       expect(
         await importExpectingError(headerOnly, attendanceRepository),
-        contains('does not contain any attendance records'),
+        'attendance_import.no_records',
       );
       expect(attendanceRepository.records, isEmpty);
       expect(attendanceRepository.addedIds, isEmpty);
@@ -337,7 +337,7 @@ void main() {
 
       expect(
         await importExpectingError(emptyWorkbook, attendanceRepository),
-        'No worksheet with attendance columns was found',
+        'attendance_import.no_attendance_sheet',
       );
       expect(attendanceRepository.records, isEmpty);
       expect(attendanceRepository.addedIds, isEmpty);
@@ -350,7 +350,7 @@ void main() {
           isA<AttendanceImportException>().having(
             (error) => error.message,
             'message',
-            contains('Only .xlsx'),
+            'attendance_import.only_xlsx_excel',
           ),
         ),
       );
@@ -363,7 +363,7 @@ void main() {
           isA<AttendanceImportException>().having(
             (error) => error.message,
             'message',
-            'The selected file is empty',
+            'attendance_import.file_empty',
           ),
         ),
       );
@@ -381,7 +381,7 @@ void main() {
           isA<AttendanceImportException>().having(
             (error) => error.message,
             'message',
-            contains('Only .xlsx'),
+            'attendance_import.only_xlsx_excel',
           ),
         ),
       );
@@ -409,7 +409,7 @@ void main() {
           isA<AttendanceImportException>().having(
             (error) => error.message,
             'message',
-            contains('not a valid Excel'),
+            'attendance_import.invalid_excel',
           ),
         ),
       );

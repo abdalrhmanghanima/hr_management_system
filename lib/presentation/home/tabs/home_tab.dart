@@ -8,6 +8,7 @@ import 'package:hr_management_system/core/localization/app_localization.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
+import 'package:hr_management_system/core/utils/payroll_format.dart';
 import 'package:hr_management_system/presentation/attendance/add_attendance_screen.dart';
 import 'package:hr_management_system/presentation/attendance/edit_attendance_screen.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
@@ -59,8 +60,8 @@ class _HomeTabState extends ConsumerState<HomeTab> {
   Widget build(BuildContext context) {
     final employeeState = ref.watch(employeeProvider);
     final attendanceState = ref.watch(attendanceProvider);
-    final payrollState = ref.watch(payrollSummariesProvider);
     final payrollMonth = ref.watch(currentPayrollMonthProvider);
+    final payrollState = ref.watch(payrollSummariesProvider(payrollMonth));
 
     final canAddEmployees = ref.watch(
       modulePermissionProvider((module: GroupModules.employees, action: PermissionAction.add)),
@@ -169,7 +170,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
     );
 
     final payrollAmount = payrollTotal != null
-        ? _formatPayrollAmount(payrollTotal)
+        ? PayrollFormat.amount(payrollTotal)
         : payrollState.hasError
         ? '—'
         : '...';
@@ -391,31 +392,40 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                             ),
                             SizedBox(width: 8.w),
                             Flexible(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Flexible(
-                                    child: CustomText(
-                                      title: 'home.view_details'.tr(),
-                                      fontColor: AppColors.primary,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
+                              child: InkWell(
+                                onTap: () {
+                                  ref
+                                      .read(
+                                        currentHomeTabProvider.notifier,
+                                      )
+                                      .state = HomeTabItem.payroll;
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: CustomText(
+                                        title: 'home.view_details'.tr(),
+                                        fontColor: AppColors.primary,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: 6.w),
-                                  Transform.scale(
-                                    scaleX:
-                                        Directionality.of(context) ==
-                                                TextDirection.rtl
-                                            ? -1
-                                            : 1,
-                                    child: Icon(
-                                      Icons.chevron_right,
-                                      color: AppColors.primary,
-                                      size: 22.w,
+                                    SizedBox(width: 6.w),
+                                    Transform.scale(
+                                      scaleX:
+                                          Directionality.of(context) ==
+                                                  TextDirection.rtl
+                                              ? -1
+                                              : 1,
+                                      child: Icon(
+                                        Icons.chevron_right,
+                                        color: AppColors.primary,
+                                        size: 22.w,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -573,20 +583,4 @@ class _HomeTabState extends ConsumerState<HomeTab> {
       ),
     );
   }
-}
-
-String _formatPayrollAmount(double value) {
-  final rounded = value.round();
-  final digits = rounded.abs().toString();
-  final buffer = StringBuffer();
-
-  for (var index = 0; index < digits.length; index++) {
-    if (index > 0 && (digits.length - index) % 3 == 0) {
-      buffer.write(',');
-    }
-
-    buffer.write(digits[index]);
-  }
-
-  return rounded < 0 ? '-$buffer' : buffer.toString();
 }

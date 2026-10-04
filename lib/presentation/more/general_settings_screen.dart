@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/utils/update_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/general_settings/entity/general_settings_entity.dart';
 import 'package:hr_management_system/domain/general_settings/validation/general_settings_validator.dart';
 import 'package:hr_management_system/presentation/components/custom_app_bar/custom_app_bar.dart';
@@ -76,26 +77,22 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     selectedWeekendDays = List<String>.from(settings.weekendDays);
   }
 
-  Future<void> _persist({bool showErrors = false}) async {
-    final multiplierError = GeneralSettingsValidator.multiplier(
-      multiplierController.text,
+  Future<void> _persistAfterConfirmation() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return UpdateConfirmationDialog(
+          title: 'settings.title'.tr(),
+          message: 'settings.update_confirmation'.tr(),
+          confirmLabel: 'settings.update_button'.tr(),
+          onConfirm: () {
+            Navigator.pop(dialogContext, true);
+          },
+        );
+      },
     );
 
-    final workingHoursError = GeneralSettingsValidator.workingHoursPerDay(
-      workingHoursController.text,
-    );
-
-    final weekendError = GeneralSettingsValidator.weekendDays(
-      selectedWeekendDays,
-    );
-
-    final error = multiplierError ?? workingHoursError ?? weekendError;
-
-    if (error != null) {
-      if (showErrors) {
-        _showError(error.tr());
-      }
-
+    if (confirmed != true || !mounted) {
       return;
     }
 
@@ -111,9 +108,37 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           ),
         );
 
-    if (!saved && showErrors && mounted) {
+    if (!saved && mounted) {
       _showError('settings.save_failed'.tr());
     }
+  }
+
+  void _handleFieldChanged() {
+    setState(() {});
+  }
+
+  Future<void> _handleFieldSubmitted() async {
+    setState(() {});
+
+    final multiplierError = GeneralSettingsValidator.multiplier(
+      multiplierController.text,
+    );
+
+    final workingHoursError = GeneralSettingsValidator.workingHoursPerDay(
+      workingHoursController.text,
+    );
+
+    final weekendError = GeneralSettingsValidator.weekendDays(
+      selectedWeekendDays,
+    );
+
+    if (multiplierError != null ||
+        workingHoursError != null ||
+        weekendError != null) {
+      return;
+    }
+
+    await _persistAfterConfirmation();
   }
 
   void _showError(String message) {
@@ -144,16 +169,15 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       return;
     }
 
-    if (result.isEmpty) {
-      _showError(GeneralSettingsValidator.weekendDays(result) ?? '');
-      return;
-    }
-
     setState(() {
       selectedWeekendDays = result;
     });
 
-    await _persist(showErrors: true);
+    if (result.isEmpty) {
+      return;
+    }
+
+    await _persistAfterConfirmation();
   }
 
   String get selectedDaysText {
@@ -169,6 +193,18 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     final settingsState = ref.watch(generalSettingsProvider);
 
     settingsState.whenData(_hydrate);
+
+    final multiplierError = GeneralSettingsValidator.multiplier(
+      multiplierController.text,
+    );
+
+    final workingHoursError = GeneralSettingsValidator.workingHoursPerDay(
+      workingHoursController.text,
+    );
+
+    final weekendError = GeneralSettingsValidator.weekendDays(
+      selectedWeekendDays,
+    );
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -198,8 +234,18 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    onChanged: (value) => _persist(),
+                    onChanged: (_) => _handleFieldChanged(),
+                    onSubmitted: (_) => _handleFieldSubmitted(),
                   ),
+                  if (multiplierError != null) ...[
+                    SizedBox(height: 8.h),
+                    CustomText(
+                      title: multiplierError.tr(),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      fontColor: AppColors.red,
+                    ),
+                  ],
                   SizedBox(height: 20.h),
                   SettingsFieldLabel(
                     title: 'settings.working_hours_per_day'.tr(),
@@ -212,8 +258,18 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    onChanged: (value) => _persist(),
+                    onChanged: (_) => _handleFieldChanged(),
+                    onSubmitted: (_) => _handleFieldSubmitted(),
                   ),
+                  if (workingHoursError != null) ...[
+                    SizedBox(height: 8.h),
+                    CustomText(
+                      title: workingHoursError.tr(),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      fontColor: AppColors.red,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -267,6 +323,15 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       ),
                     ),
                   ),
+                  if (weekendError != null) ...[
+                    SizedBox(height: 8.h),
+                    CustomText(
+                      title: weekendError.tr(),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      fontColor: AppColors.red,
+                    ),
+                  ],
                   SizedBox(height: 18.h),
                   Container(
                     width: double.infinity,

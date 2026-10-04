@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/domain/authorization/entity/authorization_entity.dart';
+import 'package:hr_management_system/domain/authorization/entity/authorization_status.dart';
 import 'package:hr_management_system/presentation/attendance/tab/attendance_tab.dart';
 import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
 import 'package:hr_management_system/presentation/authorization/provider/module_data_invalidation.dart';
@@ -17,7 +18,7 @@ import 'package:hr_management_system/presentation/home/widgets/animated_nav_bar_
 import 'package:hr_management_system/presentation/more/tab/more_tab.dart';
 import 'package:hr_management_system/presentation/payroll/tab/payroll_tab.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   static List<Widget> screens = [
@@ -44,15 +45,66 @@ class HomeScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _moduleDataLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(_ensureModuleDataLoaded);
+  }
+
+  void _ensureModuleDataLoaded() {
+    if (!mounted || _moduleDataLoaded) return;
+
+    // Flush the authorization -> permission chain before reloading.
+    // `_notifyListeners` marks provider-dependents dirty only *after* it has
+    // invoked `ref.listen` callbacks, so without this flush the scoped
+    // repository would still be built from the previous (unauthorized) scope
+    // and would return an empty list that nothing ever refreshes.
+    ref.read(permissionCheckerProvider);
+
+    // Read the source `authorizationProvider` instead of the derived
+    // `authorizationStatusProvider`.
+    final status =
+        ref.read(authorizationProvider).valueOrNull?.status ??
+        AuthorizationStatus.loading;
+
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint(
+      '[hr-session] home.ensure status=$status alreadyLoaded=$_moduleDataLoaded',
+    );
+    debugPrint('[ATTENDANCE-RELOGIN] home.ensure status=$status alreadyLoaded=$_moduleDataLoaded');
+
+    if (status != AuthorizationStatus.authenticated) {
+      debugPrint('[ATTENDANCE-RELOGIN] home.ensure skipped (not authenticated)');
+      return;
+    }
+
+    _moduleDataLoaded = true;
+
+    debugPrint('[hr-session] home.ensure -> reloadModuleData');
+    debugPrint('[ATTENDANCE-RELOGIN] home.ensure -> reloadModuleData');
+
+    reloadModuleData(ref);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     ref.listen<AsyncValue<AuthorizationEntity>>(authorizationProvider, (
       previous,
       next,
     ) {
-      final resolved = next.valueOrNull?.isResolved ?? false;
-
-      if (resolved && (previous?.valueOrNull?.isResolved ?? false) == false) {
-        Future.microtask(() => reloadModuleData(ref));
+      if (next.valueOrNull?.isResolved ?? false) {
+        // Yield to the event loop. Riverpod invalidates provider-dependents
+        // only after every `ref.listen` callback has returned, so reloading
+        // synchronously from inside the callback would run against a stale
+        // permission scope.
+        Future.microtask(_ensureModuleDataLoaded);
       }
     });
 
@@ -72,7 +124,7 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       body: IndexedStack(
         index: selectedIndex,
-        children: tabs.map(screenFor).toList(),
+        children: tabs.map(HomeScreen.screenFor).toList(),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

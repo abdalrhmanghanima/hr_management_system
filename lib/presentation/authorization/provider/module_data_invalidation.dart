@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/selected_attendance_status_provider.dart';
@@ -29,6 +30,9 @@ void invalidateModuleData(WidgetRef ref) {
 }
 
 Future<void> reloadModuleData(WidgetRef ref) async {
+  // TODO(hr-session-diagnostics): temporary debug logging.
+  debugPrint('[ATTENDANCE-RELOGIN] reloadModuleData() invalidate + reload start');
+
   invalidateModuleData(ref);
 
   await Future.wait([
@@ -37,4 +41,7 @@ Future<void> reloadModuleData(WidgetRef ref) async {
     ref.read(attendanceProvider.notifier).getAttendances(),
     ref.read(officialHolidaysProvider.notifier).getOfficialHolidays(),
   ]);
+
+  // TODO(hr-session-diagnostics): temporary debug logging.
+  debugPrint('[ATTENDANCE-RELOGIN] reloadModuleData() finished');
 }

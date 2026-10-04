@@ -13,6 +13,9 @@ class AttendanceRecordCard extends StatelessWidget {
   final String status;
   final DateTime? checkIn;
   final DateTime? checkOut;
+  final double? workedHours;
+  final double? overtimeHours;
+  final double? deductionHours;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
@@ -24,6 +27,9 @@ class AttendanceRecordCard extends StatelessWidget {
     required this.status,
     required this.checkIn,
     required this.checkOut,
+    this.workedHours,
+    this.overtimeHours,
+    this.deductionHours,
     required this.onEdit,
     required this.onDelete,
   });
@@ -114,6 +120,36 @@ class AttendanceRecordCard extends StatelessWidget {
             ],
           ),
 
+          if (workedHours != null &&
+              overtimeHours != null &&
+              deductionHours != null) ...[
+            SizedBox(height: 12.h),
+            Row(
+              children: [
+                Expanded(
+                  child: _TimeInfo(
+                    label: 'employee.worked'.tr(),
+                    value: _formatHours(workedHours!),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: _TimeInfo(
+                    label: 'employee.overtime'.tr(),
+                    value: _formatHours(overtimeHours!),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: _TimeInfo(
+                    label: 'employee.deduction'.tr(),
+                    value: _formatHours(deductionHours!),
+                  ),
+                ),
+              ],
+            ),
+          ],
+
           SizedBox(height: 14.h),
 
           const Divider(height: 1, color: Color(0xFFE2E8F0)),
@@ -193,6 +229,10 @@ class AttendanceRecordCard extends StatelessWidget {
     }
 
     return DateParser.toDisplayTime(time);
+  }
+
+  String _formatHours(double hours) {
+    return 'employee.hours'.tr(namedArgs: {'hours': hours.toString()});
   }
 }
 

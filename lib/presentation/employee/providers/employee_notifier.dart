@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
@@ -10,6 +11,9 @@ import 'package:hr_management_system/presentation/payroll/provider/payroll_provi
 class EmployeeNotifier extends AsyncNotifier<List<EmployeeEntity>> {
   @override
   Future<List<EmployeeEntity>> build() async {
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint('[hr-session] employeeProvider.initialize');
+
     return [];
   }
 
@@ -25,6 +29,9 @@ class EmployeeNotifier extends AsyncNotifier<List<EmployeeEntity>> {
     state = await AsyncValue.guard(
       () => ref.read(getEmployeesUseCaseProvider).call(),
     );
+
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint('[hr-session] employee.getEmployees docs=${state.valueOrNull?.length} error=${state.hasError}');
   }
 
   Future<SaveResult> addEmployee(EmployeeEntity employee) async {

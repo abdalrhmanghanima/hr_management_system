@@ -2,16 +2,22 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/domain/payroll/entity/payroll_calculation_entity.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/authorization/widgets/permission_guard.dart';
+import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
+import 'package:hr_management_system/presentation/components/month_filter_row/month_filter_row.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
 import 'package:hr_management_system/presentation/payroll/provider/payroll_provider.dart';
+import 'package:hr_management_system/presentation/payroll/screens/official_salary_slip_screen.dart';
+import 'package:hr_management_system/presentation/payroll/screens/payroll_details_screen.dart';
 import 'package:hr_management_system/presentation/payroll/widgets/payroll_card.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_search_field.dart';
 
@@ -58,7 +64,9 @@ class _PayrollTabState extends ConsumerState<PayrollTab> {
 
   @override
   Widget build(BuildContext context) {
-    final payrollState = ref.watch(payrollSummariesProvider);
+    final currentMonth = ref.watch(currentPayrollMonthProvider);
+    final selectedMonth = ref.watch(selectedPayrollMonthProvider);
+    final payrollState = ref.watch(payrollSummariesProvider(selectedMonth));
     final departments = ref.watch(departmentProvider).value ?? const [];
 
     final departmentNames = {
@@ -96,6 +104,25 @@ class _PayrollTabState extends ConsumerState<PayrollTab> {
                   setState(() {
                     searchTerm = value;
                   });
+                },
+              ),
+              SizedBox(height: 12.h),
+
+              MonthFilterRow(
+                currentMonth: currentMonth,
+                selectedMonth: selectedMonth,
+                onMonthChanged: (month) {
+                  if (month.year < companyStartYear) {
+                    CustomSnackBar.show(
+                      context,
+                      message: 'payroll.invalid_year'.tr(),
+                    );
+                    return;
+                  }
+
+                  ref
+                      .read(selectedPayrollMonthProvider.notifier)
+                      .state = month;
                 },
               ),
               SizedBox(height: 16.h),
@@ -165,8 +192,20 @@ class _PayrollTabState extends ConsumerState<PayrollTab> {
                                 '+${summary.overtimeAmount.toStringAsFixed(0)}',
                             deduction:
                                 '-${summary.totalDeductions.toStringAsFixed(0)}',
-                            onDetails: () {},
-                            onSalarySlip: () {},
+                            onDetails: () {
+                              NavigatorHandler.push(
+                                PayrollDetailsScreen(
+                                  employeeId: summary.employeeId,
+                                ),
+                              );
+                            },
+                            onSalarySlip: () {
+                              NavigatorHandler.push(
+                                OfficialSalarySlipScreen(
+                                  employeeId: summary.employeeId,
+                                ),
+                              );
+                            },
                           );
                         },
                       );

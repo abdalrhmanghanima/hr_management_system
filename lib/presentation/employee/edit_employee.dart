@@ -5,6 +5,7 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
+import 'package:hr_management_system/core/utils/update_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/employee/entity/employee_entity.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
@@ -83,6 +84,32 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
     salaryController.dispose();
 
     super.dispose();
+  }
+
+  Future<void> _confirmAndUpdate() async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return UpdateConfirmationDialog(
+          title: 'employee.edit_title'.tr(),
+          message: 'employee.update_confirmation'.tr(),
+          confirmLabel: 'employee.update_button'.tr(),
+          onConfirm: () {
+            Navigator.pop(dialogContext, true);
+          },
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    await _updateEmployee();
   }
 
   Future<void> _updateEmployee() async {
@@ -177,7 +204,7 @@ class _EditEmployeeState extends ConsumerState<EditEmployee> {
                 title: "employee.update_button".tr(),
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w400,
-                onTap: _updateEmployee,
+                onTap: _confirmAndUpdate,
                 bg: AppColors.primary,
                 isLoading: employeeState.isLoading,
               ),

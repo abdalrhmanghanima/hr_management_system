@@ -3,6 +3,7 @@ import 'package:hr_management_system/core/custom_loading.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:flutter/material.dart';
 import '../../../core/dimens/dimens.dart';
+import '../custom_svg/custom_svg_icon.dart';
 import '../custom_text/custom_text.dart';
 import 'dart:async';
 
@@ -17,6 +18,7 @@ class CustomButton extends StatelessWidget {
   final double? height;
   final double? radius;
   final double? elevation;
+  final String? iconPath;
 
   final bool isLoading;
 
@@ -32,6 +34,7 @@ class CustomButton extends StatelessWidget {
     this.height,
     this.radius,
     this.elevation,
+    this.iconPath,
     this.isLoading = false,
   });
 
@@ -53,12 +56,35 @@ class CustomButton extends StatelessWidget {
         ),
         child: isLoading
             ? const CustomLoading()
-            : CustomText(
-          title: title,
-          fontSize: fontSize ?? 15.sp,
-          fontColor: fontColor ?? AppColors.white,
-          fontWeight: fontWeight ?? FontWeight.normal,
-        ),
+            : iconPath == null
+                ? CustomText(
+                    title: title,
+                    fontSize: fontSize ?? 15.sp,
+                    fontColor: fontColor ?? AppColors.white,
+                    fontWeight: fontWeight ?? FontWeight.normal,
+                  )
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CustomSvgIcon(
+                          assetName: iconPath!,
+                          width: 18.w,
+                          height: 18.w,
+                          color: fontColor ?? AppColors.white,
+                        ),
+                        SizedBox(width: 8.w),
+                        CustomText(
+                          title: title,
+                          fontSize: fontSize ?? 15.sp,
+                          fontColor: fontColor ?? AppColors.white,
+                          fontWeight: fontWeight ?? FontWeight.normal,
+                        ),
+                      ],
+                    ),
+                  ),
       ),
     );
   }

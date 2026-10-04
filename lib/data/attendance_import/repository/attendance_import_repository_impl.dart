@@ -143,7 +143,7 @@ class AttendanceImportRepositoryImpl implements AttendanceImportRepository {
       log('AttendanceImport', 'file picker failed: $error');
 
       throw const AttendanceImportException(
-        'Unable to open the file picker. Please try again',
+        'attendance_import.picker_failed',
       );
     }
 
@@ -154,11 +154,11 @@ class AttendanceImportRepositoryImpl implements AttendanceImportRepository {
     final extension = picked.extension?.toLowerCase();
 
     if (extension != null && extension != xlsxExtension) {
-      throw const AttendanceImportException('Only .xlsx files are supported');
+      throw const AttendanceImportException('attendance_import.only_xlsx');
     }
 
     if (picked.name.toLowerCase().endsWith('.$xlsxExtension') == false) {
-      throw const AttendanceImportException('Only .xlsx files are supported');
+      throw const AttendanceImportException('attendance_import.only_xlsx');
     }
 
     Uint8List bytes;
@@ -172,12 +172,12 @@ class AttendanceImportRepositoryImpl implements AttendanceImportRepository {
       );
 
       throw const AttendanceImportException(
-        'Unable to read the selected file. Please try again',
+        'attendance_import.read_failed',
       );
     }
 
     if (bytes.isEmpty) {
-      throw const AttendanceImportException('The selected file is empty');
+      throw const AttendanceImportException('attendance_import.file_empty');
     }
 
     log('AttendanceImport', 'picked ${picked.name} (${bytes.length} bytes)');
@@ -188,7 +188,7 @@ class AttendanceImportRepositoryImpl implements AttendanceImportRepository {
   @override
   AttendanceImportSheet parseWorkbook(Uint8List bytes) {
     if (bytes.isEmpty) {
-      throw const AttendanceImportException('The selected file is empty');
+      throw const AttendanceImportException('attendance_import.file_empty');
     }
 
     final Excel excel;
@@ -199,7 +199,7 @@ class AttendanceImportRepositoryImpl implements AttendanceImportRepository {
       log('AttendanceImport', 'unsupported workbook: ${error.message}');
 
       throw const AttendanceImportException(
-        'Only .xlsx Excel files are supported',
+        'attendance_import.only_xlsx_excel',
       );
     } catch (error) {
       log(
@@ -208,13 +208,13 @@ class AttendanceImportRepositoryImpl implements AttendanceImportRepository {
       );
 
       throw const AttendanceImportException(
-        'The selected file is not a valid Excel (.xlsx) file',
+        'attendance_import.invalid_excel',
       );
     }
 
     if (excel.tables.isEmpty) {
       throw const AttendanceImportException(
-        'The workbook does not contain any worksheet',
+        'attendance_import.no_worksheet',
       );
     }
 
@@ -243,7 +243,7 @@ class AttendanceImportRepositoryImpl implements AttendanceImportRepository {
     }
 
     throw const AttendanceImportException(
-      'No worksheet with attendance columns was found',
+      'attendance_import.no_attendance_sheet',
     );
   }
 

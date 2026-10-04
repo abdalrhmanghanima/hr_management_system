@@ -1,3 +1,4 @@
+import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 
 class EmployeeValidator {
@@ -144,12 +145,22 @@ class EmployeeValidator {
   }
 
   static String? contractDateText(String? value) {
-    return displayDate(value, contractDateRequiredKey);
+    final error = displayDate(value, contractDateRequiredKey);
+
+    if (error != null) {
+      return error;
+    }
+
+    return contractDate(DateParser.fromDisplayDate(value!.trim()));
   }
 
   static String? contractDate(DateTime? value) {
     if (value == null) {
       return contractDateRequiredKey;
+    }
+
+    if (value.year < companyStartYear) {
+      return 'validation.employee.contract_date_before_start';
     }
 
     return null;

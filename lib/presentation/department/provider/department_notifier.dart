@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/domain/department/entity/department_entity.dart';
@@ -9,6 +10,9 @@ import 'package:hr_management_system/presentation/department/provider/department
 class DepartmentNotifier extends AsyncNotifier<List<DepartmentEntity>> {
   @override
   Future<List<DepartmentEntity>> build() async {
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint('[hr-session] departmentProvider.initialize');
+
     return ref.read(getDepartmentsUseCaseProvider).call();
   }
 
@@ -25,6 +29,9 @@ class DepartmentNotifier extends AsyncNotifier<List<DepartmentEntity>> {
     state = await AsyncValue.guard(
       () => ref.read(getDepartmentsUseCaseProvider).call(),
     );
+
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint('[hr-session] department.getDepartments docs=${state.valueOrNull?.length} error=${state.hasError}');
   }
 
   Future<SaveResult> addDepartment(DepartmentEntity department) async {

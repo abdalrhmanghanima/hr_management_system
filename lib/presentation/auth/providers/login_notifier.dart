@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/data/auth/data_source/auth_remote_data_source.dart';
 import 'package:hr_management_system/data/auth/data_source/auth_remote_data_source_impl.dart';
@@ -9,6 +10,7 @@ import 'package:hr_management_system/domain/auth/repository/auth_repo.dart';
 import 'package:hr_management_system/domain/auth/use_case/login_use_case.dart';
 import 'package:hr_management_system/domain/auth/use_case/update_user_group.dart';
 import 'package:hr_management_system/presentation/application_user/provider/application_user_provider.dart';
+import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
 
 class LoginNotifier extends AsyncNotifier<UserEntity?>{
   @override
@@ -22,12 +24,27 @@ class LoginNotifier extends AsyncNotifier<UserEntity?>{
          .read(loginUseCaseProvider)
          .call(email: email, password: password);
 
-     await ref
-         .read(validateApplicationUserUseCaseProvider)
-         .call(user.uid);
+      await ref
+          .read(validateApplicationUserUseCaseProvider)
+          .call(user.uid);
 
-     return user;
-   });
+      ref.invalidate(authorizationProvider);
+
+      // TODO(hr-session-diagnostics): temporary debug logging.
+      debugPrint('[hr-session] login.success uid=${_debugUid()} -> authorization invalidated');
+      debugPrint('[ATTENDANCE-RELOGIN] login uid=${_debugUid()}');
+
+      return user;
+    });
+  }
+
+  // TODO(hr-session-diagnostics): temporary debug logging.
+  String _debugUid() {
+    try {
+      return FirebaseAuth.instance.currentUser?.uid ?? '<empty>';
+    } catch (_) {
+      return '<unavailable>';
+    }
   }
 }
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {

@@ -120,11 +120,11 @@ class _EditDepartmentBottomSheetState
                 hint: 'department.name_hint'.tr(),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Department is required';
+                    return 'validation.department.name_required'.tr();
                   }
 
                   if (value.trim().length < 2) {
-                    return 'Department must be at least 2 characters';
+                    return 'validation.department.name_short'.tr();
                   }
 
                   return null;

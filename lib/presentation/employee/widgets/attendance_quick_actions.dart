@@ -4,12 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
+import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_action_result.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
+import 'package:hr_management_system/domain/group/entity/group_module.dart';
+import 'package:hr_management_system/domain/group/entity/permission_action.dart';
+import 'package:hr_management_system/presentation/attendance/employee_attendance_records_screen.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_action_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/today_attendance_provider.dart';
+import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
 import 'package:hr_management_system/presentation/components/custom_snack_bar/custom_snack_bar.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
 import 'package:hr_management_system/presentation/more/provider/general_settings_provider.dart';
@@ -32,6 +37,12 @@ class AttendanceQuickActions extends ConsumerWidget {
     final isLoading = ref.watch(
       attendanceActionProvider.select((state) => state.isLoading),
     );
+    final canViewAttendanceRecords = ref.watch(
+      modulePermissionProvider((
+        module: GroupModules.attendance,
+        action: PermissionAction.view,
+      )),
+    );
 
     final attendance = todayState.value;
 
@@ -41,10 +52,37 @@ class AttendanceQuickActions extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CustomText(
-          title: "employee.today_attendance".tr(),
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w700,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: CustomText(
+                title: "employee.today_attendance".tr(),
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (canViewAttendanceRecords)
+              InkWell(
+                key: const ValueKey('show-attendance-records-action'),
+                borderRadius: BorderRadius.circular(8.r),
+                onTap: () => NavigatorHandler.push(
+                  EmployeeAttendanceRecordsScreen(employeeId: employeeId),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 4.w,
+                    vertical: 2.h,
+                  ),
+                  child: CustomText(
+                    title: "employee.show_attendance_records".tr(),
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.primary,
+                  ),
+                ),
+              ),
+          ],
         ),
 
         SizedBox(height: 12.h),

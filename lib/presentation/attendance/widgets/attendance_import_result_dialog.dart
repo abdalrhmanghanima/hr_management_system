@@ -124,7 +124,7 @@ class AttendanceImportResultDialog extends StatelessWidget {
                         title: 'attendance_import.row_issue'.tr(
                           namedArgs: {
                             'row': issue.rowNumber.toString(),
-                            'reason': issue.reason,
+                            'reason': issue.reason.tr(),
                           },
                         ),
                         fontSize: 13.sp,

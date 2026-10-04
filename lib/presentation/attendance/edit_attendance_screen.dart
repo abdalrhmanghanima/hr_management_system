@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
+import 'package:hr_management_system/core/utils/update_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
@@ -75,6 +76,32 @@ class _EditAttendanceScreenState extends ConsumerState<EditAttendanceScreen> {
     super.dispose();
   }
 
+  Future<void> _confirmAndUpdate() async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return UpdateConfirmationDialog(
+          title: 'attendance.edit_title'.tr(),
+          message: 'attendance.update_confirmation'.tr(),
+          confirmLabel: 'attendance.update_button'.tr(),
+          onConfirm: () {
+            Navigator.pop(dialogContext, true);
+          },
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    await _updateAttendance();
+  }
+
   Future<void> _updateAttendance() async {
     if (!formKey.currentState!.validate()) {
       return;
@@ -142,7 +169,7 @@ class _EditAttendanceScreenState extends ConsumerState<EditAttendanceScreen> {
                 fontSize: 15.sp,
                 isLoading: attendanceState.isLoading,
                 fontWeight: FontWeight.w400,
-                onTap: _updateAttendance,
+                onTap: _confirmAndUpdate,
                 bg: AppColors.primary,
               ),
               SizedBox(height: 8.h),

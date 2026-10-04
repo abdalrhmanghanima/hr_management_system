@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/enums/save_result.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
@@ -8,13 +9,29 @@ import 'package:hr_management_system/presentation/payroll/provider/payroll_provi
 class AttendanceNotifier extends AsyncNotifier<List<AttendanceEntity>> {
   @override
   Future<List<AttendanceEntity>> build() async {
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint('[hr-session] attendanceProvider.initialize');
+    debugPrint('[ATTENDANCE-RELOGIN] attendanceProvider.build() -> 0 records');
+
     return [];
   }
 
   Future<void> getAttendances() async {
+    debugPrint('[ATTENDANCE-RELOGIN] getAttendances() start');
+
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () => ref.read(getAttendancesUseCaseProvider).call(),
+    );
+
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint(
+      '[hr-session] attendance.getAttendances docs=${state.valueOrNull?.length} '
+      'error=${state.hasError}',
+    );
+    debugPrint(
+      '[ATTENDANCE-RELOGIN] getAttendances() done records=${state.valueOrNull?.length} '
+      'error=${state.hasError}',
     );
   }
 

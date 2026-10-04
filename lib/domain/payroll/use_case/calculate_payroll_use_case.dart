@@ -43,42 +43,85 @@ class CalculatePayrollUseCase {
     var lateEarlyDeductionAmount = 0.0;
     var absenceDeduction = 0.0;
 
-    final byDay = _attendancesByDay(attendances, year, monthIndex);
+    final monthStart = DateTime(year, monthIndex, 1);
+    final monthEnd = DateTime(year, monthIndex, daysInMonth);
 
-    for (var day = 1; day <= daysInMonth; day++) {
-      final date = DateTime(year, monthIndex, day);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
-      final isWorkingDay = workingDayPolicy.isWorkingDay(
-        date: date,
-        settings: settings,
-        officialHolidays: officialHolidays,
+    final contractDate = DateTime(
+      employee.contractDate.year,
+      employee.contractDate.month,
+      employee.contractDate.day,
+    );
+
+    if (contractDate.isAfter(monthEnd)) {
+      return PayrollCalculationEntity(
+        employeeId: employee.id,
+        employeeName: employee.fullName,
+        departmentId: employee.departmentId,
+        basicSalary: 0,
+        dailyRate: 0,
+        hourlyRate: 0,
+        workingDays: 0,
+        presentDays: 0,
+        absentDays: 0,
+        holidayDays: 0,
+        overtimeHours: 0,
+        overtimeAmount: 0,
+        deductionHours: 0,
+        lateEarlyDeductionAmount: 0,
+        absenceDeduction: 0,
+        totalDeductions: 0,
+        netSalary: 0,
+        year: year,
+        month: monthIndex,
       );
+    }
 
-      if (!isWorkingDay) {
-        holidayDays++;
-        continue;
+    final startDate = contractDate.isAfter(monthStart)
+        ? contractDate
+        : monthStart;
+    final endDate = today.isBefore(monthEnd) ? today : monthEnd;
+
+    if (!startDate.isAfter(endDate)) {
+      final byDay = _attendancesByDay(attendances, year, monthIndex);
+
+      for (var day = startDate.day; day <= endDate.day; day++) {
+        final date = DateTime(year, monthIndex, day);
+
+        final isWorkingDay = workingDayPolicy.isWorkingDay(
+          date: date,
+          settings: settings,
+          officialHolidays: officialHolidays,
+        );
+
+        if (!isWorkingDay) {
+          holidayDays++;
+          continue;
+        }
+
+        workingDays++;
+
+        final calculation = calculateAttendanceHours.call(
+          monthlySalary: employee.salary,
+          checkInTime: byDay[day]?.checkInTime,
+          checkOutTime: byDay[day]?.checkOutTime,
+          workingHoursPerDay: settings.workingHoursPerDay,
+          multiplier: settings.multiplier,
+          isWorkingDay: true,
+        );
+
+        _accumulate(
+          calculation,
+          onAbsent: () => absentDays++,
+          onOvertimeHours: (value) => overtimeHours += value,
+          onOvertimeAmount: (value) => overtimeAmount += value,
+          onDeductionHours: (value) => deductionHours += value,
+          onDeductionAmount: (value) => lateEarlyDeductionAmount += value,
+          onAbsenceDeduction: (value) => absenceDeduction += value,
+        );
       }
-
-      workingDays++;
-
-      final calculation = calculateAttendanceHours.call(
-        monthlySalary: employee.salary,
-        checkInTime: byDay[day]?.checkInTime,
-        checkOutTime: byDay[day]?.checkOutTime,
-        workingHoursPerDay: settings.workingHoursPerDay,
-        multiplier: settings.multiplier,
-        isWorkingDay: true,
-      );
-
-      _accumulate(
-        calculation,
-        onAbsent: () => absentDays++,
-        onOvertimeHours: (value) => overtimeHours += value,
-        onOvertimeAmount: (value) => overtimeAmount += value,
-        onDeductionHours: (value) => deductionHours += value,
-        onDeductionAmount: (value) => lateEarlyDeductionAmount += value,
-        onAbsenceDeduction: (value) => absenceDeduction += value,
-      );
     }
 
     final totalDeductions = lateEarlyDeductionAmount + absenceDeduction;

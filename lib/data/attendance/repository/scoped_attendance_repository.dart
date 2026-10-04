@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
 import 'package:hr_management_system/domain/attendance/repository/attendance_repository.dart';
 import 'package:hr_management_system/domain/authorization/entity/authorization_exception.dart';
@@ -16,13 +17,33 @@ class ScopedAttendanceRepository implements AttendanceRepository {
   Future<List<AttendanceEntity>> getAttendances() async {
     final scope = access.scope;
 
-    if (scope.isDenied) return const [];
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint(
+      '[ATTENDANCE-RELOGIN] scopedRepo.isDenied=${scope.isDenied} '
+      'isOwn=${scope.isOwn} employeeId=${scope.employeeId ?? '<null>'} '
+      'canAdd=${access.canAdd}',
+    );
 
-    if (scope.isOwn) {
-      return repository.getAttendancesByEmployeeId(scope.employeeId!);
+    if (scope.isDenied) {
+      // TODO(hr-session-diagnostics): temporary debug logging.
+      debugPrint('[hr-session] attendance.scope denied -> 0 docs (no firestore query)');
+      debugPrint('[ATTENDANCE-RELOGIN] DENIED -> returns [] WITHOUT firestore query');
+
+      return const [];
     }
 
-    return repository.getAttendances();
+    final records = await (scope.isOwn
+        ? repository.getAttendancesByEmployeeId(scope.employeeId!)
+        : repository.getAttendances());
+
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint('[hr-session] attendance.scope own=${scope.isOwn} firestore docs=${records.length}');
+    debugPrint(
+      '[ATTENDANCE-RELOGIN] scopedRepo returned ${records.length} records '
+      'firstId=${records.isEmpty ? '<none>' : records.first.id}',
+    );
+
+    return records;
   }
 
   @override

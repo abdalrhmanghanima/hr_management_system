@@ -137,7 +137,7 @@ class ImportAttendanceUseCase {
         issues.add(
           AttendanceImportRowIssue(
             rowNumber: row.rowNumber,
-            reason: 'Failed to save the attendance record',
+            reason: 'attendance_import.row_save_failed',
           ),
         );
       }
@@ -164,7 +164,7 @@ class ImportAttendanceUseCase {
     );
 
     if (date == null) {
-      throw const AttendanceImportRowFailure('Invalid attendance date');
+      throw const AttendanceImportRowFailure('attendance_import.invalid_date');
     }
 
     final checkInValue = row.valueAt(
@@ -183,7 +183,7 @@ class ImportAttendanceUseCase {
 
     if (!hasCheckInValue && !hasCheckOutValue) {
       throw const AttendanceImportRowFailure(
-        'Check-in and check-out are both missing',
+        'attendance_import.missing_times',
       );
     }
 
@@ -193,7 +193,9 @@ class ImportAttendanceUseCase {
       checkIn = AttendanceImportValueParser.parseTime(checkInValue, date: date);
 
       if (checkIn == null) {
-        throw const AttendanceImportRowFailure('Invalid check-in time');
+        throw const AttendanceImportRowFailure(
+          'attendance_import.invalid_check_in',
+        );
       }
     }
 
@@ -206,12 +208,16 @@ class ImportAttendanceUseCase {
       );
 
       if (checkOut == null) {
-        throw const AttendanceImportRowFailure('Invalid check-out time');
+        throw const AttendanceImportRowFailure(
+          'attendance_import.invalid_check_out',
+        );
       }
     }
 
     if (checkOut != null && checkIn == null) {
-      throw const AttendanceImportRowFailure('Check-out without check-in');
+      throw const AttendanceImportRowFailure(
+        'attendance_import.check_out_without_check_in',
+      );
     }
 
     return _ImportedAttendance(
@@ -243,7 +249,7 @@ class ImportAttendanceUseCase {
 
     if (employeeId == null && nationalId == null) {
       throw const AttendanceImportRowFailure(
-        'Employee ID or National ID is required',
+        'attendance_import.employee_key_required',
       );
     }
 
@@ -255,7 +261,7 @@ class ImportAttendanceUseCase {
 
     if (byId != null && byNationalId != null && byId.id != byNationalId.id) {
       throw const AttendanceImportRowFailure(
-        'Employee ID and National ID belong to different employees',
+        'attendance_import.employee_key_mismatch',
       );
     }
 
@@ -314,7 +320,7 @@ class ImportAttendanceUseCase {
 
     if (byId != null && byName != null && byId.id != byName.id) {
       throw const AttendanceImportRowFailure(
-        'Department ID and Department Name belong to different departments',
+        'attendance_import.department_key_mismatch',
       );
     }
 
@@ -325,10 +331,14 @@ class ImportAttendanceUseCase {
     }
 
     if (departmentId != null || departmentName != null) {
-      throw const AttendanceImportRowFailure('Department not found');
+      throw const AttendanceImportRowFailure(
+        'attendance_import.department_not_found',
+      );
     }
 
-    throw const AttendanceImportRowFailure('Department is required');
+    throw const AttendanceImportRowFailure(
+      'attendance_import.department_required',
+    );
   }
 
   void _indexEmployee(
@@ -381,27 +391,28 @@ class ImportAttendanceUseCase {
 
     if (!sheet.has(AttendanceImportColumns.employeeId) &&
         !sheet.has(AttendanceImportColumns.nationalId)) {
-      missing.add('Employee ID or National ID');
+      missing.add('attendance_import.column.employee_or_national_id');
     }
 
     if (!sheet.has(AttendanceImportColumns.attendanceDate)) {
-      missing.add('Attendance Date');
+      missing.add('attendance_import.column.attendance_date');
     }
 
     if (!sheet.has(AttendanceImportColumns.checkIn) &&
         !sheet.has(AttendanceImportColumns.checkOut)) {
-      missing.add('Check In or Check Out');
+      missing.add('attendance_import.column.check_in_or_check_out');
     }
 
     if (missing.isNotEmpty) {
       throw AttendanceImportException(
-        'Missing required columns: ${missing.join(', ')}',
+        'attendance_import.missing_columns',
+        namedArgs: {'columns': missing.join(', ')},
       );
     }
 
     if (sheet.rows.isEmpty) {
       throw const AttendanceImportException(
-        'The selected file does not contain any attendance records',
+        'attendance_import.no_records',
       );
     }
   }

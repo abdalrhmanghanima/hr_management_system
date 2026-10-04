@@ -144,7 +144,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final summaries = await container.read(payrollSummariesProvider.future);
+      final summaries = await container.read(payrollSummariesProvider(DateTime.parse(payrollMonth)).future);
 
       expect(summaries, hasLength(1));
       expect(summaries.single.employeeId, currentEmployeeId);
@@ -156,7 +156,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final summaries = await container.read(payrollSummariesProvider.future);
+      final summaries = await container.read(payrollSummariesProvider(DateTime.parse(payrollMonth)).future);
 
       expect(
         summaries.map((summary) => summary.employeeId).toList(),
@@ -170,7 +170,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final summaries = await container.read(payrollSummariesProvider.future);
+      final summaries = await container.read(payrollSummariesProvider(DateTime.parse(payrollMonth)).future);
       final summary = summaries.single;
 
       expect(summary.employeeId, currentEmployeeId);
@@ -181,7 +181,7 @@ void main() {
       final container = await buildContainer(const GroupPermissionEntity());
       addTearDown(container.dispose);
 
-      expect(await container.read(payrollSummariesProvider.future), isEmpty);
+      expect(await container.read(payrollSummariesProvider(DateTime.parse(payrollMonth)).future), isEmpty);
     });
 
     test('own scope works without a permitted employees list query', () async {
@@ -212,7 +212,7 @@ void main() {
 
       expect(visible.map((employee) => employee.id), [currentEmployeeId]);
 
-      final summaries = await container.read(payrollSummariesProvider.future);
+      final summaries = await container.read(payrollSummariesProvider(DateTime.parse(payrollMonth)).future);
 
       expect(summaries.single.employeeId, currentEmployeeId);
     });

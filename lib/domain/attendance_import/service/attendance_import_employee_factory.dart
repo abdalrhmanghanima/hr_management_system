@@ -85,7 +85,9 @@ class AttendanceImportEmployeeFactory {
     final gender = _genderAliases[value.trim().toLowerCase()];
 
     if (gender == null) {
-      throw const AttendanceImportRowFailure('Gender must be Male or Female');
+      throw const AttendanceImportRowFailure(
+        'attendance_import.gender_invalid',
+      );
     }
 
     return gender;
@@ -103,7 +105,9 @@ class AttendanceImportEmployeeFactory {
     );
 
     if (salary == null) {
-      throw const AttendanceImportRowFailure('Enter a valid salary');
+      throw const AttendanceImportRowFailure(
+        'validation.employee.salary_invalid',
+      );
     }
 
     return salary;

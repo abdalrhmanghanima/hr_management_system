@@ -4,6 +4,8 @@ const String googleMapKey = '';
 
 const int companyShiftStartHour = 9;
 
+const int companyStartYear = 2008;
+
 const int companyShiftStartMinute = 0;
 
 const String companyWorkingScheduleLabel = '09:00 AM - 05:00 PM';

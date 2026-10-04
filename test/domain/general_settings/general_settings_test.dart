@@ -108,7 +108,10 @@ void main() {
 
   group('validation', () {
     test('an empty multiplier is rejected', () {
-      expect(GeneralSettingsValidator.multiplier(''), isNotNull);
+      expect(
+        GeneralSettingsValidator.multiplier(''),
+        'validation.settings.field_data_required',
+      );
     });
 
     test('a non numeric multiplier is rejected', () {
@@ -145,7 +148,10 @@ void main() {
     });
 
     test('an empty working hours value is rejected', () {
-      expect(GeneralSettingsValidator.workingHoursPerDay('  '), isNotNull);
+      expect(
+        GeneralSettingsValidator.workingHoursPerDay('  '),
+        'validation.settings.field_data_required',
+      );
     });
 
     test('no weekend day is rejected', () {

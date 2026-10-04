@@ -100,13 +100,21 @@ class AppLocalization {
   }
 
   static String month(BuildContext context, int monthNumber) {
+    return monthName(monthNumber);
+  }
+
+  static String monthName(int monthNumber) {
     final index = monthNumber - 1;
 
     if (index < 0 || index > 11) {
       return '$monthNumber';
     }
 
-    return context.tr('common.month.${_keySegment(index)}');
+    return tr('common.month.${_keySegment(index)}');
+  }
+
+  static String monthYearValue(int year, int monthNumber) {
+    return '${monthName(monthNumber)} $year';
   }
 
   static String monthYear(BuildContext context, DateTime value) {

@@ -17,7 +17,7 @@ final importAttendanceUseCaseProvider = Provider<ImportAttendanceUseCase>((
   ref,
 ) {
   return ImportAttendanceUseCase(
-    attendanceRepository: ref.read(attendanceRepositoryProvider),
+    attendanceRepository: ref.watch(attendanceRepositoryProvider),
     employeeRepository: ref.read(employeeRepositoryProvider),
     departmentRepository: ref.read(departmentRepositoryProvider),
     importRepository: ref.read(attendanceImportRepositoryProvider),

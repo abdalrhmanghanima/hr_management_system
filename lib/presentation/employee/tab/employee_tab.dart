@@ -12,6 +12,7 @@ import 'package:hr_management_system/presentation/department/provider/department
 import 'package:hr_management_system/presentation/employee/add_employee.dart';
 import 'package:hr_management_system/presentation/employee/employee_details.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
+import 'package:hr_management_system/presentation/employee/widgets/department_filter_row.dart';
 import 'package:hr_management_system/presentation/employee/widgets/employee_card.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_floating_action_button.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_search_field.dart';
@@ -27,6 +28,8 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
   final TextEditingController searchController = TextEditingController();
 
   String searchQuery = '';
+
+  String? selectedDepartmentId;
 
   @override
   void initState() {
@@ -52,6 +55,7 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
   Widget build(BuildContext context) {
     final employeeState = ref.watch(employeeProvider);
     final departmentState = ref.watch(departmentProvider);
+    final departments = departmentState.value ?? [];
     final canAddEmployees = ref.watch(
       modulePermissionProvider((
         module: GroupModules.employees,
@@ -86,6 +90,18 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
 
             SizedBox(height: 16.h),
 
+            DepartmentFilterRow(
+              departments: departments,
+              selectedDepartmentId: selectedDepartmentId,
+              onDepartmentSelected: (departmentId) {
+                setState(() {
+                  selectedDepartmentId = departmentId;
+                });
+              },
+            ),
+
+            SizedBox(height: 16.h),
+
             Expanded(
               child: employeeState.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -97,6 +113,11 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
                 ),
                 data: (employees) {
                   final filteredEmployees = employees.where((employee) {
+                    if (selectedDepartmentId != null &&
+                        employee.departmentId != selectedDepartmentId) {
+                      return false;
+                    }
+
                     if (searchQuery.isEmpty) {
                       return true;
                     }
@@ -124,8 +145,6 @@ class _EmployeesTabState extends ConsumerState<EmployeesTab> {
                       ),
                     );
                   }
-
-                  final departments = departmentState.value ?? [];
 
                   final departmentNames = {
                     for (final department in departments)

@@ -31,6 +31,12 @@ final currentPayrollMonthProvider = StateProvider<DateTime>((ref) {
   return DateTime(now.year, now.month);
 });
 
+final selectedPayrollMonthProvider = StateProvider<DateTime>((ref) {
+  final now = DateTime.now();
+
+  return DateTime(now.year, now.month);
+});
+
 final payrollVisibleEmployeesProvider = FutureProvider<List<EmployeeEntity>>((
   ref,
 ) async {
@@ -61,47 +67,48 @@ final payrollVisibleEmployeesProvider = FutureProvider<List<EmployeeEntity>>((
   }
 });
 
-final payrollSummariesProvider = FutureProvider<List<PayrollCalculationEntity>>(
-  (ref) async {
-    final month = ref.watch(currentPayrollMonthProvider);
+final payrollSummariesProvider = FutureProvider.family<
+  List<PayrollCalculationEntity>,
+  DateTime
+>((ref, month) async {
+  final employees = await ref.watch(payrollVisibleEmployeesProvider.future);
+  final attendances =
+      ref.watch(attendanceProvider).value ?? const <AttendanceEntity>[];
 
-    final employees = await ref.watch(payrollVisibleEmployeesProvider.future);
-    final attendances =
-        ref.watch(attendanceProvider).value ?? const <AttendanceEntity>[];
+  final settingsState = ref.watch(generalSettingsProvider);
+  final settings =
+      settingsState.value ??
+      await ref.read(getGeneralSettingsUseCaseProvider).call();
 
-    final settingsState = ref.watch(generalSettingsProvider);
-    final settings =
-        settingsState.value ??
-        await ref.read(getGeneralSettingsUseCaseProvider).call();
+  final holidays =
+      ref.watch(officialHolidaysProvider).value ??
+      const <OfficialHolidayEntity>[];
 
-    final holidays =
-        ref.watch(officialHolidaysProvider).value ??
-        const <OfficialHolidayEntity>[];
+  final calculatePayroll = ref.read(calculatePayrollUseCaseProvider);
+  final payrollScope = ref
+      .watch(moduleAccessProvider(GroupModules.payroll))
+      .scope;
 
-    final calculatePayroll = ref.read(calculatePayrollUseCaseProvider);
-    final payrollScope = ref
-        .watch(moduleAccessProvider(GroupModules.payroll))
-        .scope;
+  final scopedAttendances = payrollScope.applyToAttendances(attendances);
 
-    final scopedAttendances = payrollScope.applyToAttendances(attendances);
-
-    return employees
-        .map(
-          (employee) => calculatePayroll.call(
-            employee: employee,
-            attendances: scopedAttendances,
-            settings: settings,
-            officialHolidays: holidays,
-            month: month,
-          ),
-        )
-        .toList();
-  },
-);
+  return employees
+      .map(
+        (employee) => calculatePayroll.call(
+          employee: employee,
+          attendances: scopedAttendances,
+          settings: settings,
+          officialHolidays: holidays,
+          month: month,
+        ),
+      )
+      .toList();
+});
 
 final payrollSummaryProvider = FutureProvider.autoDispose
     .family<PayrollCalculationEntity?, String>((ref, employeeId) async {
-      final summaries = await ref.watch(payrollSummariesProvider.future);
+      final summaries = await ref.watch(
+        payrollSummariesProvider(ref.watch(selectedPayrollMonthProvider)).future,
+      );
 
       for (final summary in summaries) {
         if (summary.employeeId == employeeId) {

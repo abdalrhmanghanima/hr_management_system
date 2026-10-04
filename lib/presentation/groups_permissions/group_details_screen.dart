@@ -88,6 +88,18 @@ class _GroupDetailsScreenState extends ConsumerState<GroupDetailsScreen> {
   Future<void> _savePermissions(GroupEntity group) async {
     if (!_isAllowed(PermissionAction.edit)) return;
 
+    final hasAnyPermission = permissions.values.any(
+      (permission) => permission.hasAnyGrant,
+    );
+
+    if (!hasAnyPermission) {
+      CustomSnackBar.show(
+        context,
+        message: 'group.permissions_required'.tr(),
+      );
+      return;
+    }
+
     setState(() {
       isSaving = true;
     });

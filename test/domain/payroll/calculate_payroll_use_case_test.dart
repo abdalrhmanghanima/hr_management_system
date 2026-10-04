@@ -279,4 +279,181 @@ void main() {
       expect(result.monthLabel, 'September 2026');
     });
   });
+
+  group('contract date boundary', () {
+    const weekdayNames = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
+    int workingDaysIn(int year, int month, int lastDay) {
+      var count = 0;
+
+      for (var day = 1; day <= lastDay; day++) {
+        final date = DateTime(year, month, day);
+        final weekdayName = weekdayNames[date.weekday - 1];
+
+        if (settings.weekendDays.contains(weekdayName)) {
+          continue;
+        }
+
+        count++;
+      }
+
+      return count;
+    }
+
+    EmployeeEntity contractedOn(DateTime contractDate) {
+      return EmployeeEntity(
+        id: 'EMP001',
+        fullName: 'Ahmed Ali',
+        address: 'Cairo',
+        phoneNumber: '01000000000',
+        birthDate: DateTime(1990, 1, 1),
+        nationalId: '123',
+        nationality: 'Egyptian',
+        gender: 'Male',
+        departmentId: 'DEP001',
+        contractDate: contractDate,
+        salary: 5000,
+      );
+    }
+
+    test('calculation starts on the contract date when it falls mid-month', () {
+      final result = calculate.call(
+        employee: contractedOn(DateTime(2026, 9, 15)),
+        attendances: const [],
+        settings: settings,
+        officialHolidays: const [],
+        month: month,
+      );
+
+      final expectedWorkingDays = workingDays2026
+          .where((day) => day >= 15)
+          .length;
+
+      expect(expectedWorkingDays, 12);
+      expect(result.workingDays, expectedWorkingDays);
+      expect(result.absentDays, expectedWorkingDays);
+      expect(result.presentDays, 0);
+      expect(result.holidayDays, 4);
+      expect(result.absenceDeduction, 4000.08);
+      expect(result.netSalary, 999.92);
+    });
+
+    test('attendance before the contract date is never credited', () {
+      final result = calculate.call(
+        employee: contractedOn(DateTime(2026, 9, 15)),
+        attendances: [presentOn(10)],
+        settings: settings,
+        officialHolidays: const [],
+        month: month,
+      );
+
+      expect(result.presentDays, 0);
+      expect(
+        result.absentDays,
+        workingDays2026.where((day) => day >= 15).length,
+      );
+    });
+
+    test('a month completely before the contract date has zero payroll', () {
+      final result = calculate.call(
+        employee: contractedOn(DateTime(2026, 9, 15)),
+        attendances: const [],
+        settings: settings,
+        officialHolidays: const [],
+        month: DateTime(2026, 8),
+      );
+
+      expect(result.basicSalary, 0);
+      expect(result.dailyRate, 0);
+      expect(result.hourlyRate, 0);
+      expect(result.workingDays, 0);
+      expect(result.presentDays, 0);
+      expect(result.absentDays, 0);
+      expect(result.holidayDays, 0);
+      expect(result.overtimeHours, 0);
+      expect(result.overtimeAmount, 0);
+      expect(result.deductionHours, 0);
+      expect(result.lateEarlyDeductionAmount, 0);
+      expect(result.absenceDeduction, 0);
+      expect(result.totalDeductions, 0);
+      expect(result.netSalary, 0);
+    });
+
+    test('a month after the contract date keeps normal payroll calculation', () {
+      final result = calculate.call(
+        employee: contractedOn(DateTime(2026, 9, 15)),
+        attendances: const [],
+        settings: settings,
+        officialHolidays: const [],
+        month: DateTime(2026, 10),
+      );
+
+      expect(result.basicSalary, 5000);
+      expect(result.presentDays, 0);
+      expect(result.absentDays, result.workingDays);
+      expect(result.overtimeAmount, 0);
+      expect(result.netSalary, closeTo(5000 - result.totalDeductions, 0.01));
+    });
+
+    test('the current month never counts days after today', () {
+      final now = DateTime.now();
+      final expectedWorkingDays = workingDaysIn(now.year, now.month, now.day);
+
+      final result = calculate.call(
+        employee: employee,
+        attendances: const [],
+        settings: settings,
+        officialHolidays: const [],
+        month: DateTime(now.year, now.month),
+      );
+
+      expect(result.workingDays, expectedWorkingDays);
+      expect(result.absentDays, expectedWorkingDays);
+      expect(result.holidayDays, now.day - expectedWorkingDays);
+    });
+
+    test('a future month counts no days at all', () {
+      final now = DateTime.now();
+      final nextMonth = DateTime(now.year, now.month + 1);
+
+      final result = calculate.call(
+        employee: employee,
+        attendances: const [],
+        settings: settings,
+        officialHolidays: const [],
+        month: nextMonth,
+      );
+
+      expect(result.workingDays, 0);
+      expect(result.presentDays, 0);
+      expect(result.absentDays, 0);
+      expect(result.holidayDays, 0);
+      expect(result.totalDeductions, 0);
+      expect(result.netSalary, greaterThanOrEqualTo(0));
+    });
+
+    test('a past month keeps full month behavior from the contract date', () {
+      final expectedWorkingDays = workingDaysIn(2020, 6, 30);
+
+      final result = calculate.call(
+        employee: employee,
+        attendances: const [],
+        settings: settings,
+        officialHolidays: const [],
+        month: DateTime(2020, 6),
+      );
+
+      expect(result.workingDays, expectedWorkingDays);
+      expect(result.absentDays, expectedWorkingDays);
+      expect(result.holidayDays, 30 - expectedWorkingDays);
+    });
+  });
 }

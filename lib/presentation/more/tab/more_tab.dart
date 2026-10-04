@@ -6,7 +6,7 @@ import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
-import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
+import 'package:hr_management_system/core/utils/sign_out_confirmation_dialog.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/presentation/auth/providers/auth_state_provider.dart';
@@ -284,7 +284,7 @@ class MoreTab extends ConsumerWidget {
       builder: (dialogContext) {
         return Consumer(
           builder: (dialogScopeContext, dialogRef, child) {
-            return DeleteConfirmationDialog(
+            return SignOutConfirmationDialog(
               title: 'more.sign_out'.tr(),
               message: 'more.sign_out_confirmation'.tr(),
               isLoading: dialogRef.watch(logoutProvider).isLoading,

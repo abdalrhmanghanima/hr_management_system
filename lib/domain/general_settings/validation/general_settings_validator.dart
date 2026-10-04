@@ -4,7 +4,13 @@ class GeneralSettingsValidator {
   const GeneralSettingsValidator._();
 
   static String? multiplier(String? value) {
-    final parsed = double.tryParse(value?.trim() ?? '');
+    final text = value?.trim() ?? '';
+
+    if (text.isEmpty) {
+      return 'validation.settings.field_data_required';
+    }
+
+    final parsed = double.tryParse(text);
 
     if (parsed == null) {
       return 'validation.settings.multiplier_required';
@@ -18,7 +24,13 @@ class GeneralSettingsValidator {
   }
 
   static String? workingHoursPerDay(String? value) {
-    final parsed = double.tryParse(value?.trim() ?? '');
+    final text = value?.trim() ?? '';
+
+    if (text.isEmpty) {
+      return 'validation.settings.field_data_required';
+    }
+
+    final parsed = double.tryParse(text);
 
     if (parsed == null) {
       return 'validation.settings.working_hours_required';

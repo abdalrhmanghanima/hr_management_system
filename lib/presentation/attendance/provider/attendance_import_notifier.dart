@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/enums/attendance_import_status.dart';
 import 'package:hr_management_system/domain/attendance_import/entity/attendance_import_exception.dart';
@@ -141,9 +142,17 @@ class AttendanceImportNotifier extends Notifier<AttendanceImportState> {
 
   String _messageOf(Object error) {
     if (error is AttendanceImportException) {
-      return error.message;
+      final namedArgs = <String, String>{};
+
+      error.namedArgs.forEach((key, value) {
+        namedArgs[key] = value.isEmpty
+            ? value
+            : value.split(', ').map((item) => item.tr()).join(', ');
+      });
+
+      return error.message.tr(namedArgs: namedArgs);
     }
 
-    return 'Failed to import attendance. Please try again';
+    return 'attendance_import.status_error'.tr();
   }
 }

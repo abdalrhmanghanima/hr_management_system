@@ -7,17 +7,20 @@ import 'package:hr_management_system/core/navigator/navigator.dart';
 import 'package:hr_management_system/core/utils/app_icons.dart';
 import 'package:hr_management_system/core/utils/date_parser.dart';
 import 'package:hr_management_system/core/utils/delete_confirmation_dialog.dart';
+import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
 import 'package:hr_management_system/domain/group/entity/group_module.dart';
 import 'package:hr_management_system/domain/group/entity/permission_action.dart';
 import 'package:hr_management_system/presentation/attendance/attendance_import_screen.dart';
 import 'package:hr_management_system/presentation/attendance/add_attendance_screen.dart';
 import 'package:hr_management_system/presentation/attendance/edit_attendance_screen.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
+import 'package:hr_management_system/presentation/attendance/provider/selected_attendance_month_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/today_attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/widgets/attendance_record_card.dart';
 import 'package:hr_management_system/presentation/authorization/provider/authorization_provider.dart';
 import 'package:hr_management_system/presentation/components/custom_svg/custom_svg_icon.dart';
 import 'package:hr_management_system/presentation/components/custom_text/custom_text.dart';
+import 'package:hr_management_system/presentation/components/month_filter_row/month_filter_row.dart';
 import 'package:hr_management_system/presentation/department/provider/department_by_id_provider.dart';
 import 'package:hr_management_system/presentation/employee/providers/employee_provider.dart';
 import 'package:hr_management_system/presentation/shared_widgets/app_floating_action_button.dart';
@@ -54,6 +57,7 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
   Widget build(BuildContext context) {
     final attendanceAsync = ref.watch(attendanceProvider);
     final employeesAsync = ref.watch(employeeProvider);
+    final selectedMonth = ref.watch(selectedAttendanceMonthProvider);
 
     final canAddAttendances = ref.watch(
       modulePermissionProvider((
@@ -77,7 +81,12 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
     final attendances = attendanceAsync.value ?? [];
     final employees = employeesAsync.value ?? [];
 
-    final filteredAttendances = attendances.where((attendance) {
+    final monthAttendances = attendances.where((attendance) {
+      return attendance.attendanceDate.year == selectedMonth.year &&
+          attendance.attendanceDate.month == selectedMonth.month;
+    });
+
+    final searchedAttendances = monthAttendances.where((attendance) {
       if (searchQuery.isEmpty) {
         return true;
       }
@@ -99,6 +108,18 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
       return employeeName.contains(searchQuery) ||
           attendanceDate.contains(searchQuery);
     }).toList();
+
+    final filteredAttendances = _sortedByDateDesc(searchedAttendances);
+
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint(
+      '[ATTENDANCE-RELOGIN] attendanceTab.build recordsBeforeFilter=${attendances.length} '
+      'selectedMonth=${selectedMonth.year}-${selectedMonth.month} '
+      'afterMonthFilter=${monthAttendances.length} '
+      'afterSearch=${searchedAttendances.length} '
+      'searchQuery="$searchQuery" '
+      'dates=${attendances.take(3).map((a) => a.attendanceDate.toIso8601String()).join(', ')}',
+    );
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -155,6 +176,16 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
                 setState(() {
                   searchQuery = value.trim().toLowerCase();
                 });
+              },
+            ),
+
+            SizedBox(height: 12.h),
+
+            MonthFilterRow(
+              selectedMonth: selectedMonth,
+              onMonthChanged: (month) {
+                ref.read(selectedAttendanceMonthProvider.notifier).state =
+                    month;
               },
             ),
 
@@ -267,4 +298,15 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
+}
+
+List<AttendanceEntity> _sortedByDateDesc(List<AttendanceEntity> records) {
+  final indexed = records.indexed.toList()
+    ..sort((a, b) {
+      final byDate = b.$2.attendanceDate.compareTo(a.$2.attendanceDate);
+
+      return byDate != 0 ? byDate : a.$1.compareTo(b.$1);
+    });
+
+  return [for (final entry in indexed) entry.$2];
 }

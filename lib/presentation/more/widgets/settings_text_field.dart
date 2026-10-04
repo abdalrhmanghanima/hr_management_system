@@ -7,6 +7,7 @@ class SettingsTextField extends StatelessWidget {
   final String hintText;
   final TextInputType keyboardType;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
 
   const SettingsTextField({
     super.key,
@@ -14,6 +15,7 @@ class SettingsTextField extends StatelessWidget {
     required this.hintText,
     required this.keyboardType,
     this.onChanged,
+    this.onSubmitted,
   });
 
   @override
@@ -22,7 +24,7 @@ class SettingsTextField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       onChanged: onChanged,
-      onSubmitted: onChanged == null ? null : (value) => onChanged!(value),
+      onSubmitted: onSubmitted,
       style: TextStyle(
         fontSize: 16.sp,
         color: AppColors.black,

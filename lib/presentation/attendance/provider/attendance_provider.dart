@@ -40,37 +40,37 @@ final attendanceRepositoryProvider = Provider<AttendanceRepository>((ref) {
 });
 
 final getAttendancesUseCaseProvider = Provider<GetAttendancesUseCase>((ref) {
-  return GetAttendancesUseCase(ref.read(attendanceRepositoryProvider));
+  return GetAttendancesUseCase(ref.watch(attendanceRepositoryProvider));
 });
 
 final getAttendancesByEmployeeIdUseCaseProvider =
     Provider<GetAttendancesByEmployeeIdUseCase>((ref) {
       return GetAttendancesByEmployeeIdUseCase(
-        ref.read(attendanceRepositoryProvider),
+        ref.watch(attendanceRepositoryProvider),
       );
     });
 
 final getAttendanceByEmployeeAndDateUseCaseProvider =
     Provider<GetAttendanceByEmployeeAndDateUseCase>((ref) {
       return GetAttendanceByEmployeeAndDateUseCase(
-        ref.read(attendanceRepositoryProvider),
+        ref.watch(attendanceRepositoryProvider),
       );
     });
 
 final addAttendanceUseCaseProvider = Provider<AddAttendanceUseCase>((ref) {
-  return AddAttendanceUseCase(ref.read(attendanceRepositoryProvider));
+  return AddAttendanceUseCase(ref.watch(attendanceRepositoryProvider));
 });
 
 final updateAttendanceUseCaseProvider = Provider<UpdateAttendanceUseCase>((
   ref,
 ) {
-  return UpdateAttendanceUseCase(ref.read(attendanceRepositoryProvider));
+  return UpdateAttendanceUseCase(ref.watch(attendanceRepositoryProvider));
 });
 
 final deleteAttendanceUseCaseProvider = Provider<DeleteAttendanceUseCase>((
   ref,
 ) {
-  return DeleteAttendanceUseCase(ref.read(attendanceRepositoryProvider));
+  return DeleteAttendanceUseCase(ref.watch(attendanceRepositoryProvider));
 });
 
 final calculateAttendanceHoursUseCaseProvider =

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hr_management_system/main.dart';
 import 'package:hr_management_system/presentation/attendance/provider/attendance_provider.dart';
+import 'package:hr_management_system/presentation/attendance/provider/selected_attendance_month_provider.dart';
 import 'package:hr_management_system/presentation/attendance/provider/today_attendance_provider.dart';
 import 'package:hr_management_system/presentation/attendance/tab/attendance_tab.dart';
 import 'package:hr_management_system/presentation/department/provider/department_provider.dart';
@@ -150,6 +151,9 @@ void main() {
         employeeRepositoryProvider.overrideWithValue(employeeRepository),
         attendanceRepositoryProvider.overrideWithValue(attendanceRepository),
         departmentRepositoryProvider.overrideWithValue(departmentRepository),
+        selectedAttendanceMonthProvider.overrideWith(
+          (ref) => DateTime(2026, 9),
+        ),
       ],
     );
     addTearDown(container.dispose);

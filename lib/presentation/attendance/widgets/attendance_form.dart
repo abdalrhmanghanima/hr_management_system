@@ -99,6 +99,12 @@ class AttendanceForm extends ConsumerWidget {
                                   .tr();
                             }
 
+                            if (!data.any(
+                              (employee) => employee.id == value,
+                            )) {
+                              return 'employee.not_found'.tr();
+                            }
+
                             return null;
                           },
                         );

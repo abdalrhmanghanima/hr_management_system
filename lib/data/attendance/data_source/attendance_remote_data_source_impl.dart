@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hr_management_system/data/attendance/data_source/attendance_remote_data_source.dart';
 import 'package:hr_management_system/data/attendance/model/attendance_model.dart';
 import 'package:hr_management_system/domain/attendance/entity/attendance_entity.dart';
@@ -10,10 +11,22 @@ class AttendanceRemoteDataSourceImpl implements AttendanceRemoteDataSource {
   AttendanceRemoteDataSourceImpl(this.firestore);
   @override
   Future<List<AttendanceModel>> getAttendances() async {
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint('[ATTENDANCE-RELOGIN] firestore.collection($collectionName).get() executing');
+
     final snapshot = await firestore.collection(collectionName).get();
-    return snapshot.docs
+    final documents = snapshot.docs
         .map((document) => AttendanceModel.fromFirestore(document))
         .toList();
+
+    // TODO(hr-session-diagnostics): temporary debug logging.
+    debugPrint(
+      '[ATTENDANCE-RELOGIN] firestore returned ${documents.length} docs '
+      'firstId=${documents.isEmpty ? '<none>' : documents.first.id} '
+      'firstDate=${documents.isEmpty ? '<none>' : documents.first.attendanceDate.toIso8601String()}',
+    );
+
+    return documents;
   }
 
   @override

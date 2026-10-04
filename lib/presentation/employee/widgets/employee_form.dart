@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
+import 'package:hr_management_system/core/constants/constants.dart';
 import 'package:hr_management_system/core/dimens/dimens.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
 import 'package:hr_management_system/core/localization/app_localization.dart';
@@ -50,7 +51,10 @@ class EmployeeForm extends ConsumerWidget {
   }
 
   Future<void> _pickContractDate(BuildContext context) async {
-    final date = await DatePickerHelper.pickFormattedDate(context: context);
+    final date = await DatePickerHelper.pickFormattedDate(
+      context: context,
+      firstDate: DateTime(companyStartYear),
+    );
 
     if (date != null) {
       contractDateController.text = date;

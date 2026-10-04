@@ -21,6 +21,10 @@
     "no_group": "لا توجد مجموعة",
     "unknown_department": "قسم غير معروف",
     "working_shift": "٠٩:٠٠ ص - ٠٥:٠٠ م",
+    "all": "الكل",
+    "current_month": "الشهر الحالي",
+    "previous_month": "الشهر السابق",
+    "choose_month": "اختر الشهر",
     "delete_attendance_confirmation": "هل أنت متأكد أنك تريد حذف سجل الحضور هذا؟ لا يمكن التراجع عن هذا الإجراء.",
     "gender": {
       "first": "ذكر",
@@ -94,7 +98,7 @@
     "total_employees": "إجمالي الموظفين",
     "present_today": "الحاضرون اليوم",
     "absent_today": "{count} غائب",
-    "current_month_payroll": "رواتب الشهر الحالي",
+    "current_month_payroll": "إجمالي صافي رواتب الشهر الحالي",
     "view_details": "عرض التفاصيل",
     "quick_actions": "إجراءات سريعة",
     "recent_attendance": "أحدث سجلات الحضور",
@@ -153,7 +157,9 @@
     "select_weekend_days_title": "اختر أيام العطلة الأسبوعية",
     "select_weekend_days_hint": "يمكنك اختيار أكثر من يوم.",
     "impact_note": "ملاحظة: تُستثنى أيام العطل الأسبوعية تلقائياً من أيام العمل عند احتساب الرواتب الشهرية وخصومات الغياب.",
-    "save_failed": "تعذر حفظ الإعدادات العامة"
+    "save_failed": "تعذر حفظ الإعدادات العامة",
+    "update_confirmation": "هل أنت متأكد من تحديث الإعدادات العامة؟",
+    "update_button": "تحديث"
   },
   "employee": {
     "add_title": "إضافة موظف جديد",
@@ -173,12 +179,15 @@
     "not_found": "الموظف غير موجود",
     "delete_title": "حذف الموظف",
     "delete_confirmation": "هل أنت متأكد أنك تريد حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.",
+    "update_confirmation": "هل أنت متأكد من تعديل بيانات هذا الموظف؟",
     "profile_denied": "لا تملك صلاحية الوصول إلى هذا الملف الشخصي.",
     "salary_line": "الراتب: {salary} ج.م",
     "shift_line": "وردية العمل: {shift}",
     "select_gender": "اختر النوع",
     "select_department": "اختر القسم",
     "today_attendance": "حضور اليوم",
+    "show_attendance_records": "عرض سجلات الحضور",
+    "attendance_records_title": "سجلات حضور الموظف",
     "worked": "ساعات العمل",
     "overtime": "العمل الإضافي",
     "deduction": "الخصم",
@@ -263,7 +272,8 @@
     "check_out_hint": "مثال: ٠٥:٠٠ م",
     "date_hint": "يوم/شهر/سنة",
     "delete_title": "حذف الحضور",
-    "delete_confirmation": "هل أنت متأكد أنك تريد حذف سجل الحضور هذا؟"
+    "delete_confirmation": "هل أنت متأكد أنك تريد حذف سجل الحضور هذا؟",
+    "update_confirmation": "هل أنت متأكد من تعديل سجل الحضور والانصراف هذا؟"
   },
   "attendance_import": {
     "title": "استيراد الحضور",
@@ -323,6 +333,7 @@
     "empty": "لا يوجد موظفون لحساب رواتبهم",
     "empty_search": "لا توجد رواتب مطابقة لبحثك",
     "load_failed": "تعذر تحميل بيانات الرواتب",
+    "invalid_year": "من فضلك اختر سنة صحيحه",
     "net_salary": "صافي الراتب",
     "att_abs": "حضور / غياب",
     "salary_slip": "قسيمة الراتب",
@@ -332,7 +343,41 @@
     "basic": "الراتب الأساسي",
     "overtime": "العمل الصاجي",
     "deduction": "الحسم",
-    "details": "تفاصيل"
+    "details": "تفاصيل",
+    "details_title": "تفاصيل الرواتب",
+    "month_payroll_title": "رواتب {month}",
+    "attendance_statistics": "إحصائيات الحضور",
+    "financial_breakdown": "التفاصيل المالية",
+    "attendance_days": "أيام الحضور",
+    "absence_days": "أيام الغياب",
+    "overtime_hours": "ساعات العمل الإضافي",
+    "deduction_hours": "ساعات الحسم",
+    "basic_salary": "الراتب الأساسي",
+    "total_overtime_addition": "إجمالي إضافات العمل الإضافي",
+    "total_deduction": "إجمالي الغياب / حسم الساعات",
+    "net_monthly_salary": "صافي الراتب الشهري",
+    "view_print_salary_slip": "عرض وطباعة قسيمة الراتب",
+    "official_salary_slip": "قسيمة الراتب الرسمية",
+    "confidential_pay_slip": "قسيمة راتب سرية",
+    "employee_name": "اسم الموظف",
+    "month_label": "الشهر",
+    "reference_label": "الرقم المرجعي",
+    "reference": "رقم مرجعي #{reference}",
+    "description": "البيان",
+    "amount_header": "المبلغ (ج.م)",
+    "attendance_work_days": "أيام الحضور العاملة",
+    "deductions": "الحسومات",
+    "net_transfer_salary": "صافي الراتب المحوّل",
+    "authorized_digital_stamp": "الختم الرقمي المعتمد",
+    "hr_approved_verified": "معتمد وموثق من الموارد البشرية",
+    "page_of": "صفحة {current} من {total}",
+    "share_slip": "مشاركة القسيمة",
+    "print_salary_slip": "طباعة قسيمة الراتب",
+    "days_value": "{count} يوم",
+    "not_found": "سجل الرواتب غير موجود",
+    "pdf_failed": "تعذر إنشاء قسيمة الراتب",
+    "print_failed": "تعذر فتح نافذة الطباعة",
+    "share_failed": "تعذر مشاركة قسيمة الراتب"
   },
   "holiday": {
     "title": "العطل الرسمية",
@@ -368,6 +413,7 @@
     "name_hint": "مثال: الإدارة",
     "search_employees": "ابحث عن الموظفين",
     "empty": "لا توجد مجموعات",
+    "empty_search": "لا توجد نتائج مطابقة لبحثك",
     "count": "{count} مجموعة",
     "selected_count": "{count} محدد",
     "members_count": "{count} عضو",
@@ -387,7 +433,8 @@
     "members": "الأعضاء",
     "permissions": "الصلاحيات",
     "name_required": "اسم المجموعة مطلوب",
-    "name_min_length": "يجب أن يكون اسم المجموعة على الأقل 3 حرف على الأقل"
+    "name_min_length": "يجب أن يكون اسم المجموعة على الأقل 3 حرف على الأقل",
+    "permissions_required": "اختر صلاحية واحدة على الأقل"
   },
   "application_user": {
     "title": "مستخدمو التطبيق",
@@ -457,6 +504,7 @@
       "salary_invalid": "أدخل راتباً صحيحاً",
       "salary_positive": "يجب أن يكون الراتب أكبر من 0",
       "contract_date_required": "تاريخ التعيين مطلوب",
+      "contract_date_before_start": "لا يمكن أن يكون تاريخ التعيين قبل عام 2008",
       "birth_date_required": "تاريخ الميلاد مطلوب",
       "age_restriction": "يجب ألا يقل عمر الموظف عن 20 سنة"
     },
@@ -482,7 +530,8 @@
       "multiplier_positive": "يجب أن يكون المُعامل أكبر من 0",
       "working_hours_required": "ساعات العمل اليومية مطلوبة",
       "working_hours_positive": "يجب أن تكون ساعات العمل اليومية أكبر من 0",
-      "weekend_days_required": "اختر يوم عطلة واحداً على الأقل"
+      "weekend_days_required": "اختر يوم عطلة واحداً على الأقل",
+      "field_data_required": "من فضلك ادخال بيانات الحقل"
     }
   }
 }

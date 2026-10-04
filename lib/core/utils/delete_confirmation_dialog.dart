@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_management_system/core/app_theme/app_colors.dart';
 import 'package:hr_management_system/core/extensions/num_extensions.dart';
@@ -65,7 +66,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
               children: [
                 Expanded(
                   child: CustomButton(
-                    title: 'Cancel',
+                    title: 'common.cancel'.tr(),
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     bg: const Color(0xFFF1F5F9),
@@ -78,7 +79,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
                 SizedBox(width: 12.w),
                 Expanded(
                   child: CustomButton(
-                    title: 'Delete',
+                    title: 'common.delete'.tr(),
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     bg: AppColors.red,
